@@ -3,32 +3,46 @@ package org.firstinspires.ftc.teamcode;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class Hardwares {
     public Sensors sensors;
     public Motors motors;
+    private HardwareMap hardwareMap;
 
-    public static class Sensors{
+    private <T> T getHardware(String name, Class<T> type) {
+        return this.hardwareMap.get(type, name);
+    }
+
+
+    public class Sensors{
         public Limelight3A mainCamera;
+        public SparkFunOTOS otos;
+
         public Sensors(@NonNull HardwareMap hardwareMap){
-            mainCamera = hardwareMap.get(Limelight3A.class, "mainCamera");
+//            mainCamera = getHardware(hardwareMap, "mainCamera", Limelight3A.class);
+            otos = getHardware("otos", SparkFunOTOS.class);
         }
     }
 
-    public static class Motors{
+    public class Motors{
         public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight;
         public Motors(@NonNull HardwareMap hardwareMap){
-            mFrontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-            mFrontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-            mBackLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-            mBackRight = hardwareMap.get(DcMotorEx.class, "backRight");
+            mFrontLeft = getHardware("frontLeft", DcMotorEx.class);
+            mFrontRight = getHardware("frontRight", DcMotorEx.class);
+            mBackLeft = getHardware("backLeft", DcMotorEx.class);
+            mBackRight = getHardware("backRight", DcMotorEx.class);
         }
     }
+
+
 
 
     public Hardwares(HardwareMap hardwareMap){
+        this.hardwareMap = hardwareMap;
         sensors = new Sensors(hardwareMap);
         motors = new Motors(hardwareMap);
     }
