@@ -8,6 +8,6 @@ import org.firstinspires.ftc.teamcode.Hardwares;
 
 public class LimeLightInfer{
     public LimeLightInfer(@NonNull Hardwares hardwares, Telemetry telemetry){
-        Limelight3A camera = hardwares.sensors.mainCamera;
+//        Limelight3A camera = hardwares.sensors.mainCamera;
     }
 }
