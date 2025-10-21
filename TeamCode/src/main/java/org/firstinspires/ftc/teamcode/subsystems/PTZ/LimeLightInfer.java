@@ -5,10 +5,9 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Hardwares;
-import org.jetbrains.annotations.Contract;
 
 public class LimeLightInfer{
     public LimeLightInfer(@NonNull Hardwares hardwares, Telemetry telemetry){
-        Limelight3A camera = hardwares.sensors.mainCamera;
+//        Limelight3A camera = hardwares.sensors.mainCamera;
     }
 }
