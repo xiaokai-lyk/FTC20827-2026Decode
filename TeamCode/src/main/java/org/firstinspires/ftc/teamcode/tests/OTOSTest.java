@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Hardwares;
 
+@Disabled
 @TeleOp(name="OTOS Test", group="Tests")
 public class OTOSTest extends LinearOpMode {
     @Override
