@@ -15,7 +15,7 @@ public class ShooterTest extends LinearOpMode {
     private DcMotorEx RightShooter;
     @Override
     public void runOpMode(){
-        
+
     }
 
 
