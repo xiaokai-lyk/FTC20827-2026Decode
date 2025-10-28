@@ -28,6 +28,13 @@ public class XK_TMecanumDrive {
         this.hardwares = hardwares;
     }
 
+    // Constructor with max power
+    public XK_TMecanumDrive(Hardwares hardwares, Telemetry telemetry, double maxPower) {
+        this.telemetry = telemetry;
+        this.hardwares = hardwares;
+        this.maxPower = maxPower;
+    }
+
     // Initialize hardware - pass the names used in robot configuration
     public void init() {
         // Map motors
@@ -47,11 +54,6 @@ public class XK_TMecanumDrive {
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         imu = hardwares.sensors.insideIMU;
     }
