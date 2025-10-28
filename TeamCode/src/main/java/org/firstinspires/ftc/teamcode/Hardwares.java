@@ -2,19 +2,22 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
-import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 public class Hardwares {
     public Sensors sensors;
     public Motors motors;
 
-    public static <T> T getHardware(HardwareMap hardwareMap, String name, Class<T> clazz){
+    public static <T> T getHardware(@NonNull HardwareMap hardwareMap, String name, Class<T> clazz){
         return hardwareMap.get(clazz, name);
     }
 
@@ -22,14 +25,15 @@ public class Hardwares {
         @SuppressWarnings("unused")
         public Limelight3A mainCamera;
         public SparkFunOTOS otos;
-        public BHI260IMU insideIMU;
+        public GoBildaPinpointDriver odo;
 
         public Sensors(@NonNull HardwareMap hardwareMap){
 //            mainCamera = getHardware(hardwareMap, "mainCamera", Limelight3A.class);
 //            otos = getHardware(hardwareMap, "otos", SparkFunOTOS.class);
-            insideIMU = getHardware(hardwareMap,"imu", BHI260IMU.class);
-            BHI260IMU.Parameters parameters = new BHI260IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
-            insideIMU.initialize(parameters);
+            odo = getHardware(hardwareMap, "odo", GoBildaPinpointDriver.class);
+            odo.setOffsets(0,0, DistanceUnit.MM);
+            odo.recalibrateIMU();
+            odo.setPosition(new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0));
         }
     }
 
