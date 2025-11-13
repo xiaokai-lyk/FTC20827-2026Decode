@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.localization.constants;
 
-import com.pedropathing.ftc.localization.CustomIMU;
-import com.pedropathing.ftc.localization.Encoder;
-import com.pedropathing.ftc.localization.RevHubIMU;
+import org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.localization.CustomIMU;
+import org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.localization.Encoder;
+import org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.localization.RevHubIMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 /**

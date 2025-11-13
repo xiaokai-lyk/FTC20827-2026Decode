@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.localization.constants;
 
 
-import com.pedropathing.ftc.localization.Encoder;
+import org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.localization.Encoder;
 
 /**
  * This is the ThreeWheelConstants class. It holds many constants and parameters for the Three Wheel Localizer.
