@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.external.PedroPathing.ftc.drivetrains;
 
 import static org.firstinspires.ftc.teamcode.external.PedroPathing.core.math.MathFunctions.findNormalizingScaling;
 
+import androidx.annotation.NonNull;
+
 import org.firstinspires.ftc.teamcode.external.PedroPathing.core.Drivetrain;
 import org.firstinspires.ftc.teamcode.external.PedroPathing.core.math.Vector;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,11 +26,11 @@ import java.util.List;
  */
 public class Mecanum extends Drivetrain {
     public MecanumConstants constants;
-    private final DcMotorEx leftFront;
-    private final DcMotorEx leftRear;
-    private final DcMotorEx rightFront;
-    private final DcMotorEx rightRear;
-    private final List<DcMotorEx> motors;
+    protected final DcMotorEx leftFront;
+    protected final DcMotorEx leftRear;
+    protected final DcMotorEx rightFront;
+    protected final DcMotorEx rightRear;
+    protected final List<DcMotorEx> motors;
     private final VoltageSensor voltageSensor;
     private double motorCachingThreshold;
     private boolean useBrakeModeInTeleOp;
@@ -42,7 +44,7 @@ public class Mecanum extends Drivetrain {
      * @param hardwareMap      this is the HardwareMap object that contains the motors and other hardware
      * @param mecanumConstants this is the MecanumConstants object that contains the names of the motors and directions etc.
      */
-    public Mecanum(HardwareMap hardwareMap, MecanumConstants mecanumConstants) {
+    public Mecanum(@NonNull HardwareMap hardwareMap, @NonNull MecanumConstants mecanumConstants) {
         constants = mecanumConstants;
 
         this.maxPowerScaling = mecanumConstants.maxPower;
