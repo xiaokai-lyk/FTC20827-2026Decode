@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode.commands;
 
 
 import com.arcrobotics.ftclib.command.CommandBase;
-import org.firstinspires.ftc.teamcode.utils.MecanumDrive;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
 import java.util.function.DoubleSupplier;
 
@@ -15,12 +13,10 @@ public class TeleOpDriveCommand extends CommandBase {
     private final DoubleSupplier y;
     private final DoubleSupplier powerCoefficient;
     private final MecanumDrive drive;
-    private final Hardwares hardwares;
     private final DoubleSupplier heading;
 
     public TeleOpDriveCommand(
             MecanumDrive drive,
-            Hardwares hardwares,
             DoubleSupplier x,
             DoubleSupplier y,
             DoubleSupplier rotate,
@@ -30,7 +26,6 @@ public class TeleOpDriveCommand extends CommandBase {
         this.x = x;
         this.rotate = rotate;
         this.y = y;
-        this.hardwares = hardwares;
         this.powerCoefficient = powerCoefficient;
         this.heading = heading;
     }
@@ -38,9 +33,9 @@ public class TeleOpDriveCommand extends CommandBase {
     @Override
     public void execute() {
         drive.driveFieldCentric(
-                x.getAsDouble() * powerCoefficient.getAsDouble(),
-                y.getAsDouble() * powerCoefficient.getAsDouble(),
-                rotate.getAsDouble() * powerCoefficient.getAsDouble(),
+                x.getAsDouble(),
+                y.getAsDouble(),
+                rotate.getAsDouble(),
                 heading.getAsDouble(),
                 powerCoefficient.getAsDouble()
         );

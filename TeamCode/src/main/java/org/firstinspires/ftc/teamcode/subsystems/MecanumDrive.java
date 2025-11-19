@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
@@ -17,10 +17,6 @@ public class MecanumDrive {
     }
 
     public void driveFieldCentric(double x, double y, double rotate, double headingRadians, double powerCoefficient){
-        double temp = y * Math.cos(headingRadians) + x * Math.sin(headingRadians);
-        x = -y * Math.sin(headingRadians) + x * Math.cos(headingRadians);
-        y = temp;
-
         double rotX = x * Math.cos(-headingRadians) - y * Math.sin(-headingRadians);
         double rotY = x * Math.sin(-headingRadians) + y * Math.cos(-headingRadians);
         rotX = rotX * 1.1;
