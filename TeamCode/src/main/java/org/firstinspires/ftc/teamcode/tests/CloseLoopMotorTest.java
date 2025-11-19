@@ -5,22 +5,23 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple; // added import
+import org.firstinspires.ftc.teamcode.Hardwares; // use hardware wrapper
 
 @Config
 @TeleOp(name = "Close Loop Motor Test", group = "tests")
 public class CloseLoopMotorTest extends LinearOpMode {
     public int velocity1 = 700;
     public int velocity2 = 1400;
-    public double power = 1.0;
+    public double power = 0.5;
     public int threshold = 50; // speed error threshold
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotorEx motor1 = hardwareMap.get(DcMotorEx.class, "motor1");
-        DcMotorEx motor2 = hardwareMap.get(DcMotorEx.class, "motor2");
-        DcMotorEx preShooter = hardwareMap.get(DcMotorEx.class, "motor3"); // added motor3
-        motor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        preShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        // use unified Hardwares wrapper to fetch shooter motors
+        Hardwares hardwares = new Hardwares(hardwareMap);
+        DcMotorEx motor1 = hardwares.motors.shooterFront;
+        DcMotorEx motor2 = hardwares.motors.shooterBack;
+        DcMotorEx preShooter = hardwares.motors.preShooter;
+        DcMotorEx intake = hardwares.motors.intake;
 
         boolean prevA = false;
         boolean prevB = false;
@@ -31,6 +32,16 @@ public class CloseLoopMotorTest extends LinearOpMode {
         boolean prevRB = false;
         boolean motor12Enabled = false; // controls motor1 and motor2 on/off
         boolean motor3Enabled = true;  // controls motor3 on/off
+        boolean intakeEnabled = false; // intake开关
+
+        // intake控制相关变量
+        boolean prevIntakeLB = false;
+        boolean prevIntakeRB = false;
+
+        // preShooter正反转控制
+        boolean prevDpadLeft = false;
+        boolean prevDpadRight = false;
+        double preShooterPower = 0.0;
 
         // added previous-trigger pressed flags for edge detection
         boolean prevLeftTriggerPressed = false;
@@ -62,20 +73,38 @@ public class CloseLoopMotorTest extends LinearOpMode {
             prevDpadUp = currDpadUp;
             prevDpadDown = currDpadDown;
 
-            // 计算速度误差
+            // intake控制逻辑（原preShooter逻辑迁移到intake）
             double err1 = Math.abs(motor1.getVelocity() - velocity1);
             double err2 = Math.abs(motor2.getVelocity() - velocity2);
+            boolean shooterReady = (err1 <= threshold && err2 <= threshold);
 
-            // 只有当 1、2 号电机都“到位”才允许 motor3 跑
-            boolean motor3Allowed = (err1 <= threshold && err2 <= threshold);
-
-            // 如果误差过大，强制关掉 motor3（无视右 bumper 开关）
-            if (!motor3Allowed) {
-                preShooter.setPower(0);
+            // intake只在速度到位且intakeEnabled时运行
+            if (!shooterReady) {
+                intake.setPower(0);
             } else {
-                // 误差合格，按原来的开关量决定是否给 power
-                preShooter.setPower(motor3Enabled ? power : 0);
+                intake.setPower(intakeEnabled ? power : 0);
             }
+
+            // preShooter正反转控制
+            boolean currDpadLeft = gamepad1.dpad_left;
+            boolean currDpadRight = gamepad1.dpad_right;
+            if (currDpadLeft && !prevDpadLeft && shooterReady) {
+                preShooterPower = -0.7;
+            } else if (currDpadRight && !prevDpadRight && shooterReady) {
+                preShooterPower = 0.7;
+            }
+            preShooter.setPower(preShooterPower);
+            prevDpadLeft = currDpadLeft;
+            prevDpadRight = currDpadRight;
+
+            // intake开关（用LB/RB切换）
+            boolean currIntakeLB = gamepad1.left_bumper;
+            boolean currIntakeRB = gamepad1.right_bumper;
+            if (currIntakeLB && !prevIntakeLB) {
+                intakeEnabled = !intakeEnabled;
+            }
+            prevIntakeLB = currIntakeLB;
+            prevIntakeRB = currIntakeRB;
 
             boolean currA = gamepad1.a;
             boolean currB = gamepad1.b;
@@ -112,11 +141,11 @@ public class CloseLoopMotorTest extends LinearOpMode {
             prevLeftTriggerPressed = leftPressed;
             prevRightTriggerPressed = rightPressed;
 
-            if (currA && !prevA) {
-                velocity1 += 50;
-            }
             if (currB && !prevB) {
                 velocity1 -= 50;
+            }
+            if (currA && !prevA) {
+                velocity1 += 50;
             }
             if (currX && !prevX) {
                 velocity2 += 50;
@@ -169,7 +198,10 @@ public class CloseLoopMotorTest extends LinearOpMode {
             telemetry.addData("speed threshold", threshold);
             telemetry.addData("err1", err1);
             telemetry.addData("err2", err2);
-            telemetry.addData("motor3 allowed", motor3Allowed);
+            telemetry.addData("motor3 allowed", shooterReady);
+            telemetry.addData("intake Enabled", intakeEnabled);
+            telemetry.addData("intake Power (set)", intake.getPower());
+            telemetry.addData("preShooter Power (set)", preShooterPower);
 
             telemetry.update();
         }
