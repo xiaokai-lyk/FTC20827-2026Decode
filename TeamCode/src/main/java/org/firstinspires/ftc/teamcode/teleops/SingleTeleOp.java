@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.commands.TeleOpDriveCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
-import org.firstinspires.ftc.teamcode.utils.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
 @TeleOp(name = "singleTeleOp", group = "teleops")
@@ -38,7 +38,6 @@ public class SingleTeleOp extends XKCommandOpmode {
 
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(
                 drive,
-                hardwares,
                 gamepad1::getLeftX,
                 gamepad1::getLeftY,
                 gamepad1::getRightX,
