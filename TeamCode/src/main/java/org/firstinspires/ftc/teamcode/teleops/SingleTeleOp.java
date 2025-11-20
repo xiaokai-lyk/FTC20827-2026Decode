@@ -7,10 +7,12 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.commands.ScoringCommands;
 import org.firstinspires.ftc.teamcode.commands.TeleOpDriveCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -24,6 +26,7 @@ public class SingleTeleOp extends XKCommandOpmode {
     private Hardwares hardwares;
     private Intake intake;
     private GamepadEx gamepad1;
+    private Constants.ShooterConfig shooterConfig;
     @Override
     public void initialize() {
         this.gamepad1 = new GamepadEx(super.gamepad1);
@@ -35,6 +38,7 @@ public class SingleTeleOp extends XKCommandOpmode {
 
 
         MecanumDrive drive = new MecanumDrive(hardwares);
+
 
         TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(
                 drive,
@@ -55,6 +59,9 @@ public class SingleTeleOp extends XKCommandOpmode {
     @Override
     public void run(){
         CommandScheduler.getInstance().run();
+
+
+
         hardwares.sensors.odo.update();
         telemetry.addData("Heading", hardwares.sensors.odo.getHeading(AngleUnit.RADIANS));
         telemetry.addData("X", hardwares.sensors.odo.getPosX(DistanceUnit.MM));
@@ -70,13 +77,22 @@ public class SingleTeleOp extends XKCommandOpmode {
 
     @Override
     public void functionalButtons() {
+        ScoringCommands scoringCommand = new ScoringCommands(intake,shooter);
         new ButtonEx(
             ()-> gamepad1.getButton(GamepadKeys.Button.Y)
-        ).whenPressed(shooter.setShooter(Constants.shooterFar));
+        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.INTAKE_BALL));
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.A)
-        ).whenPressed(shooter.setShooter(Constants.shooterStop));
+            ()-> gamepad1.getButton(GamepadKeys.Button.A)
+        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.ACCELERATE_SHOOTER,shooterConfig));
+
+        new ButtonEx(
+            ()-> gamepad1.getButton(GamepadKeys.Button.X)
+        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.SHOOT_BALL));
+
+        new ButtonEx(
+            ()-> gamepad1.getButton(GamepadKeys.Button.B)
+        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.SHUT_DOWN_INTAKE));
 
         new ButtonEx(
                 () -> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
@@ -84,7 +100,7 @@ public class SingleTeleOp extends XKCommandOpmode {
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-        ).whenPressed(shooter.runPreShooter());
+        ).whenPressed(shooter.allowBallPass());
 
         new ButtonEx(
                 ()-> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
@@ -92,6 +108,6 @@ public class SingleTeleOp extends XKCommandOpmode {
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-        ).whenPressed(shooter.stopPreShooter());
+        ).whenPressed(shooter.blockBallPass());
     }
 }

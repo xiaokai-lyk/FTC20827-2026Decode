@@ -32,15 +32,21 @@ public class Shooter {
         });
     }
 
-    public InstantCommand runPreShooter(){
+    public InstantCommand allowBallPass(){
         return new InstantCommand(
                 ()->preShooter.setPower(Constants.preShooterRun)
         );
     }
 
-    public InstantCommand stopPreShooter(){
+    public InstantCommand blockBallPass(){
         return new InstantCommand(
                 ()->preShooter.setPower(Constants.preShooterStop)
+        );
+    }
+
+    public InstantCommand stopPreShooter(){
+        return new InstantCommand(
+            ()->preShooter.setPower(0)
         );
     }
 
