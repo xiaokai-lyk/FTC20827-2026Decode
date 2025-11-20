@@ -13,5 +13,6 @@ public class Constants {
     public static double preShooterRun = -0.6;
     public static ShooterConfig shooterFar = new ShooterConfig(1400, 1400);
     public static ShooterConfig shooterNear = new ShooterConfig(700, 700);
+    public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePower = 0.7;
 }

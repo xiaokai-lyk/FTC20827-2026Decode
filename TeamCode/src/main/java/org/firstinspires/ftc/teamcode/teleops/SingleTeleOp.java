@@ -50,7 +50,6 @@ public class SingleTeleOp extends XKCommandOpmode {
 
     @Override
     public void onStart() {
-        shooter.setShooter(Constants.shooterFar).schedule();
     }
 
     @Override
@@ -71,6 +70,14 @@ public class SingleTeleOp extends XKCommandOpmode {
 
     @Override
     public void functionalButtons() {
+        new ButtonEx(
+            ()-> gamepad1.getButton(GamepadKeys.Button.Y)
+        ).whenPressed(shooter.setShooter(Constants.shooterFar));
+
+        new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.A)
+        ).whenPressed(shooter.setShooter(Constants.shooterStop));
+
         new ButtonEx(
                 () -> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(intake.startIntake());
