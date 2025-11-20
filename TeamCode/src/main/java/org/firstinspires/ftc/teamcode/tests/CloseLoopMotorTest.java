@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Hardwares; // use hardware wrapper
 @Config
 @TeleOp(name = "Close Loop Motor Test", group = "tests")
 public class CloseLoopMotorTest extends LinearOpMode {
-    public int velocity1 = 700;
-    public int velocity2 = 1400;
+    public static int velocity1 = 700;
+    public static int velocity2 = 1400;
     public double power = 0.5;
     public int threshold = 50; // speed error threshold
     @Override
@@ -54,7 +54,7 @@ public class CloseLoopMotorTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()){
-            final int THRESH_STEP = 10;
+            final int THRESH_STEP = 50;
             // 读取当前 dpad 状态
             boolean currDpadUp = gamepad1.dpad_up;
             boolean currDpadDown = gamepad1.dpad_down;
