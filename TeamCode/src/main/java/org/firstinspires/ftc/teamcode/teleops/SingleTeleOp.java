@@ -84,7 +84,7 @@ public class SingleTeleOp extends XKCommandOpmode {
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-        ).whenPressed(shooter.runPreShooter());
+        ).whenPressed(shooter.allowBallPass());
 
         new ButtonEx(
                 ()-> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
@@ -92,6 +92,6 @@ public class SingleTeleOp extends XKCommandOpmode {
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-        ).whenPressed(shooter.stopPreShooter());
+        ).whenPressed(shooter.blockBallPass());
     }
 }

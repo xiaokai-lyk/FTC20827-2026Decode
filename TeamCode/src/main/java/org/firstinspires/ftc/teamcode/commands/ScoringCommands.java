@@ -2,14 +2,10 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandGroupBase;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-
-import kotlin.NotImplementedError;
 
 public class ScoringCommands {
     public Intake intake;
@@ -17,10 +13,9 @@ public class ScoringCommands {
     // public PreShooter preShooter;
     public enum Actions {
         INTAKE_BALL,
-        TRANSFER_BALL,
+        SHUT_DOWN_INTAKE,
         ACCELERATE_SHOOTER,
-        SHOOT_BALL,
-        RESET
+        SHOOT_BALL
     }
     public ScoringCommands(Intake intake, Shooter shooter) {
         this.intake=intake;
@@ -36,7 +31,7 @@ public class ScoringCommands {
             case INTAKE_BALL:
                 return new ParallelCommandGroup(
                     intake.startIntake(),
-                    shooter.stopPreShooter()
+                    shooter.blockBallPass()
                 );
             case ACCELERATE_SHOOTER:
                 return new ParallelCommandGroup(
@@ -44,12 +39,14 @@ public class ScoringCommands {
                 );
             case SHOOT_BALL:
                 return new ParallelCommandGroup(
-                    shooter.runPreShooter()
+                    shooter.allowBallPass()
                 );
-            case RESET:
+            case SHUT_DOWN_INTAKE:
                 return new ParallelCommandGroup(
+                    shooter.stopPreShooter(),
                     intake.stopIntake()
                 );
+
         }
         return null;
     }
