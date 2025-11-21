@@ -15,6 +15,7 @@ public class Constants {
     public static ShooterConfig shooter150cm = new ShooterConfig(500, 1440);
     public static ShooterConfig shooter105cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePower = 0.5;
+    public static double intakePowerSlow = 0.5;
+    public static double intakePowerFast = 1.0;
     public static int driveMaxVelocity = 2980;
 }

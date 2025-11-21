@@ -39,7 +39,7 @@ import org.firstinspires.ftc.teamcode.Hardwares;
  *    使用激进参数后若超调太大，可逐步减小Kp或增大Ti。
  *
  * 【离散实现公式（循环周期 dt 秒）】
- * 误差 e_n = (目标��度 - 实际速度)
+ * 误差 e_n = (目标速度 - 实际速度)
  * 积分 I_n = I_{n-1} + e_n * dt
  * 微分 D_n = (e_n - e_{n-1}) / dt
  * 输出功率 u_n = Kp * e_n + Ki * I_n + Kd * D_n + Kf * V_target
@@ -66,38 +66,41 @@ import org.firstinspires.ftc.teamcode.Hardwares;
  * 4. 若超调过大：减小 Kp 或增大 Ti（降低 Ki）；若响应太慢：稍增 Kp 或减小 Ti。
  * 5. 调试中监控电机温度、电流与机械安全。
  */
+@SuppressWarnings({"unused","FieldCanBeLocal"}) // FTC 反射 / 注解机制会使用本类；参数保留为成员便于后续扩展
 @TeleOp(name = "ZN PID Tuning Test", group = "tests")
 public class ZNPIDTuningTest extends LinearOpMode {
-    // 可调参数
+    // 可调参数（保持成员，方便之后改成从 Dashboard 或文件加载）
     private double Kp; // 初始比例增益
     private double Ki; // 初始积分增益
     private double Kd; // 初始微分增益
-    private double Kf; // 前馈增益，建议F=1.0/最大速度
+    private double Kf; // 前馈增益
     private final double KpStep = 0.05; // 增益调整步长
-    private final int targetVelocity = 2000; // 目标速度（可根据实际情况调整）
-    private final int minOscillations = 3; // 至少检测到几次振荡才判定为临界振荡
+    private final int targetVelocity = 2000; // 目标速度
+    private final int minOscillations = 30; // 热身后越线次数需求
+    private final int warmupOscillations = 20; // 热身越线次数忽略
+    private final int velocityDeadband = 10; // 速度死区（ticks/s）
 
     @Override
     public void runOpMode() {
         DcMotorEx motor = new Hardwares(hardwareMap).motors.shooterFront;
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         boolean prevA = false, prevB = false, prevX = false, prevY = false;
         boolean running = false;
         boolean lastAbove = false;
-        int oscillationCount = 0;
+        int totalCrossings = 0;
+        int postWarmupCrossings = 0;
         long firstCrossTime = 0;
         long lastCrossTime = 0;
-        double Tu = 0;
-        double Ku = 0;
+        double Tu = 0; // 临界振荡周期（秒）
+        double Ku = 0; // 临界增益
         boolean oscillating = false;
         Kp = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p;
         Ki = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i;
         Kd = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d;
         Kf = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f;
 
-        telemetry.addLine("ZN PID Tuning Test\nA/B: Kp +/-\nY: 启动目标速度\nX: 停止\n观察振荡，记录Tu和Kp");
+        telemetry.addLine("ZN PID Tuning Test\nA/B: Kp +/-\nY: 启动目标速度\nX: 停止\n逐步提升Kp直到出现稳定振荡以得到 Ku, Tu");
         telemetry.update();
         waitForStart();
 
@@ -114,76 +117,110 @@ public class ZNPIDTuningTest extends LinearOpMode {
             if (kpChanged) {
                 motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
                         new PIDFCoefficients(Kp, Ki, Kd, Kf));
+                if (running && !oscillating) { // 重置统计，避免不同 Kp 混合
+                    totalCrossings = 0;
+                    postWarmupCrossings = 0;
+                    firstCrossTime = 0;
+                    lastCrossTime = 0;
+                    Tu = 0;
+                    Ku = 0;
+                    lastAbove = motor.getVelocity() > targetVelocity;
+                }
             }
 
-            // 启动/停止
+            // 启动
             if (currY && !prevY) {
                 running = true;
                 motor.setVelocity(targetVelocity);
-                oscillationCount = 0;
+                totalCrossings = 0;
+                postWarmupCrossings = 0;
                 firstCrossTime = 0;
                 lastCrossTime = 0;
-                oscillating = false;
+                Tu = 0; Ku = 0; oscillating = false;
+                lastAbove = motor.getVelocity() > targetVelocity;
             }
+            // 停止
             if (currX && !prevX) {
                 running = false;
                 motor.setVelocity(0);
-                oscillationCount = 0;
+                totalCrossings = 0;
+                postWarmupCrossings = 0;
                 firstCrossTime = 0;
                 lastCrossTime = 0;
-                oscillating = false;
+                Tu = 0; Ku = 0; oscillating = false;
             }
 
-            // 振荡检测
             if (running) {
                 double velocity = motor.getVelocity();
-                boolean above = velocity > targetVelocity;
-                if (oscillationCount == 0) lastAbove = above;
-                if (above != lastAbove) {
-                    oscillationCount++;
+                double diff = velocity - targetVelocity;
+                boolean above;
+                // 死区：保持前状态，避免在误差极小且采样抖动时来回越线
+                if (Math.abs(diff) <= velocityDeadband) {
+                    above = lastAbove;
+                } else {
+                    // 关于 > 与 >=:
+                    // 我们选择 diff > 0。理由：当 diff == 0（或非常接近，由 deadband 捕获）时不改变状态，防止高频抖动形成假 crossing。
+                    // 若改成 >= ，在速度刚好等于目标值而未进入 deadband 时会把该点视为 "above"，容易导致在临界附近来回触发越线。
+                    // 只有当你需要把精确等于目标的一侧视为上方并且 deadband 足够大（或有额外去抖）时才考虑 >=。
+                    above = diff > 0;
+                }
+
+                if (above != lastAbove) { // 真正越线
+                    totalCrossings++;
                     lastAbove = above;
+
+                    if (totalCrossings > warmupOscillations) {
+                        postWarmupCrossings++;
+                        long now = System.currentTimeMillis();
+                        if (postWarmupCrossings == 1) {
+                            firstCrossTime = now;
+                            lastCrossTime = now;
+                        } else {
+                            lastCrossTime = now;
+                        }
+                    }
+
+                    if (!oscillating && postWarmupCrossings >= minOscillations) {
+                        // crossing 表示半周期；平均 crossing 间隔 *2 得到 Tu
+                        double avgCrossIntervalMs = (lastCrossTime - firstCrossTime) / (double)(postWarmupCrossings - 1);
+                        Tu = (avgCrossIntervalMs / 1000.0) * 2.0; // 秒
+                        Ku = Kp;
+                        oscillating = true;
+                    }
                 }
-                if (oscillationCount >= minOscillations && !oscillating) {
-                    Tu = (lastCrossTime - firstCrossTime) / (double)(oscillationCount - 1) / 1000.0; // 秒
-                    Ku = Kp;
-                    oscillating = true;
+
+                // Telemetry 输出
+                telemetry.addData("Kp", Kp);
+                telemetry.addData("Ku", Ku);
+                telemetry.addData("Tu(s)", Tu);
+                telemetry.addData("Velocity", velocity);
+                telemetry.addData("Target", targetVelocity);
+                telemetry.addData("Deadband", velocityDeadband);
+                telemetry.addData("TotalCross", totalCrossings);
+                telemetry.addData("PostWarmupCross", postWarmupCrossings);
+                telemetry.addData("Oscillating", oscillating);
+
+                if (oscillating) {
+                    double classicKp = 0.60 * Ku;
+                    double classicKi = classicKp / (0.50 * Tu);
+                    double classicKd = classicKp * (0.125 * Tu);
+                    double conservativeKp = 0.33 * Ku;
+                    double conservativeKi = conservativeKp / (0.50 * Tu);
+                    double conservativeKd = conservativeKp * (0.33 * Tu);
+                    double aggressiveKp = 0.70 * Ku;
+                    double aggressiveKi = aggressiveKp / (0.40 * Tu);
+                    double aggressiveKd = aggressiveKp * (0.15 * Tu);
+                    telemetry.addLine("--- 推荐PID参数 ---");
+                    telemetry.addData("经典PID", "Kp=%.3f Ki=%.3f Kd=%.3f", classicKp, classicKi, classicKd);
+                    telemetry.addData("保守PID", "Kp=%.3f Ki=%.3f Kd=%.3f", conservativeKp, conservativeKi, conservativeKd);
+                    telemetry.addData("激进PID", "Kp=%.3f Ki=%.3f Kd=%.3f", aggressiveKp, aggressiveKi, aggressiveKd);
                 }
+                telemetry.update();
             }
 
-            // 实时显示信息
-            telemetry.addData("当前PIDF参数", "Kp=%.4f Ki=%.4f Kd=%.4f Kf=%.5f", Kp, Ki, Kd, Kf);
-            telemetry.addData("目标速度", targetVelocity);
-            telemetry.addData("当前速度", motor.getVelocity());
-            telemetry.addData("运行状态", running ? "运行中" : "已停止");
-            telemetry.addData("振荡次数", oscillationCount);
-            if (oscillating) {
-                telemetry.addData("检测到临界振荡! Ku=", Ku);
-                telemetry.addData("振荡周期 Tu (s)", Tu);
-                telemetry.addLine("请记录Ku和Tu, 用ZN公式计算PID参数");
-
-                double classicKp = 0.60 * Ku;
-                double classicKi = classicKp / (0.50 * Tu);
-                double classicKd = classicKp * (0.125 * Tu);
-                double conservativeKp = 0.33 * Ku;
-                double conservativeKi = conservativeKp / (0.50 * Tu);
-                double conservativeKd = conservativeKp * (0.33 * Tu);
-                double aggressiveKp = 0.70 * Ku;
-                double aggressiveKi = aggressiveKp / (0.40 * Tu);
-                double aggressiveKd = aggressiveKp * (0.15 * Tu);
-                telemetry.addLine("=== 推荐PID参数 (根据Ku,Tu) ===");
-                telemetry.addData("经典 PID", "Kp=%.3f Ki=%.3f Kd=%.3f", classicKp, classicKi, classicKd);
-                telemetry.addData("保守 PID", "Kp=%.3f Ki=%.3f Kd=%.3f", conservativeKp, conservativeKi, conservativeKd);
-                telemetry.addData("激进 PID", "Kp=%.3f Ki=%.3f Kd=%.3f", aggressiveKp, aggressiveKi, aggressiveKd);
-                telemetry.addLine("激进参数可能导致较大超调, 建议逐步试验并监控温度与电流");
-            }
-            telemetry.update();
-
-            prevA = currA;
-            prevB = currB;
-            prevX = currX;
-            prevY = currY;
+            prevA = currA; prevB = currB; prevX = currX; prevY = currY;
         }
-        // 停止电机
+        // 结束安全停止
         motor.setVelocity(0);
     }
 }
