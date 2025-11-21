@@ -23,7 +23,7 @@ public class ScoringCommands {
     }
 
     public CommandGroupBase scoringAction(Actions action) {
-        return this.scoringAction(action, new Constants.ShooterConfig(1000, 1000));//没有就用默认
+        return this.scoringAction(action, null);
     }
 
     public CommandGroupBase scoringAction(Actions action,Constants.ShooterConfig shooterConfig) {

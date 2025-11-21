@@ -5,15 +5,17 @@ import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class TeleOpDriveCommand extends CommandBase {
     private final DoubleSupplier x;
     private final DoubleSupplier rotate;
     private final DoubleSupplier y;
-    private final DoubleSupplier powerCoefficient;
+    private final DoubleSupplier speedCoefficient;
     private final MecanumDrive drive;
     private final DoubleSupplier heading;
+    private final BooleanSupplier useEncoders;
 
     public TeleOpDriveCommand(
             MecanumDrive drive,
@@ -21,23 +23,34 @@ public class TeleOpDriveCommand extends CommandBase {
             DoubleSupplier y,
             DoubleSupplier rotate,
             DoubleSupplier heading,
-            DoubleSupplier powerCoefficient) {
+            DoubleSupplier speedCoefficient,
+            BooleanSupplier useEncoders
+    ) {
         this.drive = drive;
         this.x = x;
         this.rotate = rotate;
         this.y = y;
-        this.powerCoefficient = powerCoefficient;
+        this.speedCoefficient = speedCoefficient;
         this.heading = heading;
+        this.useEncoders = useEncoders;
     }
 
     @Override
     public void execute() {
-        drive.driveFieldCentric(
-                x.getAsDouble(),
-                y.getAsDouble(),
-                rotate.getAsDouble(),
-                heading.getAsDouble(),
-                powerCoefficient.getAsDouble()
+        double[] potentials = drive.calculateComponents(
+            x.getAsDouble(),
+            y.getAsDouble(),
+            rotate.getAsDouble(),
+            heading.getAsDouble(),
+            speedCoefficient.getAsDouble()
         );
+        if(useEncoders.getAsBoolean()){
+            drive.runWithEncoders();
+            drive.setVelocity(potentials);
+        } else {
+            drive.runWithoutEncoders();
+            drive.setPower(potentials);
+        }
+
     }
 }
