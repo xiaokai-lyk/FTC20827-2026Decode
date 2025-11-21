@@ -3,28 +3,28 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
-import org.firstinspires.ftc.teamcode.commands.ScoringCommands;
-import org.firstinspires.ftc.teamcode.commands.TeleOpDriveCommand;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
-import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@TeleOp(name = "singleTeleOp", group = "teleops")
+@TeleOp(name = "SingleTeleOp", group = "teleops")
 public class SingleTeleOp extends XKCommandOpmode {
     private Shooter shooter;
     private Hardwares hardwares;
     private Intake intake;
+    private Light light;
     private GamepadEx gamepad1;
     private Constants.ShooterConfig shooterConfig;
     @Override
@@ -35,12 +35,13 @@ public class SingleTeleOp extends XKCommandOpmode {
         hardwares = new Hardwares(hardwareMap);
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
+        light = new Light(hardwares);
 
 
-        MecanumDrive drive = new MecanumDrive(hardwares);
+        Drive drive = new Drive(hardwares);
 
 
-        TeleOpDriveCommand driveCommand = new TeleOpDriveCommand(
+        Drive.TeleOpDriveCommand driveCommand = new Drive.TeleOpDriveCommand(
                 drive,
                 gamepad1::getLeftX,
                 gamepad1::getLeftY,
@@ -55,61 +56,73 @@ public class SingleTeleOp extends XKCommandOpmode {
 
     @Override
     public void onStart() {
+        light.setLightColor(255, 255, 255).schedule();
     }
 
-    
     @Override
     public void run(){
         CommandScheduler.getInstance().run();
 
-
-
         hardwares.sensors.odo.update();
-        telemetry.addData("Heading", hardwares.sensors.odo.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("Heading (Rad)", hardwares.sensors.odo.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("Heading (Deg)", hardwares.sensors.odo.getHeading(AngleUnit.DEGREES));
         telemetry.addData("X", hardwares.sensors.odo.getPosX(DistanceUnit.MM));
         telemetry.addData("Y", hardwares.sensors.odo.getPosY(DistanceUnit.MM));
         telemetry.addLine("---");
-        telemetry.addData("front left power", hardwares.motors.mFrontLeft.getPower());
-        telemetry.addData("front right power", hardwares.motors.mFrontRight.getPower());
-        telemetry.addData("back left power", hardwares.motors.mBackLeft.getPower());
-        telemetry.addData("back right power", hardwares.motors.mBackRight.getPower());
+
+        telemetry.addData("drive mode", hardwares.motors.mFrontLeft.getMode().toString());
+        telemetry.addData("front left velocity", hardwares.motors.mFrontLeft.getVelocity());
+        telemetry.addData("front right velocity", hardwares.motors.mFrontRight.getVelocity());
+        telemetry.addData("back left velocity", hardwares.motors.mBackLeft.getVelocity());
+        telemetry.addData("back right velocity", hardwares.motors.mBackRight.getVelocity());
         telemetry.update();
     }
 
 
     @Override
     public void functionalButtons() {
-        ScoringCommands scoringCommand = new ScoringCommands(intake,shooter);
+        ParallelCommandGroup enterRunningMode = new ParallelCommandGroup(
+                shooter.stopPreShooter(),
+                intake.stopIntake()
+        );
         new ButtonEx(
-            ()-> gamepad1.getButton(GamepadKeys.Button.Y)
-        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.INTAKE_BALL));
-
-        new ButtonEx(
-            ()-> gamepad1.getButton(GamepadKeys.Button.A)
-        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.ACCELERATE_SHOOTER,shooterConfig));
-
-        new ButtonEx(
-            ()-> gamepad1.getButton(GamepadKeys.Button.X)
-        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.SHOOT_BALL));
-
-        new ButtonEx(
-            ()-> gamepad1.getButton(GamepadKeys.Button.B)
-        ).whenPressed(scoringCommand.scoringAction(ScoringCommands.Actions.SHUT_DOWN_INTAKE));
-
-        new ButtonEx(
-                () -> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
-        ).whenPressed(intake.startIntake());
-
-        new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-        ).whenPressed(shooter.allowBallPass());
-
-        new ButtonEx(
-                ()-> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
-        ).whenPressed(intake.stopIntake());
+                () -> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
+        ).whenPressed(
+            shooter.blockBallPass(),
+            intake.startIntake()
+        ).whenReleased(enterRunningMode);
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
-        ).whenPressed(shooter.blockBallPass());
+        ).whenPressed(
+                shooter.allowBallPass(),
+                intake.startIntake()
+        ).whenReleased(enterRunningMode);
+
+        new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
+        ).whenPressed(
+                shooter.setShooter(Constants.shooterStop)
+        );
+
+        new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.X)
+        ).whenPressed(
+            shooter.setShooter(Constants.shooter250cm),
+            light.setLightColor(255, 0, 0)
+        );
+
+        new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.B)
+        ).whenPressed(
+            shooter.setShooter(Constants.shooter150cm),
+            light.setLightColor(0, 255, 0)
+            );
+
+        new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.A)
+        ).whenPressed(
+            shooter.setShooter(Constants.shooter105cm),
+            light.setLightColor(0, 0, 255));
     }
 }

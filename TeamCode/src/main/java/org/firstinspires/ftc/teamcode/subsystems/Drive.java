@@ -2,17 +2,21 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.arcrobotics.ftclib.command.CommandBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 
-public class MecanumDrive {
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+public class Drive {
     public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight;
     private DcMotor.RunMode currentMode = null;
 
-    public MecanumDrive(@NonNull Hardwares hardwares){
+    public Drive(@NonNull Hardwares hardwares){
         this.mFrontLeft = hardwares.motors.mFrontLeft;
         this.mFrontRight = hardwares.motors.mFrontRight;
         this.mBackLeft = hardwares.motors.mBackLeft;
@@ -65,5 +69,52 @@ public class MecanumDrive {
         double backRightPower = (rotY + rotX - rotate) / denominator * speedCoefficient;
 
         return new double[]{frontLeftPower, frontRightPower, backLeftPower, backRightPower};
+    }
+
+    public static class TeleOpDriveCommand extends CommandBase {
+        private final DoubleSupplier x;
+        private final DoubleSupplier rotate;
+        private final DoubleSupplier y;
+        private final DoubleSupplier speedCoefficient;
+        private final Drive drive;
+        private final DoubleSupplier heading;
+        private final BooleanSupplier useEncoders;
+
+        public TeleOpDriveCommand(
+                Drive drive,
+                DoubleSupplier x,
+                DoubleSupplier y,
+                DoubleSupplier rotate,
+                DoubleSupplier heading,
+                DoubleSupplier speedCoefficient,
+                BooleanSupplier useEncoders
+        ) {
+            this.drive = drive;
+            this.x = x;
+            this.rotate = rotate;
+            this.y = y;
+            this.speedCoefficient = speedCoefficient;
+            this.heading = heading;
+            this.useEncoders = useEncoders;
+        }
+
+        @Override
+        public void execute() {
+            double[] potentials = drive.calculateComponents(
+                x.getAsDouble(),
+                y.getAsDouble(),
+                rotate.getAsDouble(),
+                heading.getAsDouble(),
+                speedCoefficient.getAsDouble()
+            );
+            if(useEncoders.getAsBoolean()){
+                drive.runWithEncoders();
+                drive.setVelocity(potentials);
+            } else {
+                drive.runWithoutEncoders();
+                drive.setPower(potentials);
+            }
+
+        }
     }
 }

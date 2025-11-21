@@ -9,12 +9,12 @@ public class Constants {
         }
     }
 
-    public static double preShooterStop = 0.6;
+    public static double preShooterBlock = 0.6;
     public static double preShooterRun = -0.6;
-    public static ShooterConfig shooterFar = new ShooterConfig(860, 1660);
-    public static ShooterConfig shooterMedium = new ShooterConfig(500, 1440);
-    public static ShooterConfig shooterNear = new ShooterConfig(500, 1300);
+    public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
+    public static ShooterConfig shooter150cm = new ShooterConfig(500, 1440);
+    public static ShooterConfig shooter105cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePower = 0.7;
-    public static int driveMaxVelocity = 1500;
+    public static double intakePower = 0.5;
+    public static int driveMaxVelocity = 2980;
 }

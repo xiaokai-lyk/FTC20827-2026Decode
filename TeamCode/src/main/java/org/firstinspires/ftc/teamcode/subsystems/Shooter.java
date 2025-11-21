@@ -40,7 +40,7 @@ public class Shooter {
 
     public InstantCommand blockBallPass(){
         return new InstantCommand(
-                ()->preShooter.setPower(Constants.preShooterStop)
+                ()->preShooter.setPower(Constants.preShooterBlock)
         );
     }
 
@@ -49,6 +49,7 @@ public class Shooter {
             ()->preShooter.setPower(0)
         );
     }
+
 
     public boolean shooterReady(double threshold) {
         double frontVelocity = shooterFront.getVelocity();
