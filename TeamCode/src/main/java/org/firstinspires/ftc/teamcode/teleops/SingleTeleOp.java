@@ -46,7 +46,8 @@ public class SingleTeleOp extends XKCommandOpmode {
                 gamepad1::getLeftY,
                 gamepad1::getRightX,
                 ()-> hardwares.sensors.odo.getHeading(AngleUnit.RADIANS),
-                ()->1
+                ()->1,
+                ()-> true
         );
 
         CommandScheduler.getInstance().schedule(driveCommand);
@@ -56,6 +57,7 @@ public class SingleTeleOp extends XKCommandOpmode {
     public void onStart() {
     }
 
+    
     @Override
     public void run(){
         CommandScheduler.getInstance().run();
