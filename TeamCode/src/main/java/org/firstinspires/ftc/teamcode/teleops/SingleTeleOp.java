@@ -45,7 +45,7 @@ public class SingleTeleOp extends XKCommandOpmode {
                 drive,
                 gamepad1::getLeftX,
                 gamepad1::getLeftY,
-                gamepad1::getRightX,
+                ()->-gamepad1.getRightX(),
                 ()-> hardwares.sensors.odo.getHeading(AngleUnit.RADIANS),
                 ()->1,
                 ()-> true
@@ -110,6 +110,12 @@ public class SingleTeleOp extends XKCommandOpmode {
         ).whenPressed(
             shooter.setShooter(Constants.shooter250cm),
             light.setLightColor(255, 0, 0)
+        );
+
+        new ButtonEx(
+            ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+        ).whenPressed(
+            ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
         );
 
         new ButtonEx(

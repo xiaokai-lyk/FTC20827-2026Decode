@@ -74,8 +74,7 @@ public class ZNPIDTuningTest extends LinearOpMode {
     private double Kd; // 初始微分增益
     private double Kf; // 前馈增益，建议F=1.0/最大速度
     private final double KpStep = 0.05; // 增益调整步长
-    private final int targetVelocity = 1200; // 目标速度（可根据实际情况调整）
-    private final int sampleWindow = 10; // 采样窗口（ms）
+    private final int targetVelocity = 2000; // 目标速度（可根据实际情况调整）
     private final int minOscillations = 3; // 至少检测到几次振荡才判定为临界振荡
 
     @Override
@@ -86,7 +85,6 @@ public class ZNPIDTuningTest extends LinearOpMode {
 
         boolean prevA = false, prevB = false, prevX = false, prevY = false;
         boolean running = false;
-        long lastSampleTime = 0;
         boolean lastAbove = false;
         int oscillationCount = 0;
         long firstCrossTime = 0;
@@ -139,20 +137,11 @@ public class ZNPIDTuningTest extends LinearOpMode {
             // 振荡检测
             if (running) {
                 double velocity = motor.getVelocity();
-                long now = System.currentTimeMillis();
-                if (now - lastSampleTime > sampleWindow) {
-                    boolean above = velocity > targetVelocity;
-                    if (oscillationCount == 0) lastAbove = above;
-                    if (above != lastAbove) {
-                        if (oscillationCount == 0) {
-                            firstCrossTime = now;
-                        } else {
-                            lastCrossTime = now;
-                        }
-                        oscillationCount++;
-                        lastAbove = above;
-                    }
-                    lastSampleTime = now;
+                boolean above = velocity > targetVelocity;
+                if (oscillationCount == 0) lastAbove = above;
+                if (above != lastAbove) {
+                    oscillationCount++;
+                    lastAbove = above;
                 }
                 if (oscillationCount >= minOscillations && !oscillating) {
                     Tu = (lastCrossTime - firstCrossTime) / (double)(oscillationCount - 1) / 1000.0; // 秒
