@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
+import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
 @TeleOp(name = "SingleTeleOp", group = "teleops")
@@ -27,6 +29,7 @@ public class SingleTeleOp extends XKCommandOpmode {
     private Light light;
     private GamepadEx gamepad1;
     private Constants.ShooterConfig shooterConfig;
+    protected Drive.DriveCommand driveCommand;
     @Override
     public void initialize() {
         this.gamepad1 = new GamepadEx(super.gamepad1);
@@ -41,12 +44,12 @@ public class SingleTeleOp extends XKCommandOpmode {
         Drive drive = new Drive(hardwares);
 
 
-        Drive.TeleOpDriveCommand driveCommand = new Drive.TeleOpDriveCommand(
+        driveCommand = new Drive.DriveCommand(
                 drive,
                 gamepad1::getLeftX,
                 gamepad1::getLeftY,
                 ()->-gamepad1.getRightX(),
-                ()-> hardwares.sensors.odo.getHeading(AngleUnit.RADIANS),
+                ()-> new OdometerData(hardwares.sensors.odo),
                 ()->1,
                 ()-> true
         );
@@ -75,6 +78,11 @@ public class SingleTeleOp extends XKCommandOpmode {
         telemetry.addData("front right velocity", hardwares.motors.mFrontRight.getVelocity());
         telemetry.addData("back left velocity", hardwares.motors.mBackLeft.getVelocity());
         telemetry.addData("back right velocity", hardwares.motors.mBackRight.getVelocity());
+
+        telemetry.addLine("---");
+        telemetry.addData("X damping", driveCommand.dampedX - gamepad1.getLeftX());
+        telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
+        telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
         telemetry.update();
     }
 
