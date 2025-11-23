@@ -27,26 +27,6 @@ public class Drive {
         this.mBackRight = hardwares.motors.mBackRight;
     }
 
-    public void runWithEncoders(){
-        if (currentMode != DcMotorEx.RunMode.RUN_USING_ENCODER) {
-            mFrontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            mFrontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            mBackLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            mBackRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            currentMode = DcMotorEx.RunMode.RUN_USING_ENCODER;
-        }
-    }
-
-    public void runWithoutEncoders(){
-        if (currentMode != DcMotorEx.RunMode.RUN_WITHOUT_ENCODER) {
-            mFrontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-            mFrontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-            mBackLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-            mBackRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-            currentMode = DcMotorEx.RunMode.RUN_WITHOUT_ENCODER;
-        }
-    }
-
     public void setPower(@NonNull double[] potentials){
         mFrontLeft.setPower(potentials[0]);
         mFrontRight.setPower(potentials[1]);
@@ -73,17 +53,6 @@ public class Drive {
         double backRightPower = (rotY + rotX - rotate) / denominator * speedCoefficient;
 
         return new double[]{frontLeftPower, frontRightPower, backLeftPower, backRightPower};
-    }
-
-    public void runToPosition(double x, double y, @NonNull OdometerData data) {
-        double[] potentials = this.calculateComponents(
-            x-data.getRobotPosition().getX(DistanceUnit.METER),
-            y-data.getRobotPosition().getY(DistanceUnit.METER),
-            0,
-            data.getHeadingRadians(),
-            1.0
-        );
-        this.setVelocity(potentials);
     }
 
 
@@ -150,10 +119,8 @@ public class Drive {
                     speedCoefficient.getAsDouble()
             );
             if (useEncoders.getAsBoolean()) {
-                drive.runWithEncoders();
                 drive.setVelocity(potentials);
             } else {
-                drive.runWithoutEncoders();
                 drive.setPower(potentials);
             }
         }

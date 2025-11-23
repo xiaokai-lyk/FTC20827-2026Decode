@@ -83,6 +83,7 @@ public class SingleTeleOp extends XKCommandOpmode {
         telemetry.addData("X damping", driveCommand.dampedX - gamepad1.getLeftX());
         telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
         telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
+
         telemetry.update();
     }
 

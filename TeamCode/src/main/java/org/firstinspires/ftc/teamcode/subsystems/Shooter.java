@@ -15,8 +15,7 @@ public class Shooter {
     private double shooterFrontTarget = 0;
     private double shooterBackTarget = 0;
 
-    // 自适应 PID: 保存两套已经通过 ZN 整定得到的参数 (示例值, 请替换为你实际测得的 Ku, Tu 计算结果)
-    // TODO: 用实际整定结果替换下面的示例参数
+    // 自适应 PID: 保存两套已经通过 ZN 整定得到的参数
     private PIDFCoefficients aggressiveFrontPID = new PIDFCoefficients(7, 68.767, 0.267, 7e-4);
     private PIDFCoefficients conservativeFrontPID = new PIDFCoefficients(3.3, 25.935, 0.277, 0.000);
     private PIDFCoefficients aggressiveBackPID = new PIDFCoefficients(7, 27.023, 0.705, 7e-4);
@@ -131,15 +130,6 @@ public class Shooter {
         // 允许微小浮点差异，使用一个很小的 epsilon
         double eps = 1e-6;
         return Math.abs(a.p - b.p) < eps && Math.abs(a.i - b.i) < eps && Math.abs(a.d - b.d) < eps && Math.abs(a.f - b.f) < eps;
-    }
-
-    // 可选：提供接口让外部在 ZN 整定后动态更新两套 PID
-    public void setAdaptivePidSets(PIDFCoefficients conservativeFront, PIDFCoefficients aggressiveFront,
-                                   PIDFCoefficients conservativeBack, PIDFCoefficients aggressiveBack){
-        if (conservativeFront != null) this.conservativeFrontPID = conservativeFront;
-        if (aggressiveFront != null) this.aggressiveFrontPID = aggressiveFront;
-        if (conservativeBack != null) this.conservativeBackPID = conservativeBack;
-        if (aggressiveBack != null) this.aggressiveBackPID = aggressiveBack;
     }
 
     public void setErrorThresholds(int low, int high){

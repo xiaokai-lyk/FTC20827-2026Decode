@@ -9,15 +9,15 @@ public class Constants {
         }
     }
 
-    public static double preShooterBlock = 0.6;
-    public static double preShooterRun = -0.6;
+    public static double preShooterBlock = 1;
+    public static double preShooterRun = -1;
     public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooter150cm = new ShooterConfig(500, 1440);
     public static ShooterConfig shooter105cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePowerSlow = 0.5;
+    public static double intakePowerSlow = 0.8;
     public static double intakePowerFast = 1.0;
-    public static int driveMaxVelocity = 2980;
+    public static int driveMaxVelocity = 2960;
 
     // 新增：自适应阻尼相关常量集中管理
     public static class Damping {
