@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
 
-
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -12,26 +11,27 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
-import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@TeleOp(name = "SingleTeleOp", group = "teleops")
-public class SingleTeleOp extends XKCommandOpmode {
+@TeleOp(name = "TeleOp", group = "teleops")
+public class TeleOp20827 extends XKCommandOpmode {
     private Shooter shooter;
     private Hardwares hardwares;
     private Intake intake;
     private Light light;
-    private GamepadEx gamepad1;
+    private GamepadEx gamepad1, gamepad2;
     private Constants.ShooterConfig shooterConfig;
     protected Drive.DriveCommand driveCommand;
     @Override
     public void initialize() {
         this.gamepad1 = new GamepadEx(super.gamepad1);
+        this.gamepad2 = new GamepadEx(super.gamepad2);
         CommandScheduler.getInstance().cancelAll();
 
         hardwares = new Hardwares(hardwareMap);
@@ -94,47 +94,43 @@ public class SingleTeleOp extends XKCommandOpmode {
                 intake.stopIntake()
         );
         new ButtonEx(
-                () -> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
+                () -> gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
         ).whenPressed(
             shooter.blockBallPass(),
             intake.startIntake(true)
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
                 shooter.allowBallPass(),
                 intake.startIntake(false)
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
-        ).whenPressed(
-                shooter.setShooter(Constants.shooterStop)
-        );
-
-        new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.X)
+                ()-> gamepad2.getButton(GamepadKeys.Button.X)
         ).whenPressed(
             shooter.setShooter(Constants.shooter250cm),
             light.setLightColor(255, 0, 0)
+        ).whenReleased(
+            shooter.setShooter(Constants.shooterStop)
         );
 
         new ButtonEx(
-            ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+            ()-> gamepad2.getButton(GamepadKeys.Button.START)
         ).whenPressed(
             ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
         );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.B)
+                ()-> gamepad2.getButton(GamepadKeys.Button.B)
         ).whenPressed(
             shooter.setShooter(Constants.shooter150cm),
             light.setLightColor(0, 255, 0)
             );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.A)
+                ()-> gamepad2.getButton(GamepadKeys.Button.A)
         ).whenPressed(
             shooter.setShooter(Constants.shooter105cm),
             light.setLightColor(0, 0, 255));

@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@Autonomous(name = "LeaveLine", group = "autos")
-public class LeaveLine extends XKCommandOpmode {
+@Autonomous(name = "Cycle", group = "autos")
+public class Cycle extends XKCommandOpmode {
     Hardwares hardwares;
     Drive drive;
     AutoDrive autoDrive;
