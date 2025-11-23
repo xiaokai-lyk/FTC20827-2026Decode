@@ -4,7 +4,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 
 public abstract class XKCommandOpmode extends CommandOpMode {
     public abstract void onStart();
-    public abstract void functionalButtons();
+    public void functionalButtons() { };
     @Override
     public void runOpMode() {
         initialize();
