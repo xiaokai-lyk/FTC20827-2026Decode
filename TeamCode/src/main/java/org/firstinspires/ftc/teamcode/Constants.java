@@ -1,4 +1,7 @@
 package org.firstinspires.ftc.teamcode;
+
+import org.firstinspires.ftc.teamcode.subsystems.AutoDrive;
+
 public class Constants {
     public static class ShooterConfig {
         public int frontVelocity;
@@ -18,6 +21,19 @@ public class Constants {
     public static double intakePowerSlow = 0.8;
     public static double intakePowerFast = 1.0;
     public static int driveMaxVelocity = 2960;
+    //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
+    public static double[][] pickUpPosition = {  //x,y,heading
+        {-108,-70,90},
+        {-168,-70,90},
+        {-228,-70,90}
+    };
+    // 吸球时把y轴怼到0就能吸进去。
+    public static double[][] shootingPosition = { //x,y,heading
+        {-85,-85,45}, //close
+        {},           //middle
+        {}            //far
+    };
+
 
     // 新增：自适应阻尼相关常量集中管理
     public static class Damping {

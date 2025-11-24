@@ -20,7 +20,9 @@ public class AutoDrive {
         public final double xCmd; // forward +
         public final double yCmd; // left +
         public final double rotateCmd; // CCW +
-        public final double dxCm; public final double dyCm; public final double dThetaRad;
+        public final double dxCm;
+        public final double dyCm;
+        public final double dThetaRad;
         public final boolean atPosition; public final boolean atHeading;
         public Output(double xCmd, double yCmd, double rotateCmd,
                       double dxCm, double dyCm, double dThetaRad,

@@ -78,13 +78,14 @@ public class Drive {
             DoubleSupplier rotate,
             Supplier<OdometerData> odometerDataSupplier,
             DoubleSupplier speedCoefficient,
-            BooleanSupplier useEncoders, BooleanSupplier fieldCentric) {
+            BooleanSupplier useEncoders,
+            BooleanSupplier fieldCentric) {
             this.drive = drive;
             this.x = x;
-            this.rotate = rotate;
             this.y = y;
-            this.speedCoefficient = speedCoefficient;
+            this.rotate = rotate;
             this.odometerDataSupplier = odometerDataSupplier;
+            this.speedCoefficient = speedCoefficient;
             this.useEncoders = useEncoders;
             this.fieldCentric = fieldCentric;
         }
