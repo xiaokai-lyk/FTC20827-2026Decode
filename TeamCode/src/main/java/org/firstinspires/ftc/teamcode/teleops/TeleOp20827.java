@@ -49,9 +49,9 @@ public class TeleOp20827 extends XKCommandOpmode {
                 gamepad1::getLeftY,
                 ()->-gamepad1.getRightX(),
                 ()-> new OdometerData(hardwares.sensors.odo),
-                ()->1,
-                ()-> true
-        );
+                ()-> (gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 ) ? 0.5 : 1,
+                ()-> true,
+            ()->true);
 
         CommandScheduler.getInstance().schedule(driveCommand);
     }
@@ -117,7 +117,7 @@ public class TeleOp20827 extends XKCommandOpmode {
         );
 
         new ButtonEx(
-            ()-> gamepad2.getButton(GamepadKeys.Button.START)
+            ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
         ).whenPressed(
             ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
         );

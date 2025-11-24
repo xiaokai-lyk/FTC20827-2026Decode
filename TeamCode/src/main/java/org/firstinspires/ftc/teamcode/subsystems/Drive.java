@@ -6,7 +6,6 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.utils.AngularDamping;
@@ -15,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.TranslationalDamping;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class Drive {
     public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight;
@@ -67,18 +67,18 @@ public class Drive {
         // 平移阻尼实例
         private final TranslationalDamping translationalDamping = new TranslationalDamping();
         private final AngularDamping angularDamping = new AngularDamping();
+        private final BooleanSupplier fieldCentric;
 
         public double dampedX, dampedY, dampedRotate;
 
         public DriveCommand(
-                Drive drive,
-                DoubleSupplier x,
-                DoubleSupplier y,
-                DoubleSupplier rotate,
-                java.util.function.Supplier<OdometerData> odometerDataSupplier,
-                DoubleSupplier speedCoefficient,
-                BooleanSupplier useEncoders
-        ) {
+            Drive drive,
+            DoubleSupplier x,
+            DoubleSupplier y,
+            DoubleSupplier rotate,
+            Supplier<OdometerData> odometerDataSupplier,
+            DoubleSupplier speedCoefficient,
+            BooleanSupplier useEncoders, BooleanSupplier fieldCentric) {
             this.drive = drive;
             this.x = x;
             this.rotate = rotate;
@@ -86,13 +86,20 @@ public class Drive {
             this.speedCoefficient = speedCoefficient;
             this.odometerDataSupplier = odometerDataSupplier;
             this.useEncoders = useEncoders;
+            this.fieldCentric = fieldCentric;
         }
 
         @Override
         public void execute() {
             double rotateInput = rotate.getAsDouble();
             OdometerData data = odometerDataSupplier.get();
-            double currentHeading = data.getHeadingRadians();
+            double currentHeading;
+            if(fieldCentric.getAsBoolean())
+            {
+                currentHeading = data.getHeadingRadians();
+            }else{
+                currentHeading = 0.0;
+            }
 
             AngularDamping.Result angResult = angularDamping.updateAndApply(
                     rotateInput,
