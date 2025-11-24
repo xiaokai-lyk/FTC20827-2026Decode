@@ -9,8 +9,8 @@ public class Constants {
         }
     }
 
-    public static double preShooterBlock = 1;
-    public static double preShooterRun = -1;
+    public static double preShooterBlock = -1;
+    public static double preShooterRun = 1;
     public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooter150cm = new ShooterConfig(500, 1440);
     public static ShooterConfig shooter105cm = new ShooterConfig(500, 1300);

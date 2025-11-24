@@ -36,7 +36,8 @@ public class AutoDrive {
                                   double targetXcm, double targetYcm, double targetHeadingRad,
                                   @NonNull OdometerData data, double speedCoefficient, boolean autoDecelerate){
         AdaptivePoseController.Output ao = controller.computeAdaptive(targetXcm, targetYcm, Math.toRadians(targetHeadingRad), data);
-        // 动态减速: 剩余距离 < 10cm 时按比例降低速度系数 (保持最低20%)
+        // 动态减速: 剩余距离 < 10cm 时按比例降低速度系数 (保持最低
+        // 20%)
         double distanceErr = Math.hypot(ao.dxCm, ao.dyCm);
         double scaledSpeed = speedCoefficient;
         if (distanceErr < 10.0 && autoDecelerate) {
