@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-import androidx.annotation.NonNull;
-
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -17,6 +15,7 @@ import lombok.Getter;
  */
 public class OdometerData {
     // 当前航向（弧度，场地坐标系，右手系，通常来自 IMU / 外部融合）
+
     @Getter
     private final double headingRadians;
     // 机器人坐标系下的平移速度 (m/s 或 归一化，需与阻尼算法假设一致)
@@ -50,5 +49,24 @@ public class OdometerData {
         this.yawRate = odo.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
         this.robotPosition = odo.getPosition();
     }
-}
 
+    public double getRobotVx() {
+        return robotVx;
+    }
+
+    public double getRobotVy() {
+        return robotVy;
+    }
+
+    public double getYawRate() {
+        return yawRate;
+    }
+
+    public Pose2D getRobotPosition() {
+        return robotPosition;
+    }
+
+    public double getHeadingRadians() {
+        return headingRadians;
+    }
+}
