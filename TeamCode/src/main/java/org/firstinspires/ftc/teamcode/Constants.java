@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.subsystems.AutoDrive;
-
 public class Constants {
     public static class ShooterConfig {
         public int frontVelocity;

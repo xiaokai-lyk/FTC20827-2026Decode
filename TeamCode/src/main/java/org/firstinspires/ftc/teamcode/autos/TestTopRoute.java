@@ -33,10 +33,10 @@ public class TestTopRoute extends XKCommandOpmode {
 
     // 状态机相关
     private AutoStep currentStep;
+    private int currIndex;
     private long stepStartTime;
     private OdometerData odo;
-
-    // 位置数组
+    private CommandScheduler scheduler = CommandScheduler.getInstance();
 
     // 定义自动驾驶步骤枚举
     private enum AutoStep {
@@ -44,16 +44,16 @@ public class TestTopRoute extends XKCommandOpmode {
         FIRST_SHOOT_BALLS,            // 射球阶段
         MOVE_TO_INTAKE_POSITION1,// 第一组球
         INTAKE_BALLS1,
-        MOVE_TO_SHOOTING_POSITION_CLOSE1,
-        SHOOT_BALLS_CLOSE1,
+        MOVE_TO_SHOOTING_POSITION1,
+        SHOOT_BALLS1,
         MOVE_TO_INTAKE_POSITION2,// 第二组球
         INTAKE_BALLS2,
-        MOVE_TO_SHOOTING_POSITION_CLOSE2,
-        SHOOT_BALLS_CLOSE2,
+        MOVE_TO_SHOOTING_POSITION2,
+        SHOOT_BALLS2,
         MOVE_TO_INTAKE_POSITION3,// 第三组球
         INTAKE_BALLS3,
-        MOVE_TO_SHOOTING_POSITION_CLOSE3,
-        SHOOT_BALLS_CLOSE3,
+        MOVE_TO_SHOOTING_POSITION3,
+        SHOOT_BALLS3,
         STOP_SYSTEMS,           // 停止所有系统
         COMPLETE               // 完成
     }
@@ -76,7 +76,7 @@ public class TestTopRoute extends XKCommandOpmode {
         executeCurrentStep();
 
         // 运行命令调度器
-        CommandScheduler.getInstance().run();
+        scheduler.run();
 
         // 更新遥测数据
         updateTelemetry();
@@ -88,59 +88,59 @@ public class TestTopRoute extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos(0,0);
+                moveToShootingPos(0);
                 break;
 
             case FIRST_SHOOT_BALLS:
-                shootBalls(1);
+                shootBalls();
                 break;
 
             case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(2,0);
+                moveToIntakePos(0);
                 break;
 
             case INTAKE_BALLS1:
-                IntakeBalls(3,0);
+                IntakeBalls(0);
                 break;
 
-            case MOVE_TO_SHOOTING_POSITION_CLOSE1:
-                moveToShootingPos(4,0);
+            case MOVE_TO_SHOOTING_POSITION1:
+                moveToShootingPos(0);
                 break;
 
-            case SHOOT_BALLS_CLOSE1:
-                shootBalls(5);
+            case SHOOT_BALLS1:
+                shootBalls();
                 break;
 
             case MOVE_TO_INTAKE_POSITION2:
-                moveToIntakePos(6,1);
+                moveToIntakePos(1);
                 break;
 
             case INTAKE_BALLS2:
-                IntakeBalls(7,1);
+                IntakeBalls(1);
                 break;
 
-            case MOVE_TO_SHOOTING_POSITION_CLOSE2:
-                moveToShootingPos(8,0);
+            case MOVE_TO_SHOOTING_POSITION2:
+                moveToShootingPos(0);
                 break;
 
-            case SHOOT_BALLS_CLOSE2:
-                shootBalls(9);
+            case SHOOT_BALLS2:
+                shootBalls();
                 break;
 
             case MOVE_TO_INTAKE_POSITION3:
-                moveToIntakePos(10,2);
+                moveToIntakePos(2);
                 break;
 
             case INTAKE_BALLS3:
-                IntakeBalls(11,2);
+                IntakeBalls(2);
                 break;
 
-            case MOVE_TO_SHOOTING_POSITION_CLOSE3:
-                moveToShootingPos(12,0);
+            case MOVE_TO_SHOOTING_POSITION3:
+                moveToShootingPos(0);
                 break;
 
-            case SHOOT_BALLS_CLOSE3:
-                shootBalls(13);
+            case SHOOT_BALLS3:
+                shootBalls();
                 break;
 
             case STOP_SYSTEMS:
@@ -156,7 +156,7 @@ public class TestTopRoute extends XKCommandOpmode {
     /**
      * 处理初始化射击器步骤
      */
-    private void moveToShootingPos(int curr, int posNum) {
+    private void moveToShootingPos(int posNum) {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter105cm).schedule();
@@ -170,33 +170,33 @@ public class TestTopRoute extends XKCommandOpmode {
             Constants.shootingPosition[posNum][1],     // Y坐标
             Constants.shootingPosition[posNum][2],     // 角度
             odo,
-            1.0,
+            0.5,
             true
         );
 
         // 检查是否到达位置且运行时间超过5秒
-        if (out.atPosition && out.atHeading && getElapsedSeconds() > 5) {
-            transitionToNextStep(curr);
+        if (out.atPosition && out.atHeading) {
+            transitionToNextStep();
         }
     }
 
     /**
      * 处理射球步骤
      */
-    private void shootBalls(int curr) {
+    private void shootBalls() {
         // 允许球通过并开始进球
         shooter.allowBallPass().schedule();
 
         // 持续3秒后进入下一步
-        if (getElapsedSeconds() > 3) {
-            transitionToNextStep(curr);
+        if (getElapsedSeconds() > 2) {
+            transitionToNextStep();
         }
     }
 
     /**
      * 处理移动到第二个位置步骤
      */
-    private void moveToIntakePos(int curr,int posNum) {
+    private void moveToIntakePos(int posNum) {
         // 阻止球通过
         intake.stopIntake().schedule();
         shooter.stopPreShooter().schedule();
@@ -215,31 +215,31 @@ public class TestTopRoute extends XKCommandOpmode {
         );
 
         // 检查是否到达位置且运行时间超过3秒
-        if (out.atPosition && out.atHeading && getElapsedSeconds() > 3) {
-            transitionToNextStep(curr);
+        if (out.atPosition && out.atHeading) {
+            transitionToNextStep();
         }
     }
 
     /**
      * 处理 intake 步骤
      */
-    private void IntakeBalls(int curr, int posNum) {
-        intake.startIntake(false).schedule();
+    private void IntakeBalls(int posNum) {
+        intake.startIntake(true).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
             Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1]+78,   // Y坐标
+            Constants.pickUpPosition[posNum][1]+90,   // Y坐标
             Constants.pickUpPosition[posNum][2],     // 角度
             odo,
-            0.4,
+            0.3,
             true
         );
 
-        if (out.atPosition && out.atHeading && getElapsedSeconds() > 3) {
-            transitionToNextStep(curr);
+        if (out.atPosition && out.atHeading) {
+            transitionToNextStep();
         }
     }
 
@@ -268,8 +268,9 @@ public class TestTopRoute extends XKCommandOpmode {
     /**
      * 转换到下一个步骤
      */
-    private void transitionToNextStep(int curr) {
-        AutoStep nextStep = AutoStep.values()[curr + 1];
+    private void transitionToNextStep() {
+        currIndex++;
+        AutoStep nextStep = AutoStep.values()[currIndex];
         currentStep = nextStep;
         stepStartTime = System.currentTimeMillis();
         telemetry.addData("Auto Step Changed", nextStep.toString());
