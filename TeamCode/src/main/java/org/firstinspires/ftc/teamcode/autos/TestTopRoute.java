@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 @Autonomous(name = "TestTopRoute", group = "autos")
 public class TestTopRoute extends XKCommandOpmode {
     // 硬件子系统
+
     private Hardwares hardwares;
     private Drive drive;
     private AutoDrive autoDrive;
@@ -34,14 +36,24 @@ public class TestTopRoute extends XKCommandOpmode {
     private long stepStartTime;
     private OdometerData odo;
 
+    // 位置数组
+
     // 定义自动驾驶步骤枚举
     private enum AutoStep {
         MOVE_TO_FIRST_POSITION,           // 初始化射击器
         FIRST_SHOOT_BALLS,            // 射球阶段
-        MOVE_TO_SECOND_POSITION,// 移动到第二个位置
-        INTAKE_BALLS,
-        MOVE_TO_THIRD_POSITION,
-        SECOND_SHOOT_BALLS,
+        MOVE_TO_INTAKE_POSITION1,// 第一组球
+        INTAKE_BALLS1,
+        MOVE_TO_SHOOTING_POSITION_CLOSE1,
+        SHOOT_BALLS_CLOSE1,
+        MOVE_TO_INTAKE_POSITION2,// 第二组球
+        INTAKE_BALLS2,
+        MOVE_TO_SHOOTING_POSITION_CLOSE2,
+        SHOOT_BALLS_CLOSE2,
+        MOVE_TO_INTAKE_POSITION3,// 第三组球
+        INTAKE_BALLS3,
+        MOVE_TO_SHOOTING_POSITION_CLOSE3,
+        SHOOT_BALLS_CLOSE3,
         STOP_SYSTEMS,           // 停止所有系统
         COMPLETE               // 完成
     }
@@ -76,27 +88,59 @@ public class TestTopRoute extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToCloseShootingPos(0);
+                moveToShootingPos(0,0);
                 break;
 
             case FIRST_SHOOT_BALLS:
                 shootBalls(1);
                 break;
 
-            case MOVE_TO_SECOND_POSITION:
-                moveToFirstIntakePos(2);
+            case MOVE_TO_INTAKE_POSITION1:
+                moveToIntakePos(2,0);
                 break;
 
-            case INTAKE_BALLS:
-                firstIntakeBalls(3);
+            case INTAKE_BALLS1:
+                IntakeBalls(3,0);
                 break;
 
-            case MOVE_TO_THIRD_POSITION:
-                moveToCloseShootingPos(4);
+            case MOVE_TO_SHOOTING_POSITION_CLOSE1:
+                moveToShootingPos(4,0);
                 break;
 
-            case SECOND_SHOOT_BALLS:
+            case SHOOT_BALLS_CLOSE1:
                 shootBalls(5);
+                break;
+
+            case MOVE_TO_INTAKE_POSITION2:
+                moveToIntakePos(6,1);
+                break;
+
+            case INTAKE_BALLS2:
+                IntakeBalls(7,1);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION_CLOSE2:
+                moveToShootingPos(8,0);
+                break;
+
+            case SHOOT_BALLS_CLOSE2:
+                shootBalls(9);
+                break;
+
+            case MOVE_TO_INTAKE_POSITION3:
+                moveToIntakePos(10,2);
+                break;
+
+            case INTAKE_BALLS3:
+                IntakeBalls(11,2);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION_CLOSE3:
+                moveToShootingPos(12,0);
+                break;
+
+            case SHOOT_BALLS_CLOSE3:
+                shootBalls(13);
                 break;
 
             case STOP_SYSTEMS:
@@ -112,7 +156,7 @@ public class TestTopRoute extends XKCommandOpmode {
     /**
      * 处理初始化射击器步骤
      */
-    private void moveToCloseShootingPos(int curr) {
+    private void moveToShootingPos(int curr, int posNum) {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter105cm).schedule();
@@ -122,9 +166,9 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            -110,  // X坐标
-            0,     // Y坐标
-            0,     // 角度
+            Constants.shootingPosition[posNum][0],  // X坐标
+            Constants.shootingPosition[posNum][1],     // Y坐标
+            Constants.shootingPosition[posNum][2],     // 角度
             odo,
             1.0,
             true
@@ -152,7 +196,7 @@ public class TestTopRoute extends XKCommandOpmode {
     /**
      * 处理移动到第二个位置步骤
      */
-    private void moveToFirstIntakePos(int curr) {
+    private void moveToIntakePos(int curr,int posNum) {
         // 阻止球通过
         intake.stopIntake().schedule();
         shooter.stopPreShooter().schedule();
@@ -162,11 +206,11 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            -115,  // X坐标
-            35,   // Y坐标
-            45,     // 角度
+            Constants.pickUpPosition[posNum][0],  // X坐标
+            Constants.pickUpPosition[posNum][1],   // Y坐标
+            Constants.pickUpPosition[posNum][2],     // 角度
             odo,
-            0.6,
+            0.5,
             true
         );
 
@@ -179,18 +223,18 @@ public class TestTopRoute extends XKCommandOpmode {
     /**
      * 处理 intake 步骤
      */
-    private void firstIntakeBalls(int curr) {
+    private void IntakeBalls(int curr, int posNum) {
         intake.startIntake(false).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            -65,  // X坐标
-            80,   // Y坐标
-            45,     // 角度
+            Constants.pickUpPosition[posNum][0],  // X坐标
+            Constants.pickUpPosition[posNum][1]+78,   // Y坐标
+            Constants.pickUpPosition[posNum][2],     // 角度
             odo,
-            0.3,
+            0.4,
             true
         );
 
@@ -264,7 +308,7 @@ public class TestTopRoute extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
-
+        hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES);
         telemetry.addData("Auto Status", "Initialized");
     }
 }
