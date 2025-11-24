@@ -88,7 +88,7 @@ public class TestTopRoute extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToCloseShootingPos(0,0);
+                moveToShootingPos(0,0);
                 break;
 
             case FIRST_SHOOT_BALLS:
@@ -104,7 +104,7 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION_CLOSE1:
-                moveToCloseShootingPos(4,0);
+                moveToShootingPos(4,0);
                 break;
 
             case SHOOT_BALLS_CLOSE1:
@@ -120,7 +120,7 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION_CLOSE2:
-                moveToCloseShootingPos(8,0);
+                moveToShootingPos(8,0);
                 break;
 
             case SHOOT_BALLS_CLOSE2:
@@ -136,7 +136,7 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION_CLOSE3:
-                moveToCloseShootingPos(12,0);
+                moveToShootingPos(12,0);
                 break;
 
             case SHOOT_BALLS_CLOSE3:
@@ -156,7 +156,7 @@ public class TestTopRoute extends XKCommandOpmode {
     /**
      * 处理初始化射击器步骤
      */
-    private void moveToCloseShootingPos(int curr, int posNum) {
+    private void moveToShootingPos(int curr, int posNum) {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter105cm).schedule();
