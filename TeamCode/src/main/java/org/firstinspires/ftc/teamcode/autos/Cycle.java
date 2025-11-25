@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.AutoDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -122,6 +123,6 @@ public class Cycle extends XKCommandOpmode {
         hardwares = new Hardwares(hardwareMap);
         drive = new Drive(hardwares);
         autoDrive = new AutoDrive();
-        adaptiveController = new AdaptivePoseController();
+        adaptiveController = Constants.PID.newPoseController();
     }
 }

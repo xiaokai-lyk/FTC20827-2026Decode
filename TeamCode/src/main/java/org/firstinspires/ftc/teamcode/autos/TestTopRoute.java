@@ -263,6 +263,7 @@ public class TestTopRoute extends XKCommandOpmode {
     private void stopSystems() {
         // 停止射击器和进球系统
         shooter.setShooter(Constants.shooterStop).schedule();
+        shooter.stopPreShooter().schedule();
         intake.stopIntake().schedule();
 
         // 完成自动程序
