@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
+import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
+
 public class Constants {
     public static class ShooterConfig {
         public int frontVelocity;
@@ -61,5 +64,52 @@ public class Constants {
         public static final double DEADZONE_RAMP_MIN = 0.30;
         public static final double HIGH_RATE_THRESHOLD = 0.35; // rad/s
         public static final double HIGH_RATE_MULTIPLIER = 1.25;
+    }
+
+    // ========= PID 可配置实例 =========
+    public static class PID {
+        // 平移 PID 参数（X/Y）
+        public static final double TRANS_KP = 0.05;
+        public static final double TRANS_KI = 0.00;
+        public static final double TRANS_KD = 0.00;
+        public static final double TRANS_MAX_OUT = 1.0;
+        public static final double TRANS_MIN_CMD = 0.03;
+        public static final double TRANS_DEADZONE_CM = 0.5;
+        public static final double TRANS_I_CLAMP = 0.2;
+
+        // 旋转 PID 参数
+        public static final double ROT_KP = 1.0;
+        public static final double ROT_KI = 0.00;
+        public static final double ROT_KD = 0.05;
+        public static final double ROT_MAX_OUT = 1.0;
+        public static final double ROT_MIN_CMD = 0.03;
+        public static final double ROT_DEADZONE_RAD = Math.toRadians(3.0);
+        public static final double ROT_I_CLAMP = 0.2;
+
+        // 统一通过常量初始化 PID 控制器
+        private static final AdaptivePIDController XTRANS_BASE =
+                new AdaptivePIDController(
+                        TRANS_KP, TRANS_KI, TRANS_KD,
+                        TRANS_MAX_OUT, TRANS_MIN_CMD,
+                        TRANS_DEADZONE_CM, TRANS_I_CLAMP);
+        private static final AdaptivePIDController YTRANS_BASE =
+                new AdaptivePIDController(
+                        TRANS_KP, TRANS_KI, TRANS_KD,
+                        TRANS_MAX_OUT, TRANS_MIN_CMD,
+                        TRANS_DEADZONE_CM, TRANS_I_CLAMP);
+        private static final AdaptivePIDController ROTATE_BASE =
+                new AdaptivePIDController(
+                        ROT_KP, ROT_KI, ROT_KD,
+                        ROT_MAX_OUT, ROT_MIN_CMD,
+                        ROT_DEADZONE_RAD, ROT_I_CLAMP);
+
+        public static AdaptivePIDController xTrans() { return XTRANS_BASE.copy(); }
+        public static AdaptivePIDController yTrans() { return YTRANS_BASE.copy(); }
+        public static AdaptivePIDController rotate() { return ROTATE_BASE.copy(); }
+
+        // 便捷工厂：创建一个 AdaptivePoseController
+        public static AdaptivePoseController newPoseController() {
+            return new AdaptivePoseController(xTrans(), yTrans(), rotate());
+        }
     }
 }
