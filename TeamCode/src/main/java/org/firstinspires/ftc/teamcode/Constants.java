@@ -41,7 +41,7 @@ public class Constants {
         // Previous names: aggressiveFrontPID / conservativeFrontPID etc.
         // We now provide three sets: low, mid, high for front and back. The mid values here are chosen as reasonable midpoints
         // between the previously used aggressive and conservative tunings.
-        public static final PIDFCoefficients highFrontPID = new PIDFCoefficients(7, 68.767, 0.267, 7e-4);
+        public static final PIDFCoefficients highFrontPID = new PIDFCoefficients(10, 0, 0, 7e-4);
         public static final PIDFCoefficients lowFrontPID  = new PIDFCoefficients(3.3, 25.935, 0.277, 0.000);
         public static final PIDFCoefficients midFrontPID  = new PIDFCoefficients(5.15, 47.351, 0.272, 0.00035);
 
@@ -84,7 +84,7 @@ public class Constants {
     // ========= PID 可配置实例 =========
     public static class PID {
         // 平移 PID 参数（X/Y）
-        public static final double TRANS_KP = 1.0;
+        public static final double TRANS_KP = 1.5;
         public static final double TRANS_KI = 0.00;
         public static final double TRANS_KD = 0.00;
         public static final double TRANS_MAX_OUT = 1.0;

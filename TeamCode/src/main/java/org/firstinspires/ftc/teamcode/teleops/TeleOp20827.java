@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -10,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.internal.system.CloseableOnFinalize;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -81,6 +81,9 @@ public class TeleOp20827 extends XKCommandOpmode {
         telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
         telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
 
+        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
+        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
+
         telemetry.update();
     }
 
@@ -91,19 +94,35 @@ public class TeleOp20827 extends XKCommandOpmode {
                 shooter.stopPreShooter(),
                 intake.stopIntake()
         );
+
+        // ConditionalCommand that runs enterRunningMode only when neither trigger is pressed.
+        ConditionalCommand stopIfNoTriggers = new ConditionalCommand(
+                enterRunningMode,
+                new InstantCommand(() -> {}),
+                () -> {
+                    boolean rt = gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5;
+                    boolean lt = gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5;
+                    return (!rt && !lt);
+                }
+        );
+
         new ButtonEx(
                 () -> gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
         ).whenPressed(
             shooter.blockBallPass(),
             intake.startIntake(true)
-        ).whenReleased(enterRunningMode);
+        ).whenReleased(
+            stopIfNoTriggers
+        );
 
         new ButtonEx(
                 ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
                 shooter.allowBallPass(),
                 intake.startIntake(false)
-        ).whenReleased(enterRunningMode);
+        ).whenReleased(
+            stopIfNoTriggers
+        );
 
 
 
@@ -117,6 +136,7 @@ public class TeleOp20827 extends XKCommandOpmode {
         new ButtonEx(
             ()-> gamepad2.getButton(GamepadKeys.Button.B)
         ).whenPressed(
+            /* Assumption: shooter125cm corresponds to HIGH mode */
             shooter.setShooter(Constants.shooter125cm)
         ).whenReleased(
             shooter.setShooter(Constants.shooterStop)
@@ -125,6 +145,7 @@ public class TeleOp20827 extends XKCommandOpmode {
         new ButtonEx(
             ()-> gamepad2.getButton(GamepadKeys.Button.Y)
         ).whenPressed(
+            /* Assumption: shooter40cm corresponds to LOW mode */
             shooter.setShooter(Constants.shooter40cm)
         ).whenReleased(
             shooter.setShooter(Constants.shooterStop)
