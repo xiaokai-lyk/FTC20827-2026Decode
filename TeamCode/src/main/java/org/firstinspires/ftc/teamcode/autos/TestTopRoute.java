@@ -169,7 +169,7 @@ public class TestTopRoute extends XKCommandOpmode {
     private void moveToShootingPos(int posNum) {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
-        shooter.setShooter(Constants.shooter105cm).schedule();
+        shooter.setShooter(Constants.shooter125cm).schedule();
         intake.startIntake(false).schedule();
 
         // 驱动到第一个位置
@@ -324,7 +324,7 @@ public class TestTopRoute extends XKCommandOpmode {
         hardwares = new Hardwares(hardwareMap);
         drive = new Drive(hardwares);
         autoDrive = new AutoDrive();
-        adaptiveController = new AdaptivePoseController();
+        adaptiveController = Constants.PID.newPoseController();
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);

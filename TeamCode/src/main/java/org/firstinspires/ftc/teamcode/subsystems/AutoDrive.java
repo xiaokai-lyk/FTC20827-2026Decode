@@ -38,13 +38,12 @@ public class AutoDrive {
                                   double targetXcm, double targetYcm, double targetHeadingRad,
                                   @NonNull OdometerData data, double speedCoefficient, boolean autoDecelerate){
         AdaptivePoseController.Output ao = controller.computeAdaptive(targetXcm, targetYcm, Math.toRadians(targetHeadingRad), data);
-        // 动态减速: 剩余距离 < 10cm 时按比例降低速度系数 (保持最低
-        // 20%)
+        // 动态减速: 剩余距离 < 10cm 时按比例降低速度系数
         double distanceErr = Math.hypot(ao.dxCm, ao.dyCm);
         double scaledSpeed = speedCoefficient;
         if (distanceErr < 10.0 && autoDecelerate) {
             double ratio = distanceErr / 10.0; // 0..1
-            scaledSpeed = speedCoefficient * Math.max(ratio, 0.2); // 最低保持 20% 以避免停滞
+            scaledSpeed = speedCoefficient * Math.max(ratio, 0.5);
         }
         // 我不知道为什么，但是就是要把所有符号都弄成相反的才行！
         // 我觉得是ChatGPT的问题！如果有后人解决这个问题希望可以联系 kai_xk@qq.com

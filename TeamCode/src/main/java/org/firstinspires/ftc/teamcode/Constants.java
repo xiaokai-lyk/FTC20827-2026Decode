@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
 import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 
@@ -15,9 +17,9 @@ public class Constants {
 
     public static double preShooterBlock = -1;
     public static double preShooterRun = 1;
+    public static ShooterConfig shooter40cm = new ShooterConfig(700, 700);
+    public static ShooterConfig shooter125cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
-    public static ShooterConfig shooter150cm = new ShooterConfig(500, 1440);
-    public static ShooterConfig shooter105cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerSlow = 0.8;
     public static double intakePowerFast = 1.0;
@@ -34,6 +36,19 @@ public class Constants {
         {},           //middle
         {}            //far
     };
+
+    public static class ShooterPID{
+        // Previous names: aggressiveFrontPID / conservativeFrontPID etc.
+        // We now provide three sets: low, mid, high for front and back. The mid values here are chosen as reasonable midpoints
+        // between the previously used aggressive and conservative tunings.
+        public static final PIDFCoefficients highFrontPID = new PIDFCoefficients(7, 68.767, 0.267, 7e-4);
+        public static final PIDFCoefficients lowFrontPID  = new PIDFCoefficients(3.3, 25.935, 0.277, 0.000);
+        public static final PIDFCoefficients midFrontPID  = new PIDFCoefficients(5.15, 47.351, 0.272, 0.00035);
+
+        public static final PIDFCoefficients highBackPID  = new PIDFCoefficients(7, 27.023, 0.705, 7e-4);
+        public static final PIDFCoefficients lowBackPID   = new PIDFCoefficients(3.3, 10.192, 0.680, 0.000);
+        public static final PIDFCoefficients midBackPID   = new PIDFCoefficients(5.15, 18.6075, 0.6925, 0.00035);
+    }
 
 
     // 新增：自适应阻尼相关常量集中管理
@@ -69,7 +84,7 @@ public class Constants {
     // ========= PID 可配置实例 =========
     public static class PID {
         // 平移 PID 参数（X/Y）
-        public static final double TRANS_KP = 0.05;
+        public static final double TRANS_KP = 1.0;
         public static final double TRANS_KI = 0.00;
         public static final double TRANS_KD = 0.00;
         public static final double TRANS_MAX_OUT = 1.0;

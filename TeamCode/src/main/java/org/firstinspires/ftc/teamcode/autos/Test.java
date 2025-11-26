@@ -34,7 +34,7 @@ public class Test extends XKCommandOpmode {
         OdometerData odom = new OdometerData(hardwares.sensors.odo);
         if(step ==0){
             shooter.blockBallPass().schedule();
-            shooter.setShooter(Constants.shooter105cm).schedule();
+            shooter.setShooter(Constants.shooter125cm).schedule();
             intake.startIntake(false).schedule();
             AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
