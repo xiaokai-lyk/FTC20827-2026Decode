@@ -52,6 +52,10 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         INTAKE_BALLS2,                    // 取第二组球
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
+        MOVE_TO_INTAKR_POSITION3,         // 移动至第三组取球点
+        INTAKE_BALLS3,                    // 取第三组球
+        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
+        SHOOT_BALLS3,                     // 发射第三组球
         MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -125,10 +129,26 @@ public class TestTopRouteBlue extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(1);
+                moveToShootingPos(0);
                 break;
 
             case SHOOT_BALLS2:
+                shootBalls();
+                break;
+
+            case MOVE_TO_INTAKR_POSITION3:
+                moveToIntakePos(2);
+                break;
+
+            case INTAKE_BALLS3:
+                IntakeBalls(2);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION3:
+                moveToShootingPos(0);
+                break;
+
+            case SHOOT_BALLS3:
                 shootBalls();
                 break;
 
@@ -182,8 +202,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         // 允许球通过并开始进球
         shooter.allowBallPass().schedule();
 
-        // 持续3秒后进入下一步
-        if (getElapsedSeconds() > 2) {
+        if (getElapsedSeconds() > 1.5) {
             transitionToNextStep();
         }
     }
@@ -207,11 +226,10 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.bluePickUpPosition[posNum][1],   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            0.5,
+            1,
             true
         );
 
-        // 检查是否到达位置且运行时间超过3秒
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
         }
@@ -230,14 +248,14 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             drive,
             adaptiveController,
             Constants.bluePickUpPosition[posNum][0],  // X坐标
-            Constants.bluePickUpPosition[posNum][1]+90,   // Y坐标
+            Constants.bluePickUpPosition[posNum][1]+100,   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            0.3,
-            true
+            0.8,
+            false
         );
 
-        if (out.atPosition && out.atHeading) {
+        if (out.atPosition && out.atHeading  || getElapsedSeconds() > 2) {
             transitionToNextStep();
         }
     }
@@ -304,11 +322,11 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPosition[0][0],  // X坐标
-            Constants.bluePickUpPosition[0][1],   // Y坐标
-            Constants.bluePickUpPosition[0][2],     // 角度
+            Constants.blueParkPosition[0],  // X坐标
+            Constants.blueParkPosition[1],   // Y坐标
+            Constants.blueParkPosition[2],     // 角度
             odo,
-            0.3,
+            1,
             true
         );
     }
