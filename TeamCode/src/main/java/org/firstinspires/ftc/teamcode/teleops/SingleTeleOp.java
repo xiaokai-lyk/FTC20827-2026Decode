@@ -129,14 +129,14 @@ public class SingleTeleOp extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.B)
         ).whenPressed(
-            shooter.setShooter(Constants.shooter150cm),
+            shooter.setShooter(Constants.shooter40cm),
             light.setLightColor(0, 255, 0)
             );
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.A)
         ).whenPressed(
-            shooter.setShooter(Constants.shooter105cm),
+            shooter.setShooter(Constants.shooter125cm),
             light.setLightColor(0, 0, 255));
     }
 }

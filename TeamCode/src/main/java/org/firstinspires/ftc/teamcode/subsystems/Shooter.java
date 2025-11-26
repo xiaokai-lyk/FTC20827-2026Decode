@@ -10,8 +10,11 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.jetbrains.annotations.Contract;
 
+import lombok.Getter;
+
 public class Shooter {
     private final DcMotorEx shooterFront, shooterBack, preShooter, intake;
+
     private double shooterFrontTarget = 0;
     private double shooterBackTarget = 0;
 
@@ -29,6 +32,7 @@ public class Shooter {
     private PIDFCoefficients currentFrontApplied = null;
     private PIDFCoefficients currentBackApplied = null;
 
+
     public Shooter(@NonNull Hardwares hardwares) {
         this.shooterFront = hardwares.motors.shooterFront;
         this.shooterBack = hardwares.motors.shooterBack;
@@ -44,6 +48,7 @@ public class Shooter {
             shooterBack.setVelocity(config.backVelocity);
             shooterFrontTarget = config.frontVelocity;
             shooterBackTarget = config.backVelocity;
+
         });
     }
 
@@ -65,11 +70,6 @@ public class Shooter {
         );
     }
 
-    /**
-     * 自适应 PID 更新：根据当前速度与目标速度之间的误差大小，在激进与保守 PID 之间切换或平滑插值。
-     * 调用频率：建议在主循环 (opMode loop) 每帧调用。
-     * @param targetVelocity 本次希望的目标速度（前后枪可以一致或不同，此处统一传入；如需分别处理可拓展参数）
-     */
     public void updateMotorPIDF(Constants.ShooterConfig targetVelocity){
         shooterFrontTarget = targetVelocity.frontVelocity; // 若外部调用动态改变目标
         shooterBackTarget = targetVelocity.backVelocity;
@@ -99,12 +99,6 @@ public class Shooter {
         }
     }
 
-    /**
-     * 根据误差绝对值与设定阈值进行区间判断：
-     * absError >= highErrorThreshold -> 使用激进 PID
-     * absError <= lowErrorThreshold  -> 使用保守 PID
-     * 中间区域 -> 线性插值 (smooth mix) 两套 PID
-     */
     private PIDFCoefficients selectOrBlend(double absError, PIDFCoefficients aggressive, PIDFCoefficients conservative){
         if (absError >= highErrorThreshold) return aggressive;
         if (absError <= lowErrorThreshold) return conservative;
@@ -114,16 +108,19 @@ public class Shooter {
         return blendPID(conservative, aggressive, t);
     }
 
-    private PIDFCoefficients blendPID(PIDFCoefficients a, PIDFCoefficients b, double t){
+    private PIDFCoefficients blendPID(PIDFCoefficients a, PIDFCoefficients b, double t) {
         double p = lerp(a.p, b.p, t);
         double i = lerp(a.i, b.i, t);
         double d = lerp(a.d, b.d, t);
         double f = lerp(a.f, b.f, t); // 多数情况下 F 不需要插值，可直接用保守或激进之一，这里保留插值灵活性
-        return new PIDFCoefficients(p,i,d,f);
+        return new PIDFCoefficients(p, i, d, f);
     }
 
     private double lerp(double x, double y, double t){ return x + (y - x) * t; }
 
+    /**
+     * 比较两个 PIDFCoefficients 是否相等（允许微小浮点差异）。
+     */
     private boolean pidEquals(PIDFCoefficients a, PIDFCoefficients b){
         if (a == b) return true;
         if (a == null || b == null) return false;
@@ -132,10 +129,4 @@ public class Shooter {
         return Math.abs(a.p - b.p) < eps && Math.abs(a.i - b.i) < eps && Math.abs(a.d - b.d) < eps && Math.abs(a.f - b.f) < eps;
     }
 
-    public void setErrorThresholds(int low, int high){
-        if (low < high && low >= 0) {
-            this.lowErrorThreshold = low;
-            this.highErrorThreshold = high;
-        }
-    }
 }

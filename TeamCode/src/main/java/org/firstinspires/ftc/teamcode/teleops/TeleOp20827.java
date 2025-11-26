@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -13,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
@@ -24,7 +25,6 @@ public class TeleOp20827 extends XKCommandOpmode {
     private Shooter shooter;
     private Hardwares hardwares;
     private Intake intake;
-    private Light light;
     private GamepadEx gamepad1, gamepad2;
     private Constants.ShooterConfig shooterConfig;
     protected Drive.DriveCommand driveCommand;
@@ -37,7 +37,6 @@ public class TeleOp20827 extends XKCommandOpmode {
         hardwares = new Hardwares(hardwareMap);
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
-        light = new Light(hardwares);
 
 
         Drive drive = new Drive(hardwares);
@@ -58,7 +57,6 @@ public class TeleOp20827 extends XKCommandOpmode {
 
     @Override
     public void onStart() {
-        light.setLightColor(255, 255, 255).schedule();
     }
 
     @Override
@@ -83,6 +81,9 @@ public class TeleOp20827 extends XKCommandOpmode {
         telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
         telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
 
+        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
+        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
+
         telemetry.update();
     }
 
@@ -93,28 +94,37 @@ public class TeleOp20827 extends XKCommandOpmode {
                 shooter.stopPreShooter(),
                 intake.stopIntake()
         );
+
+        // ConditionalCommand that runs enterRunningMode only when neither trigger is pressed.
+        ConditionalCommand stopIfNoTriggers = new ConditionalCommand(
+                enterRunningMode,
+                new InstantCommand(() -> {}),
+                () -> {
+                    boolean rt = gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5;
+                    boolean lt = gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5;
+                    return (!rt && !lt);
+                }
+        );
+
         new ButtonEx(
                 () -> gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
         ).whenPressed(
             shooter.blockBallPass(),
             intake.startIntake(true)
-        ).whenReleased(enterRunningMode);
+        ).whenReleased(
+            stopIfNoTriggers
+        );
 
         new ButtonEx(
                 ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
                 shooter.allowBallPass(),
                 intake.startIntake(false)
-        ).whenReleased(enterRunningMode);
-
-        new ButtonEx(
-                ()-> gamepad2.getButton(GamepadKeys.Button.X)
-        ).whenPressed(
-            shooter.setShooter(Constants.shooter250cm),
-            light.setLightColor(255, 0, 0)
         ).whenReleased(
-            shooter.setShooter(Constants.shooterStop)
+            stopIfNoTriggers
         );
+
+
 
         new ButtonEx(
             ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
@@ -122,17 +132,23 @@ public class TeleOp20827 extends XKCommandOpmode {
             ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
         );
 
-        new ButtonEx(
-                ()-> gamepad2.getButton(GamepadKeys.Button.B)
-        ).whenPressed(
-            shooter.setShooter(Constants.shooter150cm),
-            light.setLightColor(0, 255, 0)
-            );
 
         new ButtonEx(
-                ()-> gamepad2.getButton(GamepadKeys.Button.A)
+            ()-> gamepad2.getButton(GamepadKeys.Button.B)
         ).whenPressed(
-            shooter.setShooter(Constants.shooter105cm),
-            light.setLightColor(0, 0, 255));
+            /* Assumption: shooter125cm corresponds to HIGH mode */
+            shooter.setShooter(Constants.shooter125cm)
+        ).whenReleased(
+            shooter.setShooter(Constants.shooterStop)
+        );
+
+        new ButtonEx(
+            ()-> gamepad2.getButton(GamepadKeys.Button.Y)
+        ).whenPressed(
+            /* Assumption: shooter40cm corresponds to LOW mode */
+            shooter.setShooter(Constants.shooter40cm)
+        ).whenReleased(
+            shooter.setShooter(Constants.shooterStop)
+        );
     }
 }

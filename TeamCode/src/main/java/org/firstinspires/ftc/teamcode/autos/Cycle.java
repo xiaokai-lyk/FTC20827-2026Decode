@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.AutoDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
+import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
@@ -30,6 +32,20 @@ public class Cycle extends XKCommandOpmode {
     private final double targetXcm = 100;
     private final double targetYcm = 50;
     private final double targetHeadingDeg = 180; // degrees
+
+    // ----- PID tuning state for chassis (x/y/rotate) -----
+    // axisIdx: 0 = xTrans, 1 = yTrans, 2 = rotate
+    private int axisIdx = 0;
+    // coefIdx: 0 = P, 1 = I, 2 = D
+    private int coefIdx = 0;
+
+    // previous button states for edge detection
+    private boolean prevA = false, prevB = false, prevX = false, prevY = false;
+    private boolean prevDpadUp = false, prevDpadDown = false, prevDpadLeft = false, prevDpadRight = false;
+
+    // step sizes
+    private final double smallStep = 0.01; // small increment
+    private final double largeStep = 0.1;  // large increment
 
     @Override
     public void onStart() {
@@ -89,7 +105,70 @@ public class Cycle extends XKCommandOpmode {
             atGoalStableCount = 0;
         }
 
-        // Telemetry
+        // ----- Chassis PID tuning via gamepad -----
+        // Controls (edge-triggered):
+        // dpad_left/right : change axis (x/y/rotate)
+        // dpad_up/down : change coefficient index (P/I/D)
+        // A/B : increase/decrease by smallStep
+        // Y/X : increase/decrease by largeStep
+
+        // read current gamepad1 buttons
+        boolean a = gamepad1.a;
+        boolean b = gamepad1.b;
+        boolean x = gamepad1.x;
+        boolean y = gamepad1.y;
+        boolean dpadUp = gamepad1.dpad_up;
+        boolean dpadDown = gamepad1.dpad_down;
+        boolean dpadLeft = gamepad1.dpad_left;
+        boolean dpadRight = gamepad1.dpad_right;
+
+        // change axis selection
+        if (dpadLeft && !prevDpadLeft) axisIdx = (axisIdx - 1 + 3) % 3;
+        if (dpadRight && !prevDpadRight) axisIdx = (axisIdx + 1) % 3;
+
+        // change coefficient index
+        if (dpadUp && !prevDpadUp) coefIdx = (coefIdx - 1 + 3) % 3;
+        if (dpadDown && !prevDpadDown) coefIdx = (coefIdx + 1) % 3;
+
+        // adjust values
+        double delta = 0.0;
+        if (a && !prevA) delta += smallStep;
+        if (b && !prevB) delta -= smallStep;
+        if (y && !prevY) delta += largeStep;
+        if (x && !prevX) delta -= largeStep;
+
+        if (Math.abs(delta) > 1e-9) {
+            AdaptivePIDController pid;
+            if (axisIdx == 0) pid = adaptiveController.getXTransPID();
+            else if (axisIdx == 1) pid = adaptiveController.getYTransPID();
+            else pid = adaptiveController.getRotatePID();
+
+            double kp = pid.getKp();
+            double ki = pid.getKi();
+            double kd = pid.getKd();
+            if (coefIdx == 0) kp += delta;
+            else if (coefIdx == 1) ki += delta;
+            else if (coefIdx == 2) kd += delta;
+            pid.setPID(kp, ki, kd);
+        }
+
+        // update prev states
+        prevA = a; prevB = b; prevX = x; prevY = y;
+        prevDpadUp = dpadUp; prevDpadDown = dpadDown; prevDpadLeft = dpadLeft; prevDpadRight = dpadRight;
+
+        // Telemetry for tuning
+        AdaptivePIDController xpid = adaptiveController.getXTransPID();
+        AdaptivePIDController ypid = adaptiveController.getYTransPID();
+        AdaptivePIDController rpid = adaptiveController.getRotatePID();
+
+        telemetry.addData("Axis", axisIdx == 0 ? "xTrans" : axisIdx == 1 ? "yTrans" : "rotate");
+        telemetry.addData("Coef", coefIdx == 0 ? "P" : coefIdx == 1 ? "I" : "D");
+        telemetry.addData("x PID", String.format("P=%.3f I=%.5f D=%.3f", xpid.getKp(), xpid.getKi(), xpid.getKd()));
+        telemetry.addData("y PID", String.format("P=%.3f I=%.5f D=%.3f", ypid.getKp(), ypid.getKi(), ypid.getKd()));
+        telemetry.addData("rotate PID", String.format("P=%.3f I=%.5f D=%.3f", rpid.getKp(), rpid.getKi(), rpid.getKd()));
+        telemetry.addLine("Controls: dpad LR: axis | dpad UD: coef | A/B +/- small | Y/X +/- large");
+
+        // Telemetry (existing)
         telemetry.addData("At Goal", out.atPosition && out.atHeading);
         telemetry.addData("阶段", goingToTarget ? "去目标" : "回起点");
         telemetry.addData("稳定计数", atGoalStableCount + "/" + AT_GOAL_STABLE_MIN);
@@ -124,5 +203,7 @@ public class Cycle extends XKCommandOpmode {
         drive = new Drive(hardwares);
         autoDrive = new AutoDrive();
         adaptiveController = Constants.PID.newPoseController();
+
+        // nothing shooter-related here anymore
     }
 }
