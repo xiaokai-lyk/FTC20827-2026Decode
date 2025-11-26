@@ -31,6 +31,8 @@ public class Constants {
     public static double[] blueParkPosition = {-140,-30,0}; //x,y,heading
 
     public static double[] blueGateControlPoint = {-168, -50, 0};//若是调到gate右侧则是绕开门否则是打开门
+    public static double[] redGateControlPoint = {-168, 75, -90};//
+    public static double[] redParkPosition = {-185, 110, 0}; // red park pos
 
     public static double[][] redPickUpPosition = {  //x,y,heading
         {-108,70,-90},
