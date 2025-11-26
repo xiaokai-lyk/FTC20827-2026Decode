@@ -266,6 +266,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
 
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
+            adaptiveController.resetDeadbands();
         }
     }
 
@@ -285,6 +286,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
 
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
+            adaptiveController.resetDeadbands();
         }
     }
 
