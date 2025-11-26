@@ -1,5 +1,6 @@
-// Test.java
 package org.firstinspires.ftc.teamcode.autos;
+
+import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -16,14 +17,9 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-/**
- * 改进版自动驾驶测试程序
- * 使用状态机模式提高可扩展性和可维护性
- */
-@Autonomous(name = "TestTopRoute", group = "autos")
-public class TestTopRoute extends XKCommandOpmode {
-    // 硬件子系统
-
+@Autonomous(name = "TestBottomRouteBlue", group = "autos")
+public class TestBottomRouteBlue extends XKCommandOpmode
+{
     private Hardwares hardwares;
     private Drive drive;
     private AutoDrive autoDrive;
@@ -38,24 +34,23 @@ public class TestTopRoute extends XKCommandOpmode {
     private OdometerData odo;
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 
+    int distanceType = 0; //0是远射 1是中射 2是近射
+
     /**
      * 定义自动驾驶步骤枚举，表示机器人在自动阶段中的各个任务节点
      */
     private enum AutoStep {
-        MOVE_TO_FIRST_POSITION,           // 移动到初始射击位置
-        FIRST_SHOOT_BALLS,                // 初始射球阶段
+        MOVE_TO_SHOOTING_POSITION,        //初始射球预热
+        INITIAL_POSITION_SHOOT,           //初始位置射击
         MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
         INTAKE_BALLS1,                    // 取第一组球
         MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
-        SHOOT_BALLS1,                     // 发射第一组球
+        FAR_POSITION_SHOOT,               // 发射第一组球
         MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
         INTAKE_BALLS2,                    // 取第二组球
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
-        MOVE_TO_INTAKE_POSITION3,         // 移动至第三组取球点
-        INTAKE_BALLS3,                    // 取第三组球
-        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
-        SHOOT_BALLS3,                     // 发射第三组球
+        AWAY_FROM_LINE,                   // 离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
     }
@@ -66,7 +61,7 @@ public class TestTopRoute extends XKCommandOpmode {
     @Override
     public void onStart() {
         // 初始化状态机
-        currentStep = AutoStep.MOVE_TO_FIRST_POSITION;
+        currentStep = AutoStep.MOVE_TO_SHOOTING_POSITION;
         stepStartTime = System.currentTimeMillis();
         telemetry.addData("Auto Status", "Started");
     }
@@ -95,16 +90,16 @@ public class TestTopRoute extends XKCommandOpmode {
      */
     private void executeCurrentStep() {
         switch (currentStep) {
-            case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos(0);
+            case MOVE_TO_SHOOTING_POSITION:
+                moveToShootingPos(2);//远射位置
                 break;
 
-            case FIRST_SHOOT_BALLS:
+            case INITIAL_POSITION_SHOOT:
                 shootBalls();
                 break;
 
             case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(0);
+                moveToIntakePos(2);
                 break;
 
             case INTAKE_BALLS1:
@@ -112,10 +107,11 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos(0);
+                moveToShootingPos(1);//远射位置,现在改为1(中射位置)是因为水下天花板太矮了
                 break;
 
-            case SHOOT_BALLS1:
+
+            case FAR_POSITION_SHOOT:
                 shootBalls();
                 break;
 
@@ -128,27 +124,16 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(0);
+                distanceType = 1; //将移动期间的预热改为中射预热
+                moveToShootingPos(1);//中射位置
                 break;
 
             case SHOOT_BALLS2:
                 shootBalls();
                 break;
 
-            case MOVE_TO_INTAKE_POSITION3:
-                moveToIntakePos(2);
-                break;
-
-            case INTAKE_BALLS3:
-                IntakeBalls(2);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION3:
-                moveToShootingPos(0);
-                break;
-
-            case SHOOT_BALLS3:
-                shootBalls();
+            case AWAY_FROM_LINE:
+                moveFromLine();
                 break;
 
             case STOP_SYSTEMS:
@@ -156,8 +141,8 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case COMPLETE:
-                // 自动程序完成，无需进一步操作
                 break;
+                // 自动程序完成，无需进一步操作
         }
     }
 
@@ -168,19 +153,29 @@ public class TestTopRoute extends XKCommandOpmode {
      */
     private void moveToShootingPos(int posNum) {
         // 设置射击器和进球系统
-        shooter.blockBallPass().schedule();
-        shooter.setShooter(Constants.shooter125cm).schedule();
-        intake.startIntake(false).schedule();
+        if(distanceType == 0)
+        {
+            shooter.blockBallPass().schedule();
+            shooter.setShooter(Constants.shooter250cm).schedule();
+            intake.startIntake(false).schedule();
+        }
+        else
+        {
+            shooter.blockBallPass().schedule();
+            shooter.setShooter(Constants.shooter125cm).schedule();
+            intake.startIntake(false).schedule();
+        }
+
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.shootingPosition[posNum][0],  // X坐标
-            Constants.shootingPosition[posNum][1],     // Y坐标
-            Constants.shootingPosition[posNum][2],     // 角度
+            Constants.blueShootingPosition[posNum][0],  // X坐标
+            Constants.blueShootingPosition[posNum][1],     // Y坐标
+            Constants.blueShootingPosition[posNum][2],     // 角度
             odo,
-            1,
+            0.5,
             true
         );
 
@@ -203,6 +198,7 @@ public class TestTopRoute extends XKCommandOpmode {
         }
     }
 
+
     /**
      * 控制机器人前往指定编号的取球点，并关闭预处理机构
      *
@@ -218,9 +214,9 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1],   // Y坐标
-            Constants.pickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum][0],  // X坐标
+            Constants.bluePickUpPosition[posNum][1],   // Y坐标
+            Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.5,
             true
@@ -244,9 +240,9 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1]+90,   // Y坐标
-            Constants.pickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum][0],  // X坐标
+            Constants.bluePickUpPosition[posNum][1]+90,   // Y坐标
+            Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.3,
             true
@@ -274,10 +270,23 @@ public class TestTopRoute extends XKCommandOpmode {
      *
      * @param nextStep 下一个要切换的状态
      */
-    private void transitionToNextStep(AutoStep nextStep) {
+    private void transitionToNextStep(@NonNull AutoStep nextStep) {
         currentStep = nextStep;
         stepStartTime = System.currentTimeMillis();
         telemetry.addData("Auto Step Changed", nextStep.toString());
+    }
+
+    private void moveFromLine() {
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.bluePickUpPosition[2][0],  // X坐标
+            Constants.bluePickUpPosition[2][1],   // Y坐标
+            Constants.bluePickUpPosition[2][2],     // 角度
+            odo,
+            0.3,
+            true
+        );
     }
 
     /**

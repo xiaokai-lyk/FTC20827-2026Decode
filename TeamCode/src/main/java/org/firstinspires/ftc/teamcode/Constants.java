@@ -25,23 +25,36 @@ public class Constants {
     public static double intakePowerFast = 1.0;
     public static int driveMaxVelocity = 2960;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
-    public static double[][] pickUpPosition = {  //x,y,heading
-        {-108,-70,90},
-        {-168,-70,90},
-        {-228,-70,90}
+    public static double[][] bluePickUpPosition = {  //x,y,heading
+        {-108,-70,90}, //Blue Top Intake
+        {-168,-70,90}, //Blue Middle Intake
+        {-228,-70,90} //Blue Bottom Intake
     };
+
+    public static double[][] redPickUpPosition = {  //x,y,heading
+        {-108,70,-90},
+        {-168,70,-90},
+        {-228,70,-90}
+    };
+
     // 吸球时把y轴怼到0就能吸进去。
-    public static double[][] shootingPosition = { //x,y,heading
-        {-85,-85,45}, //close
-        {},           //middle
-        {}            //far
+    public static double[][] blueShootingPosition = { //x,y,heading
+        {-85,-85,45}, //Blue close
+        {-150,-150,45},  //Blue middle
+        {}   //Blue far
+    };
+
+    public static double[][] redShootingPosition = { //x,y,heading
+        {-85,85,-45}, //Red Close
+        {-150,150,-45}, //Red Middle
+        {} //Red far
     };
 
     public static class ShooterPID{
         // Previous names: aggressiveFrontPID / conservativeFrontPID etc.
         // We now provide three sets: low, mid, high for front and back. The mid values here are chosen as reasonable midpoints
         // between the previously used aggressive and conservative tunings.
-        public static final PIDFCoefficients highFrontPID = new PIDFCoefficients(7, 68.767, 0.267, 7e-4);
+        public static final PIDFCoefficients highFrontPID = new PIDFCoefficients(10, 0, 0, 7e-4);
         public static final PIDFCoefficients lowFrontPID  = new PIDFCoefficients(3.3, 25.935, 0.277, 0.000);
         public static final PIDFCoefficients midFrontPID  = new PIDFCoefficients(5.15, 47.351, 0.272, 0.00035);
 
@@ -84,7 +97,7 @@ public class Constants {
     // ========= PID 可配置实例 =========
     public static class PID {
         // 平移 PID 参数（X/Y）
-        public static final double TRANS_KP = 1.0;
+        public static final double TRANS_KP = 1.5;
         public static final double TRANS_KI = 0.00;
         public static final double TRANS_KD = 0.00;
         public static final double TRANS_MAX_OUT = 1.0;
