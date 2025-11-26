@@ -25,16 +25,29 @@ public class Constants {
     public static double intakePowerFast = 1.0;
     public static int driveMaxVelocity = 2960;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
-    public static double[][] pickUpPosition = {  //x,y,heading
-        {-108,-70,90},
-        {-168,-70,90},
-        {-228,-70,90}
+    public static double[][] bluePickUpPosition = {  //x,y,heading
+        {-108,-70,90}, //Blue Top Intake
+        {-168,-70,90}, //Blue Middle Intake
+        {-228,-70,90} //Blue Bottom Intake
     };
+
+    public static double[][] redPickUpPosition = {  //x,y,heading
+        {-108,70,-90},
+        {-168,70,-90},
+        {-228,70,-90}
+    };
+
     // 吸球时把y轴怼到0就能吸进去。
-    public static double[][] shootingPosition = { //x,y,heading
-        {-85,-85,45}, //close
-        {},           //middle
-        {}            //far
+    public static double[][] blueShootingPosition = { //x,y,heading
+        {-85,-85,45}, //Blue close
+        {-150,-150,45},  //Blue middle
+        {}   //Blue far
+    };
+
+    public static double[][] redShootingPosition = { //x,y,heading
+        {-85,85,-45}, //Red Close
+        {-150,150,-45}, //Red Middle
+        {} //Red far
     };
 
     public static class ShooterPID{

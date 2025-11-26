@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
  * 改进版自动驾驶测试程序
  * 使用状态机模式提高可扩展性和可维护性
  */
-@Autonomous(name = "TestTopRoute", group = "autos")
-public class TestTopRoute extends XKCommandOpmode {
+@Autonomous(name = "TestTopRouteBlue", group = "autos")
+public class TestTopRouteBlue extends XKCommandOpmode {
     // 硬件子系统
 
     private Hardwares hardwares;
@@ -52,10 +52,7 @@ public class TestTopRoute extends XKCommandOpmode {
         INTAKE_BALLS2,                    // 取第二组球
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
-        MOVE_TO_INTAKE_POSITION3,         // 移动至第三组取球点
-        INTAKE_BALLS3,                    // 取第三组球
-        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
-        SHOOT_BALLS3,                     // 发射第三组球
+        MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
     }
@@ -128,27 +125,15 @@ public class TestTopRoute extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(0);
+                moveToShootingPos(1);
                 break;
 
             case SHOOT_BALLS2:
                 shootBalls();
                 break;
 
-            case MOVE_TO_INTAKE_POSITION3:
-                moveToIntakePos(2);
-                break;
-
-            case INTAKE_BALLS3:
-                IntakeBalls(2);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION3:
-                moveToShootingPos(0);
-                break;
-
-            case SHOOT_BALLS3:
-                shootBalls();
+            case MOVE_AWAY_FROM_LINE:
+                moveFromLine();
                 break;
 
             case STOP_SYSTEMS:
@@ -176,9 +161,9 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.shootingPosition[posNum][0],  // X坐标
-            Constants.shootingPosition[posNum][1],     // Y坐标
-            Constants.shootingPosition[posNum][2],     // 角度
+            Constants.blueShootingPosition[posNum][0],  // X坐标
+            Constants.blueShootingPosition[posNum][1],     // Y坐标
+            Constants.blueShootingPosition[posNum][2],     // 角度
             odo,
             1,
             true
@@ -218,9 +203,9 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1],   // Y坐标
-            Constants.pickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum][0],  // X坐标
+            Constants.bluePickUpPosition[posNum][1],   // Y坐标
+            Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.5,
             true
@@ -244,9 +229,9 @@ public class TestTopRoute extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1]+90,   // Y坐标
-            Constants.pickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum][0],  // X坐标
+            Constants.bluePickUpPosition[posNum][1]+90,   // Y坐标
+            Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.3,
             true
@@ -313,6 +298,19 @@ public class TestTopRoute extends XKCommandOpmode {
                 Math.toDegrees(odo.getHeadingRadians()));
         }
         telemetry.update();
+    }
+
+    private void moveFromLine() {
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.bluePickUpPosition[0][0],  // X坐标
+            Constants.bluePickUpPosition[0][1],   // Y坐标
+            Constants.bluePickUpPosition[0][2],     // 角度
+            odo,
+            0.3,
+            true
+        );
     }
 
     /**

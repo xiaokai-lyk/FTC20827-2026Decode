@@ -17,8 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@Autonomous(name = "TestBottomRoute", group = "autos")
-public class TestBottomRoute extends XKCommandOpmode
+@Autonomous(name = "TestBottomRouteBlue", group = "autos")
+public class TestBottomRouteBlue extends XKCommandOpmode
 {
     private Hardwares hardwares;
     private Drive drive;
@@ -107,7 +107,7 @@ public class TestBottomRoute extends XKCommandOpmode
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos(2);//远射位置
+                moveToShootingPos(1);//远射位置,现在改为1(中射位置)是因为水下天花板太矮了
                 break;
 
 
@@ -162,7 +162,7 @@ public class TestBottomRoute extends XKCommandOpmode
         else
         {
             shooter.blockBallPass().schedule();
-            shooter.setShooter(Constants.shooter105cm).schedule();
+            shooter.setShooter(Constants.shooter125cm).schedule();
             intake.startIntake(false).schedule();
         }
 
@@ -171,9 +171,9 @@ public class TestBottomRoute extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.shootingPosition[posNum][0],  // X坐标
-            Constants.shootingPosition[posNum][1],     // Y坐标
-            Constants.shootingPosition[posNum][2],     // 角度
+            Constants.blueShootingPosition[posNum][0],  // X坐标
+            Constants.blueShootingPosition[posNum][1],     // Y坐标
+            Constants.blueShootingPosition[posNum][2],     // 角度
             odo,
             0.5,
             true
@@ -214,9 +214,9 @@ public class TestBottomRoute extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1],   // Y坐标
-            Constants.pickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum][0],  // X坐标
+            Constants.bluePickUpPosition[posNum][1],   // Y坐标
+            Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.5,
             true
@@ -240,9 +240,9 @@ public class TestBottomRoute extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[posNum][0],  // X坐标
-            Constants.pickUpPosition[posNum][1]+90,   // Y坐标
-            Constants.pickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum][0],  // X坐标
+            Constants.bluePickUpPosition[posNum][1]+90,   // Y坐标
+            Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.3,
             true
@@ -280,9 +280,9 @@ public class TestBottomRoute extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.pickUpPosition[2][0],  // X坐标
-            Constants.pickUpPosition[2][1],   // Y坐标
-            Constants.pickUpPosition[2][2],     // 角度
+            Constants.bluePickUpPosition[2][0],  // X坐标
+            Constants.bluePickUpPosition[2][1],   // Y坐标
+            Constants.bluePickUpPosition[2][2],     // 角度
             odo,
             0.3,
             true
@@ -333,7 +333,7 @@ public class TestBottomRoute extends XKCommandOpmode
         hardwares = new Hardwares(hardwareMap);
         drive = new Drive(hardwares);
         autoDrive = new AutoDrive();
-        adaptiveController = new AdaptivePoseController();
+        adaptiveController = Constants.PID.newPoseController();
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
