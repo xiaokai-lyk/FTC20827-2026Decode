@@ -28,7 +28,9 @@ public class Constants {
         {-228,-45,90} //Blue Bottom Intake
     };
 
-    public static double[] blueParkPosition = {-85,-46,180}; //x,y,heading
+    public static double[] blueParkPosition = {-140,-30,0}; //x,y,heading
+
+    public static double[] blueGateControlPoint = {-160, -50, 0};//若是调到gate右侧则是绕开门否则是打开门
 
     public static double[][] redPickUpPosition = {  //x,y,heading
         {-108,70,-90},

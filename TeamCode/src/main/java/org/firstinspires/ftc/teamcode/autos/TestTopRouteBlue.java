@@ -50,6 +50,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         SHOOT_BALLS1,                     // 发射第一组球
         MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
         INTAKE_BALLS2,                    // 取第二组球
+        GO_THROUGH_GATE,                  // 绕过门（或打开？）
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
         MOVE_TO_INTAKR_POSITION3,         // 移动至第三组取球点
@@ -128,6 +129,10 @@ public class TestTopRouteBlue extends XKCommandOpmode {
                 IntakeBalls(1);
                 break;
 
+            case GO_THROUGH_GATE:
+                GoThoughGate();
+                break;
+
             case MOVE_TO_SHOOTING_POSITION2:
                 moveToShootingPos(0);
                 break;
@@ -189,7 +194,6 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        // 检查是否到达位置且运行时间超过5秒
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
         }
@@ -219,6 +223,8 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         shooter.setShooter(Constants.shooterStop).schedule();
 
         // 驱动到第二个位置
+        adaptiveController.positionDeadbandCm = 10;
+        adaptiveController.headingDeadbandRad = Math.toRadians(10);
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
@@ -227,11 +233,12 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             1,
-            true
+            false
         );
 
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
+            adaptiveController.resetDeadbands();
         }
     }
 
@@ -244,6 +251,8 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         intake.startIntake(true).schedule();
         shooter.blockBallPass().schedule();
 
+        adaptiveController.positionDeadbandCm = 5;
+
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
@@ -255,7 +264,26 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             false
         );
 
-        if (out.atPosition && out.atHeading  || getElapsedSeconds() > 2) {
+        if (out.atPosition && out.atHeading) {
+            transitionToNextStep();
+        }
+    }
+
+    private void GoThoughGate(){
+        adaptiveController.headingDeadbandRad = Math.toRadians(10);
+
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.blueGateControlPoint[0],
+            Constants.blueGateControlPoint[1],
+            Constants.blueGateControlPoint[2],
+            odo,
+            1,
+            false
+        );
+
+        if (out.atPosition && out.atHeading) {
             transitionToNextStep();
         }
     }
@@ -281,6 +309,23 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         currentStep = nextStep;
         stepStartTime = System.currentTimeMillis();
         telemetry.addData("Auto Step Changed", nextStep.toString());
+    }
+
+    /**
+     * 初始化所有硬件组件及其对应的子系统对象
+     */
+    @Override
+    public void initialize() {
+        // 初始化所有硬件子系统
+        hardwares = new Hardwares(hardwareMap);
+        drive = new Drive(hardwares);
+        autoDrive = new AutoDrive();
+        adaptiveController = Constants.PID.newPoseController();
+        shooter = new Shooter(hardwares);
+        intake = new Intake(hardwares);
+        odo = new OdometerData(hardwares.sensors.odo);
+        hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES);
+        telemetry.addData("Auto Status", "Initialized");
     }
 
     /**
@@ -329,22 +374,5 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             1,
             true
         );
-    }
-
-    /**
-     * 初始化所有硬件组件及其对应的子系统对象
-     */
-    @Override
-    public void initialize() {
-        // 初始化所有硬件子系统
-        hardwares = new Hardwares(hardwareMap);
-        drive = new Drive(hardwares);
-        autoDrive = new AutoDrive();
-        adaptiveController = Constants.PID.newPoseController();
-        shooter = new Shooter(hardwares);
-        intake = new Intake(hardwares);
-        odo = new OdometerData(hardwares.sensors.odo);
-        hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES);
-        telemetry.addData("Auto Status", "Initialized");
     }
 }
