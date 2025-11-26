@@ -1,7 +1,4 @@
 package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
 import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 
@@ -27,9 +24,11 @@ public class Constants {
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
     public static double[][] bluePickUpPosition = {  //x,y,heading
         {-108,-70,90}, //Blue Top Intake
-        {-168,-70,90}, //Blue Middle Intake
-        {-228,-70,90} //Blue Bottom Intake
+        {-168,-45,90}, //Blue Middle Intake
+        {-228,-45,90} //Blue Bottom Intake
     };
+
+    public static double[] blueParkPosition = {-85,-46,180}; //x,y,heading
 
     public static double[][] redPickUpPosition = {  //x,y,heading
         {-108,70,-90},
@@ -49,19 +48,6 @@ public class Constants {
         {-150,150,-45}, //Red Middle
         {} //Red far
     };
-
-    public static class ShooterPID{
-        // Previous names: aggressiveFrontPID / conservativeFrontPID etc.
-        // We now provide three sets: low, mid, high for front and back. The mid values here are chosen as reasonable midpoints
-        // between the previously used aggressive and conservative tunings.
-        public static final PIDFCoefficients highFrontPID = new PIDFCoefficients(10, 0, 0, 7e-4);
-        public static final PIDFCoefficients lowFrontPID  = new PIDFCoefficients(3.3, 25.935, 0.277, 0.000);
-        public static final PIDFCoefficients midFrontPID  = new PIDFCoefficients(5.15, 47.351, 0.272, 0.00035);
-
-        public static final PIDFCoefficients highBackPID  = new PIDFCoefficients(7, 27.023, 0.705, 7e-4);
-        public static final PIDFCoefficients lowBackPID   = new PIDFCoefficients(3.3, 10.192, 0.680, 0.000);
-        public static final PIDFCoefficients midBackPID   = new PIDFCoefficients(5.15, 18.6075, 0.6925, 0.00035);
-    }
 
 
     // 新增：自适应阻尼相关常量集中管理
@@ -99,9 +85,9 @@ public class Constants {
         // 平移 PID 参数（X/Y）
         public static final double TRANS_KP = 1.5;
         public static final double TRANS_KI = 0.00;
-        public static final double TRANS_KD = 0.00;
+        public static final double TRANS_KD = 0.07;
         public static final double TRANS_MAX_OUT = 1.0;
-        public static final double TRANS_MIN_CMD = 0.03;
+        public static final double TRANS_MIN_CMD = 0.00;
         public static final double TRANS_DEADZONE_CM = 0.5;
         public static final double TRANS_I_CLAMP = 0.2;
 
@@ -110,7 +96,7 @@ public class Constants {
         public static final double ROT_KI = 0.00;
         public static final double ROT_KD = 0.05;
         public static final double ROT_MAX_OUT = 1.0;
-        public static final double ROT_MIN_CMD = 0.03;
+        public static final double ROT_MIN_CMD = 0.00;
         public static final double ROT_DEADZONE_RAD = Math.toRadians(3.0);
         public static final double ROT_I_CLAMP = 0.2;
 

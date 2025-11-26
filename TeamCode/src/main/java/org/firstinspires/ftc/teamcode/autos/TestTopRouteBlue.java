@@ -20,10 +20,14 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
  * 改进版自动驾驶测试程序
  * 使用状态机模式提高可扩展性和可维护性
  */
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteRed.java
+@Autonomous(name = "TestTopRouteRed", group = "autos")
+public class TestTopRouteRed extends XKCommandOpmode {
+========
 @Autonomous(name = "TestTopRouteBlue", group = "autos")
 public class TestTopRouteBlue extends XKCommandOpmode {
+>>>>>>>> master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteBlue.java
     // 硬件子系统
-
     private Hardwares hardwares;
     private Drive drive;
     private AutoDrive autoDrive;
@@ -52,6 +56,10 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         INTAKE_BALLS2,                    // 取第二组球
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
+        MOVE_TO_INTAKR_POSITION3,         // 移动至第三组取球点
+        INTAKE_BALLS3,                    // 取第三组球
+        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
+        SHOOT_BALLS3,                     // 发射第三组球
         MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -125,10 +133,26 @@ public class TestTopRouteBlue extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(1);
+                moveToShootingPos(0);
                 break;
 
             case SHOOT_BALLS2:
+                shootBalls();
+                break;
+
+            case MOVE_TO_INTAKR_POSITION3:
+                moveToIntakePos(2);
+                break;
+
+            case INTAKE_BALLS3:
+                IntakeBalls(2);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION3:
+                moveToShootingPos(0);
+                break;
+
+            case SHOOT_BALLS3:
                 shootBalls();
                 break;
 
@@ -161,9 +185,15 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteRed.java
+            Constants.redShootingPosition[posNum][0],  // X坐标
+            Constants.redShootingPosition[posNum][1],     // Y坐标
+            Constants.redShootingPosition[posNum][2],     // 角度
+========
             Constants.blueShootingPosition[posNum][0],  // X坐标
             Constants.blueShootingPosition[posNum][1],     // Y坐标
             Constants.blueShootingPosition[posNum][2],     // 角度
+>>>>>>>> master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteBlue.java
             odo,
             1,
             true
@@ -182,8 +212,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         // 允许球通过并开始进球
         shooter.allowBallPass().schedule();
 
-        // 持续3秒后进入下一步
-        if (getElapsedSeconds() > 2) {
+        if (getElapsedSeconds() > 1.5) {
             transitionToNextStep();
         }
     }
@@ -203,15 +232,20 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteRed.java
+            Constants.redPickUpPosition[posNum][0],  // X坐标
+            Constants.redPickUpPosition[posNum][1],   // Y坐标
+            Constants.redPickUpPosition[posNum][2],     // 角度
+========
             Constants.bluePickUpPosition[posNum][0],  // X坐标
             Constants.bluePickUpPosition[posNum][1],   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
+>>>>>>>> master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteBlue.java
             odo,
-            0.5,
+            1,
             true
         );
 
-        // 检查是否到达位置且运行时间超过3秒
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
         }
@@ -229,15 +263,24 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteRed.java
+            Constants.redPickUpPosition[posNum][0],  // X坐标
+            Constants.redPickUpPosition[posNum][1]-90,   // Y坐标
+            Constants.redPickUpPosition[posNum][2],     // 角度
+            odo,
+            0.8,
+            true
+========
             Constants.bluePickUpPosition[posNum][0],  // X坐标
-            Constants.bluePickUpPosition[posNum][1]+90,   // Y坐标
+            Constants.bluePickUpPosition[posNum][1]+100,   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            0.3,
-            true
+            0.8,
+            false
+>>>>>>>> master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteBlue.java
         );
 
-        if (out.atPosition && out.atHeading) {
+        if (out.atPosition && out.atHeading  || getElapsedSeconds() > 2) {
             transitionToNextStep();
         }
     }
@@ -304,11 +347,19 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPosition[0][0],  // X坐标
-            Constants.bluePickUpPosition[0][1],   // Y坐标
-            Constants.bluePickUpPosition[0][2],     // 角度
+<<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteRed.java
+            Constants.redPickUpPosition[1][0],  // X坐标
+            Constants.redPickUpPosition[1][1],   // Y坐标
+            Constants.redPickUpPosition[1][2],     // 角度
             odo,
-            0.3,
+            0.7,
+========
+            Constants.blueParkPosition[0],  // X坐标
+            Constants.blueParkPosition[1],   // Y坐标
+            Constants.blueParkPosition[2],     // 角度
+            odo,
+            1,
+>>>>>>>> master:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/autos/TestTopRouteBlue.java
             true
         );
     }
@@ -326,7 +377,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
-        hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES);
+        hardwares.sensors.odo.setHeading(-45, AngleUnit.DEGREES);
         telemetry.addData("Auto Status", "Initialized");
     }
 }
