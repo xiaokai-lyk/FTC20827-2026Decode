@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
@@ -80,9 +81,6 @@ public class TeleOp20827 extends XKCommandOpmode {
         telemetry.addData("X damping", driveCommand.dampedX - gamepad1.getLeftX());
         telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
         telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
-
-        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
-        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
 
         telemetry.update();
     }
