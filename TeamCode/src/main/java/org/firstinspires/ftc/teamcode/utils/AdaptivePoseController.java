@@ -24,10 +24,12 @@ public class AdaptivePoseController {
         public final double dThetaRad; // 航向误差 (rad)
         public final boolean atPosition;
         public final boolean atHeading;
+        public final double xRaw;
+        public final double yRaw;
 
         public Output(double xCmd, double yCmd, double rotateCmd,
                       double dxCm, double dyCm, double dThetaRad,
-                      boolean atPosition, boolean atHeading) {
+                      boolean atPosition, boolean atHeading, double xRaw, double yRaw) {
             this.xCmd = xCmd;
             this.yCmd = yCmd;
             this.rotateCmd = rotateCmd;
@@ -36,6 +38,8 @@ public class AdaptivePoseController {
             this.dThetaRad = dThetaRad;
             this.atPosition = atPosition;
             this.atHeading = atHeading;
+            this.xRaw = xRaw;
+            this.yRaw = yRaw;
         }
     }
 
@@ -129,23 +133,35 @@ public class AdaptivePoseController {
         // yCmd (左+) 使用 -dx 作为误差（dx>0 表示目标在右侧 => 左负）。
         double forwardErr = dy;
         double leftErr = -dx;
+        double xRaw, yRaw;
 
         double xCmd, yCmd;
         if (atPos) {
             xCmd = 0.0;
             yCmd = 0.0;
+            xRaw = 0.0;
+            yRaw = 0.0;
         } else {
-            double kpEff = scheduleTransKp(distanceErr);
-            // 将误差按调度缩放输入 PID，使 P/I/D 均随距离衰减
-            double xRaw = xTransPID.compute(forwardErr * kpEff, dtSec);
-            double yRaw = yTransPID.compute(leftErr * kpEff, dtSec);
-            xCmd = xRaw; // 若需要额外限幅或近区减速可再加工
-            yCmd = yRaw;
+            // 使用真实误差计算 PID，避免被 deadzone 过早置零
+            xRaw = xTransPID.compute(forwardErr, dtSec);
+            yRaw = yTransPID.compute(leftErr, dtSec);
+            // 将距离调度映射为 0.3..1.0 的输出缩放，避免远处/近处输出过小
+            double kpEff = scheduleTransKp(distanceErr); // 范围: transKpNear..transKpFar
+            double t;
+            if (transKpFar > transKpNear + 1e-9) {
+                t = (kpEff - transKpNear) / (transKpFar - transKpNear); // 0..1
+            } else {
+                t = 1.0;
+            }
+            if (t < 0) t = 0; else if (t > 1) t = 1;
+            double scaleOut = 0.3 + 0.7 * t; // 近:0.3 远:1.0
+            xCmd = xRaw * scaleOut;
+            yCmd = yRaw * scaleOut;
         }
 
         double rotateCmd = atHead ? 0.0 : rotatePID.compute(dTheta, dtSec);
 
-        return new Output(xCmd, yCmd, rotateCmd, dx, dy, dTheta, atPos, atHead);
+        return new Output(xCmd, yCmd, rotateCmd, dx, dy, dTheta, atPos, atHead, xRaw, yRaw);
     }
 
     /**
