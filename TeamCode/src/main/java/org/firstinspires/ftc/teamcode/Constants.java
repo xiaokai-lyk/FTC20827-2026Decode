@@ -30,7 +30,7 @@ public class Constants {
 
     public static double[] blueParkPosition = {-140,-30,0}; //x,y,heading
 
-    public static double[] blueGateControlPoint = {-160, -50, 0};//若是调到gate右侧则是绕开门否则是打开门
+    public static double[] blueGateControlPoint = {-168, -50, 0};//若是调到gate右侧则是绕开门否则是打开门
 
     public static double[][] redPickUpPosition = {  //x,y,heading
         {-108,70,-90},
@@ -40,13 +40,13 @@ public class Constants {
 
     // 吸球时把y轴怼到0就能吸进去。
     public static double[][] blueShootingPosition = { //x,y,heading
-        {-85,-85,45}, //Blue close
+        {-97,-97,45}, //Blue close
         {-150,-150,45},  //Blue middle
         {}   //Blue far
     };
 
     public static double[][] redShootingPosition = { //x,y,heading
-        {-85,85,-45}, //Red Close
+        {-86.5,86.5,-45}, //Red Close
         {-150,150,-45}, //Red Middle
         {} //Red far
     };

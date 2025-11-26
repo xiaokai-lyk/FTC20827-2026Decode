@@ -190,7 +190,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.blueShootingPosition[posNum][1],     // Y坐标
             Constants.blueShootingPosition[posNum][2],     // 角度
             odo,
-            1,
+            0.9,
             true
         );
 
@@ -251,8 +251,6 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         intake.startIntake(true).schedule();
         shooter.blockBallPass().schedule();
 
-        adaptiveController.positionDeadbandCm = 5;
-
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
@@ -261,12 +259,11 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
             0.8,
-            false
+            true
         );
 
-        if (out.atPosition && out.atHeading) {
+        if (out.atPosition && out.atHeading && getElapsedSeconds() > 2.5) {
             transitionToNextStep();
-            adaptiveController.resetDeadbands();
         }
     }
 
