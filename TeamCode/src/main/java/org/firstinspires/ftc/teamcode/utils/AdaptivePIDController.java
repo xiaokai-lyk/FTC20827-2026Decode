@@ -1,12 +1,19 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import lombok.Getter;
+
 /**
  * 通用 PID 控制器，所有参数由 Constants 统一管理。
  */
 public class AdaptivePIDController {
-    private final double kp;
-    private final double ki;
-    private final double kd;
+    // Getters and setters for runtime tuning
+    // make coefficients mutable so we can tune at runtime
+    @Getter
+    private double kp;
+    @Getter
+    private double ki;
+    @Getter
+    private double kd;
     private final double maxOutput;
     private final double minCommand;
     private final double deadzone;
@@ -65,4 +72,6 @@ public class AdaptivePIDController {
     public AdaptivePIDController copy() {
         return new AdaptivePIDController(kp, ki, kd, maxOutput, minCommand, deadzone, maxIAccum);
     }
+
+    public void setPID(double kp, double ki, double kd){ this.kp = kp; this.ki = ki; this.kd = kd; }
 }
