@@ -180,7 +180,7 @@ public class TestTopRoute extends XKCommandOpmode {
             Constants.shootingPosition[posNum][1],     // Y坐标
             Constants.shootingPosition[posNum][2],     // 角度
             odo,
-            0.5,
+            1,
             true
         );
 

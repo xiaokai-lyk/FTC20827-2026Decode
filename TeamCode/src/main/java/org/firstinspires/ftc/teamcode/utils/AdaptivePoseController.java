@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.utils;
 import androidx.annotation.NonNull;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import lombok.Getter;
+
 /**
  * AdaptivePoseController (refactored): decoupled parameters via three PID controllers.
  * 单位:
@@ -47,9 +49,13 @@ public class AdaptivePoseController {
     private double positionDeadbandCm = 2.0;               // cm
     private double headingDeadbandRad = Math.toRadians(5);  // rad
 
+    // 新增：公开对内部 PID 控制器的访问，以便运行时调参
     // 轴向 PID 控制器
+    @Getter
     private final AdaptivePIDController xTransPID;     // 控制前后 (以场地坐标的 dy 为误差)
+    @Getter
     private final AdaptivePIDController yTransPID;     // 控制左右 (以 -dx 为误差, 左为正)
+    @Getter
     private final AdaptivePIDController rotatePID;     // 控制航向 (弧度误差)
 
     // 简单距离调度参数（平移用）：远处高增益、近处低增益
@@ -83,8 +89,6 @@ public class AdaptivePoseController {
         rotatePID.reset();
     }
 
-    public void setPositionDeadbandCm(double v){ positionDeadbandCm = v; }
-    public void setHeadingDeadbandDeg(double deg){ headingDeadbandRad = Math.toRadians(deg); }
 
     // 配置距离调度 (确保 near < far)
     public void setTranslationDistanceSchedule(double kpNear, double kpFar, double nearDistCm, double farDistCm){
@@ -145,7 +149,7 @@ public class AdaptivePoseController {
             // 使用真实误差计算 PID，避免被 deadzone 过早置零
             xRaw = xTransPID.compute(forwardErr, dtSec);
             yRaw = yTransPID.compute(leftErr, dtSec);
-            // 将距离调度映射为 0.3..1.0 的输出缩放，避免远处/近处输出过小
+            // 将距离调度映射为 0.1..1.0 的输出缩放，避免远处/近处输出过小
             double kpEff = scheduleTransKp(distanceErr); // 范围: transKpNear..transKpFar
             double t;
             if (transKpFar > transKpNear + 1e-9) {
@@ -154,7 +158,7 @@ public class AdaptivePoseController {
                 t = 1.0;
             }
             if (t < 0) t = 0; else if (t > 1) t = 1;
-            double scaleOut = 0.3 + 0.7 * t; // 近:0.3 远:1.0
+            double scaleOut = 0.1 + 0.7 * t;
             xCmd = xRaw * scaleOut;
             yCmd = yRaw * scaleOut;
         }
