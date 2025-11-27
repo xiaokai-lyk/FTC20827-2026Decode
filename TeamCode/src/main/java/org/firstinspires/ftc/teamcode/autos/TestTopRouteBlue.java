@@ -307,7 +307,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1]-50, //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.7,
+            1,
             true
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
@@ -325,12 +325,12 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1], //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.7,
-            true
+            1,
+            false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
-            transitionToNextStep();
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             adaptiveController.resetDeadbands();
+            transitionToNextStep();
         }
     }
 
@@ -419,6 +419,8 @@ public class TestTopRouteBlue extends XKCommandOpmode {
     private void updateTelemetry() {
         telemetry.addData("Current Step", currentStep.toString());
         telemetry.addData("Step Elapsed Time", "%.1f sec", getElapsedSeconds());
+        telemetry.addData("heading deadband", adaptiveController.headingDeadbandRad);
+        telemetry.addData("distance deadband", adaptiveController.positionDeadbandCm);
         if (odo != null) {
             telemetry.addData("Robot Position", "X:%.1f Y:%.1f H:%.1f",
                 odo.getRobotPosition().getX(DistanceUnit.MM),
