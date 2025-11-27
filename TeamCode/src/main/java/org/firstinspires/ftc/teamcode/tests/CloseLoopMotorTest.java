@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Hardwares; // use hardware wrapper
 public class CloseLoopMotorTest extends LinearOpMode {
     public static int velocity1 = 700;
     public static int velocity2 = 1400;
-    public double power = 0.5;
+    public double power = 0.8;
     public int threshold = 50; // speed error threshold
     @Override
     public void runOpMode() throws InterruptedException {
