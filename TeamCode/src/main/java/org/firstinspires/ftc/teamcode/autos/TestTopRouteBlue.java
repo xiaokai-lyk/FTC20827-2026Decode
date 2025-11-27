@@ -56,7 +56,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         GO_THROUGH_GATE,                  // 绕过门（或打开？）
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
-        MOVE_TO_INTAKR_POSITION3,         // 移动至第三组取球点
+        MOVE_TO_INTAKE_POSITION3,         // 移动至第三组取球点
         INTAKE_BALLS3,                    // 取第三组球
         MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
         SHOOT_BALLS3,                     // 发射第三组球
@@ -152,7 +152,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
                 shootBalls();
                 break;
 
-            case MOVE_TO_INTAKR_POSITION3:
+            case MOVE_TO_INTAKE_POSITION3:
                 moveToIntakePos(2);
                 break;
 
@@ -201,7 +201,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.blueShootingPosition[posNum][1],     // Y坐标
             Constants.blueShootingPosition[posNum][2],     // 角度
             odo,
-            0.9,
+            1,
             true
         );
 
@@ -215,9 +215,19 @@ public class TestTopRouteBlue extends XKCommandOpmode {
      */
     private void shootBalls() {
         // 允许球通过并开始进球
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+                drive,
+                adaptiveController,
+                Constants.blueShootingPosition[0][0],  // X坐标
+                Constants.blueShootingPosition[0][1],     // Y坐标
+                Constants.blueShootingPosition[0][2],     // 角度
+                odo,
+                0,
+                false
+        );
         shooter.allowBallPass().schedule();
 
-        if (getElapsedSeconds() > 1.5) {
+        if (getElapsedSeconds() > 1.2) {
             transitionToNextStep();
         }
     }
@@ -269,7 +279,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.bluePickUpPosition[posNum][1]+100,   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            0.8,
+            0.9,
             true
         );
 
@@ -291,7 +301,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             1,
             false
         );
-        if(out.atPosition && out.atHeading) {
+        if((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
@@ -307,8 +317,8 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1]-50, //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.7,
-            true
+            1,
+            false
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
@@ -325,12 +335,12 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1], //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.7,
-            true
+            1,
+            false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
-            transitionToNextStep();
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             adaptiveController.resetDeadbands();
+            transitionToNextStep();
         }
     }
 
@@ -419,6 +429,8 @@ public class TestTopRouteBlue extends XKCommandOpmode {
     private void updateTelemetry() {
         telemetry.addData("Current Step", currentStep.toString());
         telemetry.addData("Step Elapsed Time", "%.1f sec", getElapsedSeconds());
+        telemetry.addData("heading deadband", adaptiveController.headingDeadbandRad);
+        telemetry.addData("distance deadband", adaptiveController.positionDeadbandCm);
         if (odo != null) {
             telemetry.addData("Robot Position", "X:%.1f Y:%.1f H:%.1f",
                 odo.getRobotPosition().getX(DistanceUnit.MM),
