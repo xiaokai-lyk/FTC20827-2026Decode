@@ -43,7 +43,7 @@ public class Constants {
 
     // 吸球时把y轴怼到0就能吸进去。
     public static double[][] blueShootingPosition = { //x,y,heading
-        {-97,-97,42}, //Blue close
+        {-28,-28,42}, //Blue close
         {-150,-150,42},  //Blue middle
         {}   //Blue far
     };
