@@ -150,5 +150,14 @@ public class TeleOp20827 extends XKCommandOpmode {
         ).whenReleased(
             shooter.setShooter(Constants.shooterStop)
         );
+
+        new ButtonEx(
+            ()-> gamepad2.getButton(GamepadKeys.Button.A)
+        ).whenPressed(
+            /* Assumption: shooter40cm corresponds to LOW mode */
+            shooter.setShooter(Constants.shooterFar)
+        ).whenReleased(
+            shooter.setShooter(Constants.shooterStop)
+        );
     }
 }

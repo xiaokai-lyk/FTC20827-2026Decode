@@ -14,9 +14,10 @@ public class Constants {
 
     public static double preShooterBlock = -1;
     public static double preShooterRun = 1;
-    public static ShooterConfig shooter40cm = new ShooterConfig(700, 700);
+    public static ShooterConfig shooter40cm = new ShooterConfig(1100, 600);
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
+    public static ShooterConfig shooterFar = new ShooterConfig(400, 1950);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerSlow = 0.8;
     public static double intakePowerFast = 1.0;
