@@ -42,14 +42,14 @@ public class Constants {
 
     // 吸球时把y轴怼到0就能吸进去。
     public static double[][] blueShootingPosition = { //x,y,heading
-        {-97,-97,45}, //Blue close
-        {-150,-150,45},  //Blue middle
+        {-97,-97,42}, //Blue close
+        {-150,-150,42},  //Blue middle
         {}   //Blue far
     };
 
     public static double[][] redShootingPosition = { //x,y,heading
-        {-97,95,-45}, //Red Close
-        {-150,150,-45}, //Red Middle
+        {-97,95,-42}, //Red Close
+        {-150,150,-42}, //Red Middle
         {} //Red far
     };
 
