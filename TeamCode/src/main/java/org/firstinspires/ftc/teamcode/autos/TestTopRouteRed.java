@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.AutoDrive;
@@ -262,7 +263,7 @@ public class TestTopRouteRed extends XKCommandOpmode {
             true
         );
 
-        if (out.atPosition && out.atHeading && getElapsedSeconds() > 2.5) {
+        if (out.atPosition && out.atHeading && getElapsedSeconds() > 1.5) {
             transitionToNextStep();
         }
     }
@@ -285,6 +286,23 @@ public class TestTopRouteRed extends XKCommandOpmode {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
+    }
+
+    /**
+     * 从起始线移动到指定位置
+     * 该函数控制机器人自动导航到蓝色停车位置
+     */
+    private void moveFromLine() {
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.redParkPosition[0],  // X坐标
+            Constants.redParkPosition[1],   // Y坐标
+            Constants.redParkPosition[2],     // 角度
+            odo,
+            1,
+            true
+        );
     }
 
     /**
@@ -323,7 +341,9 @@ public class TestTopRouteRed extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
-        hardwares.sensors.odo.setHeading(-45, AngleUnit.DEGREES);
+        // 设置初始位置
+        // hardwares.sensors.odo.setHeading(-45, AngleUnit.DEGREES); // 贴着二维码初始位置
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 31, 44, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
         telemetry.addData("Auto Status", "Initialized");
     }
 
@@ -360,18 +380,5 @@ public class TestTopRouteRed extends XKCommandOpmode {
                 Math.toDegrees(odo.getHeadingRadians()));
         }
         telemetry.update();
-    }
-
-    private void moveFromLine() {
-        AutoDrive.Output out = autoDrive.driveToAdaptive(
-            drive,
-            adaptiveController,
-            Constants.redParkPosition[0],  // X坐标
-            Constants.redParkPosition[1],   // Y坐标
-            Constants.redParkPosition[2],     // 角度
-            odo,
-            1,
-            true
-        );
     }
 }
