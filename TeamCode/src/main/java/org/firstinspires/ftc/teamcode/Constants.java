@@ -24,13 +24,14 @@ public class Constants {
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
     public static double[][] bluePickUpPosition = {  //x,y,heading
         {-108,-70,90}, //Blue Top Intake
-        {-168,-45,90}, //Blue Middle Intake
-        {-228,-45,90} //Blue Bottom Intake
+        {-168,-65,90}, //Blue Middle Intake
+        {-228,-65,90} //Blue Bottom Intake
     };
 
     public static double[] blueParkPosition = {-140,-30,0}; //x,y,heading
+    public static double[] blueGatePosition ={-134,34,90};  // open gate
 
-    public static double[] blueGateControlPoint = {-168, -50, 0};//若是调到gate右侧则是绕开门否则是打开门
+    public static double[] blueGateControlPoint = {-168, -30, 0};//若是调到gate右侧则是绕开门否则是打开门
     public static double[] redGateControlPoint = {-168, 50, 0};//
     public static double[] redParkPosition = {-140, 30, 0}; // red park pos
 

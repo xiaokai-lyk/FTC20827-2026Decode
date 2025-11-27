@@ -47,6 +47,8 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         FIRST_SHOOT_BALLS,                // 初始射球阶段
         MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
         INTAKE_BALLS1,                    // 取第一组球
+        MOVE_TO_GATE,
+        OPEN_GATE,
         MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
         SHOOT_BALLS1,                     // 发射第一组球
         MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
@@ -112,6 +114,14 @@ public class TestTopRouteBlue extends XKCommandOpmode {
 
             case INTAKE_BALLS1:
                 IntakeBalls(0);
+                break;
+
+            case MOVE_TO_GATE:
+                moveToGate();
+                break;
+
+            case OPEN_GATE:
+                openGate();
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
@@ -195,7 +205,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        if (out.atPosition && out.atHeading) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
             transitionToNextStep();
         }
     }
@@ -263,7 +273,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             transitionToNextStep();
         }
     }
@@ -281,8 +291,44 @@ public class TestTopRouteBlue extends XKCommandOpmode {
             1,
             false
         );
+        if(out.atPosition && out.atHeading) {
+            transitionToNextStep();
+            adaptiveController.resetDeadbands();
+        }
+    }
 
-        if (out.atPosition && out.atHeading) {
+    private void moveToGate() {
+        adaptiveController.positionDeadbandCm = 10;
+        adaptiveController.headingDeadbandRad = Math.toRadians(10);
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.blueGatePosition[0], // x
+            Constants.blueGatePosition[1]-50, //y
+            Constants.blueGatePosition[2], // heading
+            odo,
+            0.7,
+            true
+        );
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
+            transitionToNextStep();
+            adaptiveController.resetDeadbands();
+        }
+    }
+    private void openGate() {
+        adaptiveController.positionDeadbandCm = 10;
+        adaptiveController.headingDeadbandRad = Math.toRadians(10);
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.blueGatePosition[0], // x
+            Constants.blueGatePosition[1], //y
+            Constants.blueGatePosition[2], // heading
+            odo,
+            0.7,
+            true
+        );
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
