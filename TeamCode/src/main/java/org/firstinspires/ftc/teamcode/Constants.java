@@ -33,7 +33,7 @@ public class Constants {
             {}   //Blue far
     };
     public static double[] blueParkPosition = {-140,-30,0}; //x,y,heading
-    public static double[] blueGatePosition ={-134,34,0};  // open gate
+    public static double[] blueGatePosition ={-134,34,90};  // open gate
     public static double[] blueGateControlPoint = {-168, -30, 90};//若是调到gate右侧则是绕开门否则是打开门
 
     public static double[][] redPickUpPosition = {  //x,y,heading
@@ -42,12 +42,12 @@ public class Constants {
             {-228,65,-90}
     };
     public static double[][] redShootingPosition = { //x,y,heading
-            {-28,28,-42}, //Red Close
+            {-30,30,-42}, //Red Close
             {-150,150,-42}, //Red Middle
             {} //Red far
     };
     public static double[] redParkPosition = {-140, 30, 0}; // red park pos
-    public static double[] redGatePosition = {-134, -34,0};
+    public static double[] redGatePosition = {-134, -34,-90};
     public static double[] redGateControlPoint = {-168, 30, -90};//
 
 

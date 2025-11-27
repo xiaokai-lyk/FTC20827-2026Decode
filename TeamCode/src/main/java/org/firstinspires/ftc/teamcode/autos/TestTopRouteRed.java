@@ -276,14 +276,14 @@ public class TestTopRouteRed extends XKCommandOpmode {
                 drive,
                 adaptiveController,
                 Constants.redPickUpPosition[posNum][0],  // X坐标
-                Constants.redPickUpPosition[posNum][1]+100,   // Y坐标
+                Constants.redPickUpPosition[posNum][1]-100,   // Y坐标
                 Constants.redPickUpPosition[posNum][2],     // 角度
                 odo,
                 0.9,
                 true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
             transitionToNextStep();
         }
     }
@@ -314,7 +314,7 @@ public class TestTopRouteRed extends XKCommandOpmode {
                 drive,
                 adaptiveController,
                 Constants.redGatePosition[0], // x
-                Constants.redGatePosition[1]-50, //y
+                Constants.redGatePosition[1]+50, //y
                 Constants.redGatePosition[2], // heading
                 odo,
                 1,
