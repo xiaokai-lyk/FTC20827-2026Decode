@@ -53,6 +53,7 @@ public class Constants {
         {} //Red far
     };
 
+    public static double[] blueGatePosition ={-134,34,0};  // open gate
 
     // 新增：自适应阻尼相关常量集中管理
     public static class Damping {

@@ -52,6 +52,7 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
         INTAKE_BALLS2,                    // 取第二组球
         GO_THROUGH_GATE,                  // 绕过门（或打开？）
+        OPEN_GATE,                        // 打开门
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
         MOVE_TO_INTAKR_POSITION3,         // 移动至第三组取球点
@@ -131,7 +132,12 @@ public class TestTopRouteBlue extends XKCommandOpmode {
                 break;
 
             case GO_THROUGH_GATE:
-                GoThoughGate();
+                //GoThoughGate();
+                driveToGate();
+                break;
+
+            case OPEN_GATE:
+                openGate();
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
@@ -200,6 +206,43 @@ public class TestTopRouteBlue extends XKCommandOpmode {
         }
     }
 
+    private void driveToGate() {
+        adaptiveController.positionDeadbandCm = 10;
+        adaptiveController.headingDeadbandRad = Math.toRadians(10);
+
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+                drive,
+                adaptiveController,
+                Constants.blueGatePosition[0],
+                Constants.blueGatePosition[1]-40,
+                Constants.blueGatePosition[2],
+                odo,
+                0.7,
+                true
+        );
+        if(out.atPosition && out.atHeading) {
+            transitionToNextStep();
+            adaptiveController.resetDeadbands();
+        }
+    }
+    private void openGate() {
+        adaptiveController.positionDeadbandCm = 10;
+        adaptiveController.headingDeadbandRad = Math.toRadians(10);
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+                drive,
+                adaptiveController,
+                Constants.blueGatePosition[0], // x
+                Constants.blueGatePosition[1], //y
+                Constants.blueGatePosition[2], // heading
+                odo,
+                0.7,
+                true
+        );
+        if(out.atPosition && out.atHeading ) {
+            transitionToNextStep();
+            adaptiveController.resetDeadbands();
+        }
+    }
     /**
      * 执行发射球的动作，在允许球通过后等待一段时间再进入下一阶段
      */
