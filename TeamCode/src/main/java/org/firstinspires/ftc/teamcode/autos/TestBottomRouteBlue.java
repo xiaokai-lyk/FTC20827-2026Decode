@@ -170,9 +170,9 @@ public class TestBottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueShootingPosition[posNum][0],  // X坐标
-            Constants.blueShootingPosition[posNum][1],     // Y坐标
-            Constants.blueShootingPosition[posNum][2],     // 角度
+            Constants.blueShootingPosBottom[posNum][0],  // X坐标
+            Constants.blueShootingPosBottom[posNum][1],     // Y坐标
+            Constants.blueShootingPosBottom[posNum][2],     // 角度
             odo,
             0.5,
             true

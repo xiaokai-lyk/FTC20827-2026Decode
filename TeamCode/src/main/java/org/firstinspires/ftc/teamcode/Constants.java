@@ -30,10 +30,15 @@ public class Constants {
         {-228,-65,90}, //Blue Bottom Intake,
         {0,20,90}
     };
-    public static double[][] blueShootingPosition = { //x,y,heading
+    public static double[][] blueShootingPosTop = { //x,y,heading
             {-28,-28,42}, //Blue close
             {-150,-150,42},  //Blue middle
-            {10,0,25}   //Blue far
+            {}   //Blue far
+    };
+    public static double[][] blueShootingPosBottom = { //x,y,heading
+        {}, //Blue close
+        {},  //Blue middle
+        {9.5,-11.1,20}   //Blue far
     };
     public static double[] blueParkPosition = {-140,-30,0}; //x,y,heading
     public static double[] blueGatePosition ={-134,34,90};  // open gate

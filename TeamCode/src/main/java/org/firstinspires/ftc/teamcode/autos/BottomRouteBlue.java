@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
@@ -34,7 +33,6 @@ public class BottomRouteBlue extends XKCommandOpmode
     private OdometerData odo;
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 
-    int distanceType = 0; //0是远射 1是中射 2是近射
 
     /**
      * 定义自动驾驶步骤枚举，表示机器人在自动阶段中的各个任务节点
@@ -91,7 +89,7 @@ public class BottomRouteBlue extends XKCommandOpmode
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_SHOOTING_POSITION:
-                moveToShootingPos(2);//远射位置
+                moveToShootingPos();//远射位置
                 break;
 
             case INITIAL_POSITION_SHOOT:
@@ -107,7 +105,7 @@ public class BottomRouteBlue extends XKCommandOpmode
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos(2);
+                moveToShootingPos();
                 break;
 
 
@@ -124,7 +122,7 @@ public class BottomRouteBlue extends XKCommandOpmode
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(2);
+                moveToShootingPos();
                 break;
 
             case SHOOT_BALLS2:
@@ -147,28 +145,26 @@ public class BottomRouteBlue extends XKCommandOpmode
 
     /**
      * 控制机器人移动到指定编号的射击位置，并设置射击准备动作
-     *
-     * @param posNum 射击位置索引（对应Constants.shootingPosition数组）
      */
-    private void moveToShootingPos(int posNum) {
+    private void moveToShootingPos() {
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooterFar).schedule();
         intake.startIntake(false).schedule();
 
-        adaptiveController.headingDeadbandRad = Math.toRadians(3);
+        adaptiveController.headingDeadbandRad = Math.toRadians(1);
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueShootingPosition[posNum][0],  // X坐标
-            Constants.blueShootingPosition[posNum][1],     // Y坐标
-            Constants.blueShootingPosition[posNum][2],     // 角度
+            Constants.blueShootingPosBottom[2][0],  // X坐标
+            Constants.blueShootingPosBottom[2][1],     // Y坐标
+            Constants.blueShootingPosBottom[2][2],     // 角度
             odo,
             1,
             true
         );
-        if (out.atPosition && out.atHeading) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
             transitionToNextStep();
         }
     }
@@ -177,11 +173,15 @@ public class BottomRouteBlue extends XKCommandOpmode
      * 执行发射球的动作，在允许球通过后等待一段时间再进入下一阶段
      */
     private void shootBalls() {
-        // 允许球通过并开始进球
-        shooter.allowBallPass().schedule();
+        double timeAfterShoot = getElapsedSeconds() % 1;
+        if (timeAfterShoot < 0.1 && timeAfterShoot > 0) {
+            shooter.allowBallPass().schedule();
+        } else {
+            shooter.blockBallPass().schedule();
+        }
 
         // 持续3秒后进入下一步
-        if (getElapsedSeconds() > 2) {
+        if (getElapsedSeconds() > 3.5) {
             transitionToNextStep();
         }
     }
@@ -325,7 +325,6 @@ public class BottomRouteBlue extends XKCommandOpmode
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
-        hardwares.sensors.odo.setHeading(0, AngleUnit.DEGREES);
         telemetry.addData("Auto Status", "Initialized");
     }
 }
