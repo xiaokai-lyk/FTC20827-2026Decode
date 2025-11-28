@@ -43,14 +43,15 @@ public class TeleOp20827 extends XKCommandOpmode {
 
 
         driveCommand = new Drive.DriveCommand(
-                drive,
-                gamepad1::getLeftX,
-                gamepad1::getLeftY,
-                ()->-gamepad1.getRightX(),
-                ()-> new OdometerData(hardwares.sensors.odo),
-                ()-> (gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 ) ? 0.5 : 1,
-                ()-> true,
-            ()->true);
+            drive,
+            gamepad1::getLeftX,
+            gamepad1::getLeftY,
+            ()->-gamepad1.getRightX(),
+            ()-> new OdometerData(hardwares.sensors.odo),
+            ()-> (gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 ) ? 0.5 : 1,
+            ()-> true,
+            ()->true
+        );
 
         CommandScheduler.getInstance().schedule(driveCommand);
     }
@@ -80,9 +81,6 @@ public class TeleOp20827 extends XKCommandOpmode {
         telemetry.addData("X damping", driveCommand.dampedX - gamepad1.getLeftX());
         telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
         telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
-
-        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
-        telemetry.addData("Front Shooter PIDF", hardwares.motors.shooterFront.getPIDFCoefficients(hardwares.motors.shooterFront.getMode()));
 
         telemetry.update();
     }

@@ -101,7 +101,7 @@ public class TestTopRouteRed extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos(0);
+                moveToShootingPos();
                 break;
 
             case FIRST_SHOOT_BALLS:
@@ -125,7 +125,7 @@ public class TestTopRouteRed extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos(0);
+                moveToShootingPos();
                 break;
 
             case SHOOT_BALLS1:
@@ -145,7 +145,7 @@ public class TestTopRouteRed extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(0);
+                moveToShootingPos();
                 break;
 
             case SHOOT_BALLS2:
@@ -161,7 +161,7 @@ public class TestTopRouteRed extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION3:
-                moveToShootingPos(0);
+                moveToShootingPos();
                 break;
 
             case SHOOT_BALLS3:
@@ -184,10 +184,8 @@ public class TestTopRouteRed extends XKCommandOpmode {
 
     /**
      * 控制机器人移动到指定编号的射击位置，并设置射击准备动作
-     *
-     * @param posNum 射击位置索引（对应Constants.shootingPosition数组）
      */
-    private void moveToShootingPos(int posNum) {
+    private void moveToShootingPos() {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
@@ -197,9 +195,9 @@ public class TestTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
                 adaptiveController,
-                Constants.redShootingPosition[posNum][0],  // X坐标
-                Constants.redShootingPosition[posNum][1],     // Y坐标
-                Constants.redShootingPosition[posNum][2],     // 角度
+                Constants.redShootingPosition[0][0],  // X坐标
+                Constants.redShootingPosition[0][1],     // Y坐标
+                Constants.redShootingPosition[0][2],     // 角度
                 odo,
                 1,
                 true

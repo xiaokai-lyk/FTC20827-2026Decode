@@ -18,7 +18,6 @@ import java.util.function.Supplier;
 
 public class Drive {
     public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight;
-    private DcMotor.RunMode currentMode = null;
 
     public Drive(@NonNull Hardwares hardwares){
         this.mFrontLeft = hardwares.motors.mFrontLeft;
