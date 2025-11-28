@@ -109,18 +109,18 @@ public class Drive {
                     y.getAsDouble()
             );
             dampedRotate = angResult.rotateCmd;
-            double yawRateFiltered = angResult.yawRateFiltered; // 传给平移阻尼耦合因子
-            TranslationalDamping.Result dampingResult = translationalDamping.updateAndApply(
+//            double yawRateFiltered = angResult.yawRateFiltered; // 传给平移阻尼耦合因子
+//            TranslationalDamping.Result dampingResult = translationalDamping.updateAndApply(
+//                    x.getAsDouble(),
+//                    y.getAsDouble(),
+//                    yawRateFiltered,
+//                    data
+//            );
+//            dampedX = dampingResult.x;
+//            dampedY = dampingResult.y;
+            double[] potentials = drive.calculateComponents(
                     x.getAsDouble(),
                     y.getAsDouble(),
-                    yawRateFiltered,
-                    data
-            );
-            dampedX = dampingResult.x;
-            dampedY = dampingResult.y;
-            double[] potentials = drive.calculateComponents(
-                    dampedX,
-                    dampedY,
                     -dampedRotate,
                     currentHeading,
                     speedCoefficient.getAsDouble()
