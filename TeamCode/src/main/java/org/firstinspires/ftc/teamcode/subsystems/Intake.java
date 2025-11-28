@@ -31,4 +31,10 @@ public class Intake {
                 ()->intakeMotor.setPower(0)
         );
     }
+
+    public InstantCommand outTake(){
+        return new InstantCommand(
+                ()->intakeMotor.setPower(Constants.intakePowerOut)
+        );
+    }
 }

@@ -102,7 +102,7 @@ public class TeleOp20827 extends XKCommandOpmode {
                 () -> {
                     boolean rt = gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5;
                     boolean lt = gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5;
-                    return (!rt && !lt);
+                    return (!rt && !lt && !gamepad2.getButton(GamepadKeys.Button.RIGHT_BUMPER));
                 }
         );
 
@@ -120,6 +120,14 @@ public class TeleOp20827 extends XKCommandOpmode {
         ).whenPressed(
                 shooter.allowBallPass(),
                 intake.startIntake(false)
+        ).whenReleased(
+            stopIfNoTriggers
+        );
+
+        new ButtonEx(
+            ()-> gamepad2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+        ).whenPressed(
+            intake.outTake()
         ).whenReleased(
             stopIfNoTriggers
         );

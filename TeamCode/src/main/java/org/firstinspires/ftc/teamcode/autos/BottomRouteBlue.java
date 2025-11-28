@@ -17,8 +17,8 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@Autonomous(name = "TestBottomRouteBlue", group = "autos")
-public class TestBottomRouteBlue extends XKCommandOpmode
+@Autonomous(name = "BottomRouteBlue", group = "autos")
+public class BottomRouteBlue extends XKCommandOpmode
 {
     private Hardwares hardwares;
     private Drive drive;
@@ -99,15 +99,15 @@ public class TestBottomRouteBlue extends XKCommandOpmode
                 break;
 
             case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(2);
+                moveToIntakePos(3);
                 break;
 
             case INTAKE_BALLS1:
-                IntakeBalls(2);
+                IntakeBalls(3);
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos(1);
+                moveToShootingPos(2);
                 break;
 
 
@@ -116,16 +116,15 @@ public class TestBottomRouteBlue extends XKCommandOpmode
                 break;
 
             case MOVE_TO_INTAKE_POSITION2:
-                moveToIntakePos(1);
+                moveToIntakePos(2);
                 break;
 
             case INTAKE_BALLS2:
-                IntakeBalls(1);
+                IntakeBalls(2);
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                distanceType = 1; //将移动期间的预热改为中射预热
-                moveToShootingPos(1);//中射位置
+                moveToShootingPos(2);
                 break;
 
             case SHOOT_BALLS2:
@@ -152,19 +151,11 @@ public class TestBottomRouteBlue extends XKCommandOpmode
      * @param posNum 射击位置索引（对应Constants.shootingPosition数组）
      */
     private void moveToShootingPos(int posNum) {
-        // 设置射击器和进球系统
-        if(distanceType == 0)
-        {
-            shooter.blockBallPass().schedule();
-            shooter.setShooter(Constants.shooter250cm).schedule();
-            intake.startIntake(false).schedule();
-        }
-        else
-        {
-            shooter.blockBallPass().schedule();
-            shooter.setShooter(Constants.shooter125cm).schedule();
-            intake.startIntake(false).schedule();
-        }
+        shooter.blockBallPass().schedule();
+        shooter.setShooter(Constants.shooterFar).schedule();
+        intake.startIntake(false).schedule();
+
+        adaptiveController.headingDeadbandRad = Math.toRadians(3);
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -174,11 +165,9 @@ public class TestBottomRouteBlue extends XKCommandOpmode
             Constants.blueShootingPosition[posNum][1],     // Y坐标
             Constants.blueShootingPosition[posNum][2],     // 角度
             odo,
-            0.5,
+            1,
             true
         );
-
-        // 检查是否到达位置且运行时间超过5秒
         if (out.atPosition && out.atHeading) {
             transitionToNextStep();
         }
@@ -279,12 +268,12 @@ public class TestBottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPosition[2][0],  // X坐标
-            Constants.bluePickUpPosition[2][1],   // Y坐标
-            Constants.bluePickUpPosition[2][2],     // 角度
+            Constants.blueParkPosition[0],  // X坐标
+            Constants.blueParkPosition[1],   // Y坐标
+            Constants.blueParkPosition[2],     // 角度
             odo,
-            0.3,
-            true
+            1,
+            false
         );
     }
 
