@@ -1,8 +1,19 @@
 package org.firstinspires.ftc.teamcode;
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 
+@Config
 public class Constants {
+    @Config
+    public static class ShooterFarPIDF {
+        public static double kP = 70;
+        public static double kI = 6;
+        public static double kD = 0;
+        public static double kF = 0.25;
+    }
+
     public static class ShooterConfig {
         public int frontVelocity;
         public int backVelocity;
@@ -13,14 +24,15 @@ public class Constants {
     }
 
     public static double preShooterBlock = -1;
-    public static double preShooterRun = 1;
+    public static double preShooterRunClose = 1;
+    public static double preShooterRunFar = 0.3;
     public static ShooterConfig shooter40cm = new ShooterConfig(1100, 600);
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 1300);
     public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
-    public static ShooterConfig shooterFar = new ShooterConfig(400, 1950);
+    public static ShooterConfig shooterFar = new ShooterConfig(350, 1925);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePowerSlow = 0.8;
-    public static double intakePowerFast = 1.0;
+    public static double intakePowerFar = 0.3;
+    public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题

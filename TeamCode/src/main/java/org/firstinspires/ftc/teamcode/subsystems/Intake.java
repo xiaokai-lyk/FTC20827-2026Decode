@@ -17,11 +17,11 @@ public class Intake {
     public InstantCommand startIntake(boolean useFastMode){
         if(useFastMode){
             return new InstantCommand(
-                    ()->intakeMotor.setPower(Constants.intakePowerFast)
+                    ()->intakeMotor.setPower(Constants.intakePowerClose)
             );
         }else{
             return new InstantCommand(
-                ()->intakeMotor.setPower(Constants.intakePowerSlow)
+                ()->intakeMotor.setPower(Constants.intakePowerFar)
             );
         }
     }

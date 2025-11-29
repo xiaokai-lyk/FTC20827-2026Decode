@@ -52,7 +52,7 @@ public class Test extends XKCommandOpmode {
             }
         }
         if(step == 1){
-            shooter.allowBallPass().schedule();
+            shooter.allowBallPassClose().schedule();
             intake.startIntake(true).schedule();
             if(getRuntime() > 15)step = 2;
         }

@@ -105,7 +105,7 @@ public class TeleOpRobotCentric extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
-                shooter.allowBallPass(),
+                shooter.allowBallPassClose(),
                 intake.startIntake(false)
         ).whenReleased(enterRunningMode);
 

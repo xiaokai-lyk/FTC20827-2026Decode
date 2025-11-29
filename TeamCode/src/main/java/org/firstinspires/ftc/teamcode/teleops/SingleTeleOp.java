@@ -105,7 +105,7 @@ public class SingleTeleOp extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
         ).whenPressed(
-                shooter.allowBallPass(),
+                shooter.allowBallPassClose(),
                 intake.startIntake(false)
         ).whenReleased(enterRunningMode);
 

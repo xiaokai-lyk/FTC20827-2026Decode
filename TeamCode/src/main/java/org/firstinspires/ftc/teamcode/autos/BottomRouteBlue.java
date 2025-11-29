@@ -187,7 +187,7 @@ public class BottomRouteBlue extends XKCommandOpmode
     private void shootBalls() {
         double timeAfterShoot = getElapsedSeconds() % 1;
         if (timeAfterShoot < 0.1 && timeAfterShoot > 0) {
-            shooter.allowBallPass().schedule();
+            shooter.allowBallPassFar().schedule();
         } else {
             shooter.blockBallPass().schedule();
         }

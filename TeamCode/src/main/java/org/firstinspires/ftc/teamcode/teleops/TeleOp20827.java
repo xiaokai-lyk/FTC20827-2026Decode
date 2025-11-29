@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -16,10 +19,12 @@ import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.ShootingType;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
+@Config
 @TeleOp(name = "TeleOp", group = "teleops")
 public class TeleOp20827 extends XKCommandOpmode {
     private Shooter shooter;
@@ -28,8 +33,17 @@ public class TeleOp20827 extends XKCommandOpmode {
     private GamepadEx gamepad1, gamepad2;
     private Constants.ShooterConfig shooterConfig;
     protected Drive.DriveCommand driveCommand;
+    private FtcDashboard dashboard;
+    private ShootingType shootingType;
+
+    public static int frontVel = 1100;
+    public static int backVel = 600;
+
     @Override
     public void initialize() {
+        dashboard = FtcDashboard.getInstance();
+        shootingType = new ShootingType();
+
         this.gamepad1 = new GamepadEx(super.gamepad1);
         this.gamepad2 = new GamepadEx(super.gamepad2);
         CommandScheduler.getInstance().cancelAll();
@@ -82,6 +96,18 @@ public class TeleOp20827 extends XKCommandOpmode {
         telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
         telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
 
+        telemetry.addData("front shooter velocity", hardwares.motors.shooterFront.getVelocity());
+        telemetry.addData("back shooter velocity", hardwares.motors.shooterBack.getVelocity());
+
+        dashboard.getTelemetry().addData("front shooter velocity", hardwares.motors.shooterFront.getVelocity());
+        dashboard.getTelemetry().addData("back shooter velocity", hardwares.motors.shooterBack.getVelocity());
+        TelemetryPacket packet = new com.acmerobotics.dashboard.telemetry.TelemetryPacket();
+        packet.put("shooter/front_velocity", hardwares.motors.shooterFront.getVelocity());
+        packet.put("shooter/back_velocity", hardwares.motors.shooterBack.getVelocity());
+        packet.put("shooter/front_target", Constants.shooterFar.frontVelocity);
+        packet.put("shooter/back_target", Constants.shooterFar.backVelocity);
+        dashboard.sendTelemetryPacket(packet);
+
         telemetry.update();
     }
 
@@ -114,10 +140,18 @@ public class TeleOp20827 extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
+                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 && shootingType.isFar()
         ).whenPressed(
-                shooter.allowBallPass(),
+                shooter.allowBallPassFar(),
                 intake.startIntake(false)
+        ).whenReleased(
+            stopIfNoTriggers
+        );
+        new ButtonEx(
+                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 && (shootingType.isClose() || shootingType.isMiddle())
+        ).whenPressed(
+                shooter.allowBallPassClose(),
+                intake.startIntake(true)
         ).whenReleased(
             stopIfNoTriggers
         );
@@ -142,22 +176,35 @@ public class TeleOp20827 extends XKCommandOpmode {
         new ButtonEx(
             ()-> gamepad2.getButton(GamepadKeys.Button.B)
         ).whenPressed(
+            shooter.setShooterClosePIDF(),
             /* Assumption: shooter125cm corresponds to HIGH mode */
-            shooter.setShooter(Constants.shooter125cm)
+            shooter.setShooter(Constants.shooter125cm),
+            shootingType.setShootingType(1)
         );
 
         new ButtonEx(
             ()-> gamepad2.getButton(GamepadKeys.Button.Y)
         ).whenPressed(
+            shooter.setShooterClosePIDF(),
             /* Assumption: shooter40cm corresponds to LOW mode */
-            shooter.setShooter(Constants.shooter40cm)
+            shooter.setShooter(new Constants.ShooterConfig(frontVel, backVel)),
+            shootingType.setShootingType(0)
         );
 
         new ButtonEx(
             ()-> gamepad2.getButton(GamepadKeys.Button.A)
         ).whenPressed(
+            shooter.setShooterFarPIDF(Constants.ShooterFarPIDF.kP, Constants.ShooterFarPIDF.kI, Constants.ShooterFarPIDF.kD, Constants.ShooterFarPIDF.kF),
             /* Assumption: shooter40cm corresponds to LOW mode */
-            shooter.setShooter(Constants.shooterFar)
+            shooter.setShooter(Constants.shooterFar),
+            shootingType.setShootingType(2)
+        );
+
+        new ButtonEx(
+            ()-> gamepad2.getButton(GamepadKeys.Button.X)
+        ).whenPressed(
+            /* Assumption: shooter40cm corresponds to LOW mode */
+            shooter.stopShooter()
         );
     }
 }

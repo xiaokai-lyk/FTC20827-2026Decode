@@ -223,7 +223,7 @@ public class TopRouteBlue extends XKCommandOpmode {
                 0,
                 false
         );
-        shooter.allowBallPass().schedule();
+        shooter.allowBallPassClose().schedule();
 
         if (getElapsedSeconds() > 1.2) {
             transitionToNextStep();
