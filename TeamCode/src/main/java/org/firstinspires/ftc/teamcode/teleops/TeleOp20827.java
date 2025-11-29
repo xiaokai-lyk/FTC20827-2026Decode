@@ -144,8 +144,6 @@ public class TeleOp20827 extends XKCommandOpmode {
         ).whenPressed(
             /* Assumption: shooter125cm corresponds to HIGH mode */
             shooter.setShooter(Constants.shooter125cm)
-        ).whenReleased(
-            shooter.setShooter(Constants.shooterStop)
         );
 
         new ButtonEx(
@@ -153,8 +151,6 @@ public class TeleOp20827 extends XKCommandOpmode {
         ).whenPressed(
             /* Assumption: shooter40cm corresponds to LOW mode */
             shooter.setShooter(Constants.shooter40cm)
-        ).whenReleased(
-            shooter.setShooter(Constants.shooterStop)
         );
 
         new ButtonEx(
@@ -162,8 +158,6 @@ public class TeleOp20827 extends XKCommandOpmode {
         ).whenPressed(
             /* Assumption: shooter40cm corresponds to LOW mode */
             shooter.setShooter(Constants.shooterFar)
-        ).whenReleased(
-            shooter.setShooter(Constants.shooterStop)
         );
     }
 }

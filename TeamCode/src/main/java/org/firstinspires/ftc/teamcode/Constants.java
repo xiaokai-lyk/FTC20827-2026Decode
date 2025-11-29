@@ -49,7 +49,7 @@ public class Constants {
         {90, -100, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
-        {-50,-50,50}, //Blue close
+        {-55,-55,50}, //Blue close
         {-150,-150,45},  //Blue middle
         {}   //Blue far
     };
@@ -68,7 +68,7 @@ public class Constants {
     };
 
     public static double[][] redShootingPosTop = { //x,y,heading
-            {-50,50,-50}, //Red Close
+            {-60,60,-50}, //Red Close
             {-150,150,-45}, //Red Middle
             {} //Red far
     };
