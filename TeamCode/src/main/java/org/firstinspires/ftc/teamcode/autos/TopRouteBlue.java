@@ -256,8 +256,8 @@ public class TopRouteBlue extends XKCommandOpmode {
         );
 
         if (out.atPosition && out.atHeading) {
-            transitionToNextStep();
             adaptiveController.resetDeadbands();
+            transitionToNextStep();
         }
     }
 
@@ -281,7 +281,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
             transitionToNextStep();
         }
     }
@@ -333,7 +333,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1], //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.7,
+            0.5,
             false
         );
         if (getElapsedSeconds() > 1.3) {

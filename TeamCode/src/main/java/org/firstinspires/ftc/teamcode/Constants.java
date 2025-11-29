@@ -67,7 +67,7 @@ public class Constants {
     };
 
     public static double[][] redShootingPosTop = { //x,y,heading
-            {-37,37,-50}, //Red Close
+            {-45,45,-53}, //Red Close
             {-150,150,-45}, //Red Middle
             {} //Red far
     };

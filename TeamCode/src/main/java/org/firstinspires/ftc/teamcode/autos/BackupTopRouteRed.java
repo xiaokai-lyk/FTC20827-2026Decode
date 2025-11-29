@@ -21,8 +21,8 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
  * 改进版自动驾驶测试程序
  * 使用状态机模式提高可扩展性和可维护性
  */
-@Autonomous(name = "TopRouteRed", group = "autos")
-public class TopRouteRed extends XKCommandOpmode {
+@Autonomous(name = "BackupTopRouteRed", group = "autos")
+public class BackupTopRouteRed extends XKCommandOpmode {
     // 硬件子系统
 
     private Hardwares hardwares;
@@ -397,7 +397,7 @@ public class TopRouteRed extends XKCommandOpmode {
         odo = new OdometerData(hardwares.sensors.odo);
         // 设置初始位置
         // hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES); // 贴着二维码初始位置
-        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 16, 33, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, -45)); //贴着边栏初始位置
         telemetry.addData("Auto Status", "Initialized");
     }
 
