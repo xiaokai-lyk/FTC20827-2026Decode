@@ -30,7 +30,8 @@ public class Constants {
         {-228,-65,90}, //Blue Bottom Intake,
     };
     public static double[][] bluePickUpPosition = {
-        {80,120,180}
+        {80,120,180},
+        {90,0,90}
     };
 
     public static double[][] redPickUpPosition = {
