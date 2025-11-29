@@ -333,7 +333,7 @@ public class TopRouteRed extends XKCommandOpmode {
                 Constants.redGatePosition[1], //y
                 Constants.redGatePosition[2], // heading
                 odo,
-                1,
+                0.7,
                 false
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {

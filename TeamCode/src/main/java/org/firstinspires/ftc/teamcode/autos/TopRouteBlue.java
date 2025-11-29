@@ -333,7 +333,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1], //y
             Constants.blueGatePosition[2], // heading
             odo,
-            1,
+            0.7,
             false
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
@@ -350,9 +350,9 @@ public class TopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueParkPosition[0],  // X坐标
-            Constants.blueParkPosition[1],   // Y坐标
-            Constants.blueParkPosition[2],     // 角度
+            Constants.blueParkPositionTop[0],  // X坐标
+            Constants.blueParkPositionTop[1],   // Y坐标
+            Constants.blueParkPositionTop[2],     // 角度
             odo,
             1,
             true
