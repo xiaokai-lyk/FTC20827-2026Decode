@@ -38,8 +38,9 @@ public class Constants {
         {90,0,-90}
     };
 
-    public static double[][] blueBallPosition = {
-        {0,120,180}
+    public static double[][] blueBallPosition ={
+        {0,120,180},
+        {90, 100, 90}
     };
 
     public static double[][] redBallPosition = {
@@ -47,8 +48,7 @@ public class Constants {
         {90, -100, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
-        {-37,-37,50}, //Blue close
-        {-150,-150,45},  //Blue middle
+        {-45,-45,53}, //Blue close
         {-150,-150,45},  //Blue middle
         {}   //Blue far
     };
