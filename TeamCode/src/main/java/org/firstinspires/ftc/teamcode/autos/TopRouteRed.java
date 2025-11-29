@@ -195,9 +195,9 @@ public class TopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
                 adaptiveController,
-                Constants.redShootingPosition[0][0],  // X坐标
-                Constants.redShootingPosition[0][1],     // Y坐标
-                Constants.redShootingPosition[0][2],     // 角度
+                Constants.redShootingPosTop[0][0],  // X坐标
+                Constants.redShootingPosTop[0][1],     // Y坐标
+                Constants.redShootingPosTop[0][2],     // 角度
                 odo,
                 1,
                 true
@@ -216,9 +216,9 @@ public class TopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
                 adaptiveController,
-                Constants.redShootingPosition[0][0],  // X坐标
-                Constants.redShootingPosition[0][1],     // Y坐标
-                Constants.redShootingPosition[0][2],     // 角度
+                Constants.redShootingPosTop[0][0],  // X坐标
+                Constants.redShootingPosTop[0][1],     // Y坐标
+                Constants.redShootingPosTop[0][2],     // 角度
                 odo,
                 0,
                 false

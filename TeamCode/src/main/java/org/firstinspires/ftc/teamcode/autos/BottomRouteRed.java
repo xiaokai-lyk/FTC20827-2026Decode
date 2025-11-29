@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@Autonomous(name = "BottomRouteBlue", group = "autos")
-public class BottomRouteBlue extends XKCommandOpmode
+@Autonomous(name = "BottomRouteRed", group = "autos")
+public class BottomRouteRed extends XKCommandOpmode
 {
     private Hardwares hardwares;
     private Drive drive;
@@ -159,9 +159,9 @@ public class BottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueShootingPosBottom[0][0],  // X坐标
-            Constants.blueShootingPosBottom[0][1],     // Y坐标
-            Constants.blueShootingPosBottom[0][2],     // 角度
+            Constants.redShootingPosBottom[0][0],  // X坐标
+            Constants.redShootingPosBottom[0][1],     // Y坐标
+            Constants.redShootingPosBottom[0][2],     // 角度
             odo,
             1,
             true
