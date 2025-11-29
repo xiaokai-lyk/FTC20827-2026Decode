@@ -187,7 +187,8 @@ public class TeleOp20827 extends XKCommandOpmode {
         ).whenPressed(
             shooter.setShooterClosePIDF(),
             /* Assumption: shooter40cm corresponds to LOW mode */
-            shooter.setShooter(new Constants.ShooterConfig(frontVel, backVel)),
+//            shooter.setShooter(new Constants.ShooterConfig(frontVel, backVel)),
+            shooter.setShooter(Constants.shooter40cm),
             shootingType.setShootingType(0)
         );
 
@@ -195,7 +196,7 @@ public class TeleOp20827 extends XKCommandOpmode {
             ()-> gamepad2.getButton(GamepadKeys.Button.A)
         ).whenPressed(
             shooter.setShooterFarPIDF(Constants.ShooterFarPIDF.kP, Constants.ShooterFarPIDF.kI, Constants.ShooterFarPIDF.kD, Constants.ShooterFarPIDF.kF),
-            /* Assumption: shooter40cm corresponds to LOW mode */
+            /* Assumption: shooter250cm corresponds to LOW mode */
             shooter.setShooter(Constants.shooterFar),
             shootingType.setShootingType(2)
         );
