@@ -296,7 +296,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGateControlPoint[1],
             Constants.blueGateControlPoint[2],
             odo,
-            0.8`,
+            0.8,
             true
         );
         if((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
