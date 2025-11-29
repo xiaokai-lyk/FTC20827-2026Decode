@@ -44,10 +44,10 @@ public class BottomRouteRed extends XKCommandOpmode
         INTAKE_BALLS1,                    // 取第一组球
         MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
         FAR_POSITION_SHOOT,               // 发射第一组球
-//        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
-//        INTAKE_BALLS2,                    // 取第二组球
-//        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
-//        SHOOT_BALLS2,                     // 发射第二组球
+        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
+        INTAKE_BALLS2,                    // 取第二组球
+        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
+        SHOOT_BALLS2,                     // 发射第二组球
         AWAY_FROM_LINE,                   // 离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -97,11 +97,11 @@ public class BottomRouteRed extends XKCommandOpmode
                 break;
 
             case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(0);
+                moveToIntakePos(1);
                 break;
 
             case INTAKE_BALLS1:
-                IntakeBalls(0);
+                IntakeBalls(1);
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
@@ -113,21 +113,21 @@ public class BottomRouteRed extends XKCommandOpmode
                 shootBalls();
                 break;
 
-//            case MOVE_TO_INTAKE_POSITION2:
-//                moveToIntakePos(1);
-//                break;
-//
-//            case INTAKE_BALLS2:
-//                IntakeBalls(1);
-//                break;
-//
-//            case MOVE_TO_SHOOTING_POSITION2:
-//                moveToShootingPos();
-//                break;
-//
-//            case SHOOT_BALLS2:
-//                shootBalls();
-//                break;
+            case MOVE_TO_INTAKE_POSITION2:
+                moveToIntakePos(0);
+                break;
+
+            case INTAKE_BALLS2:
+                IntakeBalls(0);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION2:
+                moveToShootingPos();
+                break;
+
+            case SHOOT_BALLS2:
+                shootBalls();
+                break;
 
             case AWAY_FROM_LINE:
                 moveFromLine();
@@ -166,8 +166,18 @@ public class BottomRouteRed extends XKCommandOpmode
             1,
             true
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 5) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
             transitionToNextStep();
+            autoDrive.driveToAdaptive(
+                drive,
+                adaptiveController,
+                Constants.redShootingPosBottom[0][0],  // X坐标
+                Constants.redShootingPosBottom[0][1],     // Y坐标
+                Constants.redShootingPosBottom[0][2],     // 角度
+                odo,
+                0,
+                true
+            );
         }
     }
 
@@ -211,8 +221,7 @@ public class BottomRouteRed extends XKCommandOpmode
             true
         );
 
-        // 检查是否到达位置且运行时间超过3秒
-        if (out.atPosition && out.atHeading) {
+        if (out.atPosition && out.atHeading || getElapsedSeconds() > 3) {
             transitionToNextStep();
         }
     }
@@ -230,7 +239,7 @@ public class BottomRouteRed extends XKCommandOpmode
             drive,
             adaptiveController,
             Constants.redBallPosition[posNum][0],  // X坐标
-            Constants.redBallPosition[posNum][1]+90,   // Y坐标
+            Constants.redBallPosition[posNum][1],   // Y坐标
             Constants.redBallPosition[posNum][2],     // 角度
             odo,
             0.8,

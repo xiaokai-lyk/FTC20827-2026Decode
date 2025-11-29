@@ -336,7 +336,7 @@ public class TopRouteRed extends XKCommandOpmode {
                 0.7,
                 false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
+        if (getElapsedSeconds() > 1.3) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }
