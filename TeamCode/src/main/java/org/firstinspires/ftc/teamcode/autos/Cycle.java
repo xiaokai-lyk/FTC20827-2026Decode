@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
+@Disabled
 @Autonomous(name = "Cycle", group = "autos")
 public class Cycle extends XKCommandOpmode {
     Hardwares hardwares;

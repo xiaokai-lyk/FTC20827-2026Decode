@@ -97,11 +97,11 @@ public class BottomRouteBlue extends XKCommandOpmode
                 break;
 
             case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(3);
+                moveToIntakePos(0);
                 break;
 
             case INTAKE_BALLS1:
-                IntakeBalls(3);
+                IntakeBalls(0);
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
@@ -113,21 +113,21 @@ public class BottomRouteBlue extends XKCommandOpmode
                 shootBalls();
                 break;
 
-            case MOVE_TO_INTAKE_POSITION2:
-                moveToIntakePos(2);
-                break;
-
-            case INTAKE_BALLS2:
-                IntakeBalls(2);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS2:
-                shootBalls();
-                break;
+//            case MOVE_TO_INTAKE_POSITION2:
+//                moveToIntakePos(1);
+//                break;
+//
+//            case INTAKE_BALLS2:
+//                IntakeBalls(1);
+//                break;
+//
+//            case MOVE_TO_SHOOTING_POSITION2:
+//                moveToShootingPos();
+//                break;
+//
+//            case SHOOT_BALLS2:
+//                shootBalls();
+//                break;
 
             case AWAY_FROM_LINE:
                 moveFromLine();
@@ -152,6 +152,8 @@ public class BottomRouteBlue extends XKCommandOpmode
         intake.startIntake(false).schedule();
 
         adaptiveController.headingDeadbandRad = Math.toRadians(1);
+        adaptiveController.positionDeadbandCm = 1;
+
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -164,7 +166,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             1,
             true
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 5) {
             transitionToNextStep();
         }
     }
@@ -180,7 +182,6 @@ public class BottomRouteBlue extends XKCommandOpmode
             shooter.blockBallPass().schedule();
         }
 
-        // 持续3秒后进入下一步
         if (getElapsedSeconds() > 3.5) {
             transitionToNextStep();
         }
@@ -206,7 +207,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             Constants.bluePickUpPosition[posNum][1],   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            0.5,
+            1,
             true
         );
 
@@ -228,11 +229,11 @@ public class BottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPosition[posNum][0],  // X坐标
-            Constants.bluePickUpPosition[posNum][1]+90,   // Y坐标
-            Constants.bluePickUpPosition[posNum][2],     // 角度
+            Constants.blueBallPosition[posNum][0],  // X坐标
+            Constants.blueBallPosition[posNum][1]+90,   // Y坐标
+            Constants.blueBallPosition[posNum][2],     // 角度
             odo,
-            0.3,
+            0.8,
             true
         );
 
