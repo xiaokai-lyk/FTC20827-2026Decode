@@ -296,8 +296,8 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGateControlPoint[1],
             Constants.blueGateControlPoint[2],
             odo,
-            1,
-            false
+            0.8`,
+            true
         );
         if((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             transitionToNextStep();
@@ -402,8 +402,7 @@ public class TopRouteBlue extends XKCommandOpmode {
     }
 
     /**
-     * 转换到下一个步骤（基于枚举顺序递增）
-     */
+      */
     private void transitionToNextStep() {
         currIndex++;
         AutoStep nextStep = AutoStep.values()[currIndex];
