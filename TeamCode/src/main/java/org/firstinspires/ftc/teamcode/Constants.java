@@ -32,12 +32,22 @@ public class Constants {
     public static double[][] bluePickUpPosition = {
         {80,120,180}
     };
+
+    public static double[][] redPickUpPosition = {
+        {80,-120,-180}
+    };
+
     public static double[][] blueBallPosition = {
         {0,120,180}
     };
+
+    public static double[][] redBallPosition = {
+        {0,-120,-180}
+    };
     public static double[][] blueShootingPosTop = { //x,y,heading
-        {-28,-28,42}, //Blue close
-        {-150,-150,42},  //Blue middle
+        {-37,-37,50}, //Blue close
+        {-150,-150,45},  //Blue middle
+        {-150,-150,45},  //Blue middle
         {}   //Blue far
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
@@ -45,25 +55,26 @@ public class Constants {
     };
     public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
     public static double[] blueParkPosition = {50, 20,0}; //x,y,heading
-    public static double[] blueGatePosition ={-134,34,90};  // open gate
+    public static double[] blueGatePosition ={-137,34,90};  // open gate
     public static double[] blueGateControlPoint = {-168, -30, 90};//若是调到gate右侧则是绕开门否则是打开门
 
-    public static double[][] redPickUpPosition = {  //x,y,heading
+    public static double[][] redPickUpPositionTop = {  //x,y,heading
             {-108,70,-90},
             {-168,65,-90},
             {-228,65,-90}
     };
 
     public static double[][] redShootingPosTop = { //x,y,heading
-            {-30,30,-42}, //Red Close
-            {-150,150,-42}, //Red Middle
+            {-37,37,-50}, //Red Close
+            {-150,150,-45}, //Red Middle
             {} //Red far
     };
     public static double[][] redShootingPosBottom = {
         {9.5, 11.1, -20}
     };
-    public static double[] redParkPosition = {-140, 30, 0}; // red park pos
-    public static double[] redGatePosition = {-134, -34,-90};
+    public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
+    public static double[] redParkPosition = {50, -20, -0}; //x,y,heading
+    public static double[] redGatePosition = {-137, -34,-90};
     public static double[] redGateControlPoint = {-168, 30, -90};//
 
 

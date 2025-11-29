@@ -203,9 +203,9 @@ public class BottomRouteRed extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPosition[posNum][0],  // X坐标
-            Constants.bluePickUpPosition[posNum][1],   // Y坐标
-            Constants.bluePickUpPosition[posNum][2],     // 角度
+            Constants.redPickUpPosition[posNum][0],  // X坐标
+            Constants.redPickUpPosition[posNum][1],   // Y坐标
+            Constants.redPickUpPosition[posNum][2],     // 角度
             odo,
             1,
             true
@@ -229,9 +229,9 @@ public class BottomRouteRed extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueBallPosition[posNum][0],  // X坐标
-            Constants.blueBallPosition[posNum][1]+90,   // Y坐标
-            Constants.blueBallPosition[posNum][2],     // 角度
+            Constants.redBallPosition[posNum][0],  // X坐标
+            Constants.redBallPosition[posNum][1]+90,   // Y坐标
+            Constants.redBallPosition[posNum][2],     // 角度
             odo,
             0.8,
             true
