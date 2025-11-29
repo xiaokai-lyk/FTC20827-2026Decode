@@ -38,7 +38,9 @@ public class BottomRouteBlue extends XKCommandOpmode
      * 定义自动驾驶步骤枚举，表示机器人在自动阶段中的各个任务节点
      */
     private enum AutoStep {
+
         MOVE_TO_SHOOTING_POSITION,        //初始射球预热
+        WAIT_FOR_ACCELERATION,
         INITIAL_POSITION_SHOOT,           //初始位置射击
         MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
         INTAKE_BALLS1,                    // 取第一组球
@@ -92,8 +94,12 @@ public class BottomRouteBlue extends XKCommandOpmode
                 moveToShootingPos();//远射位置
                 break;
 
+            case WAIT_FOR_ACCELERATION:
+                waitForAcceleration();
+                break;
+
             case INITIAL_POSITION_SHOOT:
-                shootBalls();
+                shootBalls(); // 优化方案： 在射第一个球的时候让intake先反转0.1秒，为他先提供一个初速度，这样子第一个球就不会掉速。
                 break;
 
             case MOVE_TO_INTAKE_POSITION1:
@@ -142,17 +148,47 @@ public class BottomRouteBlue extends XKCommandOpmode
                 // 自动程序完成，无需进一步操作
         }
     }
-
+//    public void shootWhileMoving(){
+//        double timeAfterShoot = getElapsedSeconds() % 1;
+//        if (timeAfterShoot < 0.2 && timeAfterShoot > 0) {
+//            shooter.allowBallPassFar().schedule();
+//        } else {
+//            shooter.blockBallPass().schedule();
+//        }
+//        shooter.allowBallPassFar().schedule();
+//        intake.startIntake(1).schedule();
+//        adaptiveController.headingDeadbandRad = Math.toRadians(1);
+//        adaptiveController.positionDeadbandCm = 1;
+//        AutoDrive.Output out = autoDrive.driveToAdaptive(
+//            drive,
+//            adaptiveController,
+//            Constants.blueShootingPosBottom[0][0],  // X坐标
+//            Constants.blueShootingPosBottom[0][1],     // Y坐标
+//            Constants.blueShootingPosBottom[0][2],     // 角度
+//            odo,
+//            0.8,
+//            true
+//        );
+//        if (getElapsedSeconds() > 4) {
+//            transitionToNextStep();
+//        }
+//    }
     /**
      * 控制机器人移动到指定编号的射击位置，并设置射击准备动作
      */
+    public void waitForAcceleration(){
+        shooter.setShooter(Constants.shooterFar).schedule();
+        if(getElapsedSeconds()>3){
+            transitionToNextStep();
+        }
+    }
     private void moveToShootingPos() {
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooterFar).schedule();
-        intake.startIntake(false).schedule();
+        intake.startIntake(1).schedule();
 
-        adaptiveController.headingDeadbandRad = Math.toRadians(1);
-        adaptiveController.positionDeadbandCm = 1;
+        adaptiveController.headingDeadbandRad = Math.toRadians(3);
+        adaptiveController.positionDeadbandCm = 3;
 
 
         // 驱动到第一个位置
@@ -166,7 +202,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             1,
             true
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
+        if ((out.atPosition && out.atHeading)|| getElapsedSeconds()>3) { //这里我也不知道为什么，只要把上面的deadband调成1 就有概率触发小彩蛋。车会直接卡死不动。
             transitionToNextStep();
             autoDrive.driveToAdaptive(
                 drive,
@@ -186,13 +222,13 @@ public class BottomRouteBlue extends XKCommandOpmode
      */
     private void shootBalls() {
         double timeAfterShoot = getElapsedSeconds() % 1;
-        if (timeAfterShoot < 0.1 && timeAfterShoot > 0) {
+        if (timeAfterShoot < 0.2 && timeAfterShoot > 0) {
             shooter.allowBallPassFar().schedule();
         } else {
             shooter.blockBallPass().schedule();
         }
 
-        if (getElapsedSeconds() > 3.5) {
+        if (getElapsedSeconds() > 4) {
             transitionToNextStep();
         }
     }
@@ -207,7 +243,7 @@ public class BottomRouteBlue extends XKCommandOpmode
         // 阻止球通过
         intake.stopIntake().schedule();
         shooter.stopPreShooter().schedule();
-        shooter.setShooter(Constants.shooterStop).schedule();
+//        shooter.setShooter(Constants.shooterStop).schedule();
 
         // 驱动到第二个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -217,7 +253,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             Constants.bluePickUpPosition[posNum][1],   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            1,
+            0.75,
             true
         );
 
@@ -233,7 +269,7 @@ public class BottomRouteBlue extends XKCommandOpmode
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake(true).schedule();
+        intake.startIntake(2).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -247,7 +283,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 2) {
             transitionToNextStep();
         }
     }

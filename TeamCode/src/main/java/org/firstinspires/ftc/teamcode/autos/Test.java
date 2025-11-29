@@ -36,7 +36,7 @@ public class Test extends XKCommandOpmode {
         if(step ==0){
             shooter.blockBallPass().schedule();
             shooter.setShooter(Constants.shooter125cm).schedule();
-            intake.startIntake(false).schedule();
+            intake.startIntake(1).schedule();
             AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
                 adaptiveController,
@@ -53,7 +53,7 @@ public class Test extends XKCommandOpmode {
         }
         if(step == 1){
             shooter.allowBallPassClose().schedule();
-            intake.startIntake(true).schedule();
+            intake.startIntake(2).schedule();
             if(getRuntime() > 15)step = 2;
         }
         if(step == 2){

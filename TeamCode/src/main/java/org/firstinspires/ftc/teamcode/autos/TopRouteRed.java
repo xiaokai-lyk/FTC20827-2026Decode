@@ -189,7 +189,7 @@ public class TopRouteRed extends XKCommandOpmode {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
-        intake.startIntake(false).schedule();
+        intake.startIntake(1).schedule();
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -267,7 +267,7 @@ public class TopRouteRed extends XKCommandOpmode {
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake(true).schedule();
+        intake.startIntake(2).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(

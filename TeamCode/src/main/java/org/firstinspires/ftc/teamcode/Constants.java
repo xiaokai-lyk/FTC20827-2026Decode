@@ -9,8 +9,8 @@ public class Constants {
     @Config
     public static class ShooterFarPIDF {
         public static double kP = 70;
-        public static double kI = 6;
-        public static double kD = 0;
+        public static double kI = 3;
+        public static double kD = 8;
         public static double kF = 0.25;
     }
 
@@ -26,47 +26,52 @@ public class Constants {
     public static double preShooterBlock = -1;
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;
+    public static double preShooterRunMiddle = 0.9;
     public static ShooterConfig shooter40cm = new ShooterConfig(1000, 500);
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 1300);
-    public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
+        public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooterFar = new ShooterConfig(350, 1925);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePowerFar = 0.3;
+    public static double intakePowerFar = 0.4;
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
     public static double[][] bluePickUpPositionTop = {  //x,y,heading
-        {-108,-70,90}, //Blue Top Intake
-        {-168,-65,90}, //Blue Middle Intake
-        {-228,-65,90}, //Blue Bottom Intake,
+            {-108,-70,90}, //Blue Top Intake
+            {-168,-65,90}, //Blue Middle Intake
+            {-228,-65,90}, //Blue Bottom Intake,
     };
     public static double[][] bluePickUpPosition = {
-        {80,120,180},
-        {90,0,90}
+            {86,138,180},
+            {75,38,90}
     };
 
     public static double[][] redPickUpPosition = {
-        {80,-120,-180},
-        {90,0,-90}
+            {80,-120,-180},
+            {90,0,-90}
     };
 
     public static double[][] blueBallPosition ={
-        {0,120,180},
-        {90, 100, 90}
+            {10,138,180},
+            {75, 135, 90}
     };
 
+    public static double[] bluePreShootingPos={
+            25.0,30.2,20.4
+    };
     public static double[][] redBallPosition = {
-        {0,-120,-180},
-        {90, -100, -90}
+            {0,-120,-180},
+            {90, -100, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
-        {-55,-55,50}, //Blue close
-        {-150,-150,45},  //Blue middle
-        {}   //Blue far
+            {-55,-55,50}, //Blue close
+            {-150,-150,45},  //Blue middle
+            {}   //Blue far
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
-         {9.5,-11.1,20}   //Blue far
+            {7.5,16,21},   //Blue far
+            {25,25,21} //blue far no.2
     };
     public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
     public static double[] blueParkPosition = {50,0,0}; //x,y,heading
@@ -85,7 +90,7 @@ public class Constants {
             {} //Red far
     };
     public static double[][] redShootingPosBottom = {
-        {9.5, 11.1, -20}
+            {9.5, 11.1, -20}
     };
     public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
     public static double[] redParkPosition = {50, -20, -0}; //x,y,heading
@@ -170,3 +175,4 @@ public class Constants {
         }
     }
 }
+

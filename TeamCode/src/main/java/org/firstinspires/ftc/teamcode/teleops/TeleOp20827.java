@@ -134,7 +134,7 @@ public class TeleOp20827 extends XKCommandOpmode {
                 () -> gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
         ).whenPressed(
             shooter.blockBallPass(),
-            intake.startIntake(true)
+            intake.startIntake(2)
         ).whenReleased(
             stopIfNoTriggers
         );
@@ -143,19 +143,26 @@ public class TeleOp20827 extends XKCommandOpmode {
                 ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 && shootingType.isFar()
         ).whenPressed(
                 shooter.allowBallPassFar(),
-                intake.startIntake(false)
+                intake.startIntake(2)
         ).whenReleased(
             stopIfNoTriggers
         );
         new ButtonEx(
-                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 && (shootingType.isClose() || shootingType.isMiddle())
+                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 && shootingType.isClose()
         ).whenPressed(
                 shooter.allowBallPassClose(),
-                intake.startIntake(true)
+                intake.startIntake(1)
         ).whenReleased(
             stopIfNoTriggers
         );
-
+        new ButtonEx(
+                ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 &&  shootingType.isMiddle()
+        ).whenPressed(
+                shooter.allowBallPassMiddle(),
+                intake.startIntake(3)
+        ).whenReleased(
+                stopIfNoTriggers
+        );
         new ButtonEx(
             ()-> gamepad2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
         ).whenPressed(

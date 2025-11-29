@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.jetbrains.annotations.Contract;
@@ -35,7 +36,11 @@ public class Shooter {
                 ()->preShooter.setPower(Constants.preShooterRunClose)
         );
     }
-
+    public InstantCommand allowBallPassMiddle(){
+        return new InstantCommand(
+                ()->preShooter.setPower(Constants.preShooterRunMiddle)
+        );
+    }
     public InstantCommand allowBallPassFar(){
         return new InstantCommand(
             ()->preShooter.setPower(Constants.preShooterRunFar)

@@ -149,7 +149,7 @@ public class BottomRouteRed extends XKCommandOpmode
     private void moveToShootingPos() {
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooterFar).schedule();
-        intake.startIntake(false).schedule();
+        intake.startIntake(1).schedule();
 
         adaptiveController.headingDeadbandRad = Math.toRadians(1);
         adaptiveController.positionDeadbandCm = 1;
@@ -232,7 +232,7 @@ public class BottomRouteRed extends XKCommandOpmode
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake(true).schedule();
+        intake.startIntake(2).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
