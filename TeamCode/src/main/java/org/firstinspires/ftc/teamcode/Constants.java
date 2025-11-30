@@ -28,7 +28,7 @@ public class Constants {
     public static double preShooterRunFar = 0.3;
     public static double preShooterRunMiddle = 0.9;
     public static ShooterConfig shooter40cm = new ShooterConfig(1000, 500);
-    public static ShooterConfig shooter125cm = new ShooterConfig(500, 1300);
+    public static ShooterConfig shooter125cm = new ShooterConfig(500, 1200);
         public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooterFar = new ShooterConfig(350, 1925);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
@@ -54,7 +54,7 @@ public class Constants {
 
     public static double[][] blueBallPosition ={
             {10,138,180},
-            {75, 135, 90}
+            {75, 155, 90}
     };
 
     public static double[] bluePreShootingPos={
@@ -62,7 +62,7 @@ public class Constants {
     };
     public static double[][] redBallPosition = {
             {19,-138,-180},
-            {75, -135, -90}
+            {75, -155, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
             {-55,-55,50}, //Blue close
