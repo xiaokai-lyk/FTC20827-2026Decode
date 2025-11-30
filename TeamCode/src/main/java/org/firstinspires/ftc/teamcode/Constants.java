@@ -27,7 +27,7 @@ public class Constants {
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;
     public static double preShooterRunMiddle = 0.9;
-    public static ShooterConfig shooter40cm = new ShooterConfig(1000, 500);
+    public static ShooterConfig shooter40cm = new ShooterConfig(1100, 500);
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 1200);
         public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooterFar = new ShooterConfig(350, 1925);
