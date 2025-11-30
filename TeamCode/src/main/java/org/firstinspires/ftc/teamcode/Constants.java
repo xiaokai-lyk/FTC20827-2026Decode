@@ -61,8 +61,8 @@ public class Constants {
             25.0,30.2,20.4
     };
     public static double[][] redBallPosition = {
-            {0,-120,-180},
-            {90, -100, -90}
+            {19,-138,-180},
+            {75, -135, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
             {-55,-55,50}, //Blue close
@@ -71,7 +71,6 @@ public class Constants {
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
             {7.5,16,21},   //Blue far
-            {25,25,21} //blue far no.2
     };
     public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
     public static double[] blueParkPosition = {50,0,0}; //x,y,heading
@@ -90,7 +89,7 @@ public class Constants {
             {} //Red far
     };
     public static double[][] redShootingPosBottom = {
-            {9.5, 11.1, -20}
+            {7.5,-16,-21},
     };
     public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
     public static double[] redParkPosition = {50, -20, -0}; //x,y,heading
