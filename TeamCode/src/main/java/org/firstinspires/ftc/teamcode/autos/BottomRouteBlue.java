@@ -42,14 +42,15 @@ public class BottomRouteBlue extends XKCommandOpmode
         MOVE_TO_SHOOTING_POSITION,        //初始射球预热
         WAIT_FOR_ACCELERATION,
         INITIAL_POSITION_SHOOT,           //初始位置射击
-        MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
-        INTAKE_BALLS1,                    // 取第一组球
-        MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
-        FAR_POSITION_SHOOT,               // 发射第一组球
-        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
-        INTAKE_BALLS2,                    // 取第二组球
-        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
-        SHOOT_BALLS2,                     // 发射第二组球
+        WAIT_FOR_5S,
+//        MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
+//        INTAKE_BALLS1,                    // 取第一组球
+//        MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
+//        FAR_POSITION_SHOOT,               // 发射第一组球
+//        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
+//        INTAKE_BALLS2,                    // 取第二组球
+//        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
+//        SHOOT_BALLS2,                     // 发射第二组球
         AWAY_FROM_LINE,                   // 离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -102,39 +103,44 @@ public class BottomRouteBlue extends XKCommandOpmode
                 shootBalls(); // 优化方案： 在射第一个球的时候让intake先反转0.1秒，为他先提供一个初速度，这样子第一个球就不会掉速。
                 break;
 
-            case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(1);
-                break;
-
-            case INTAKE_BALLS1:
-                IntakeBalls(1);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos();
+            case WAIT_FOR_5S:
+                waitFor5s();
                 break;
 
 
-            case FAR_POSITION_SHOOT:
-                shootBalls();
-                break;
+//            case MOVE_TO_INTAKE_POSITION1:
+//                moveToIntakePos(1);
+//                break;
+//
+//            case INTAKE_BALLS1:
+//                IntakeBalls(1);
+//                break;
+//
+//            case MOVE_TO_SHOOTING_POSITION1:
+//                moveToShootingPos();
+//                break;
+//
+//
+//            case FAR_POSITION_SHOOT:
+//                shootBalls();
+//                break;
 
-            case MOVE_TO_INTAKE_POSITION2:
-                moveToIntakePos(0);
-                break;
-
-            case INTAKE_BALLS2:
-                IntakeBalls(0);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS2:
-                shootBalls();
-                break;
-
+//            case MOVE_TO_INTAKE_POSITION2:
+//                moveToIntakePos(0);
+//                break;
+//
+//            case INTAKE_BALLS2:
+//                IntakeBalls(0);
+//                break;
+//
+//            case MOVE_TO_SHOOTING_POSITION2:
+//                moveToShootingPos();
+//                break;
+//
+//            case SHOOT_BALLS2:
+//                shootBalls();
+//                break;
+//
             case AWAY_FROM_LINE:
                 moveFromLine();
                 break;
@@ -178,7 +184,7 @@ public class BottomRouteBlue extends XKCommandOpmode
      */
     public void waitForAcceleration(){
         shooter.setShooter(Constants.shooterFar).schedule();
-        if(getElapsedSeconds()>3){
+        if(getElapsedSeconds()>4){
             transitionToNextStep();
         }
     }
@@ -187,40 +193,46 @@ public class BottomRouteBlue extends XKCommandOpmode
         shooter.setShooter(Constants.shooterFar).schedule();
         intake.startIntake(1).schedule();
 
-        adaptiveController.headingDeadbandRad = Math.toRadians(3);
-        adaptiveController.positionDeadbandCm = 3;
+        adaptiveController.headingDeadbandRad = Math.toRadians(1);
+        adaptiveController.positionDeadbandCm = 1;
 
 
         // 驱动到第一个位置
-        AutoDrive.Output out = autoDrive.driveToAdaptive(
-            drive,
-            adaptiveController,
-            Constants.blueShootingPosBottom[0][0],  // X坐标
-            Constants.blueShootingPosBottom[0][1],     // Y坐标
-            Constants.blueShootingPosBottom[0][2],     // 角度
-            odo,
-            1,
-            true
-        );
-        if ((out.atPosition && out.atHeading)|| getElapsedSeconds()>3) { //这里我也不知道为什么，只要把上面的deadband调成1 就有概率触发小彩蛋。车会直接卡死不动。
-            transitionToNextStep();
-            autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.blueShootingPosBottom[0][0],  // X坐标
-                Constants.blueShootingPosBottom[0][1],     // Y坐标
-                Constants.blueShootingPosBottom[0][2],     // 角度
-                odo,
-                0,
-                true
-            );
-        }
+//        AutoDrive.Output out = autoDrive.driveToAdaptive(
+//            drive,
+//            adaptiveController,
+//            Constants.blueShootingPosBottom[0][0],  // X坐标
+//            Constants.blueShootingPosBottom[0][1],     // Y坐标
+//            Constants.blueShootingPosBottom[0][2],     // 角度
+//            odo,
+//            0.6,
+//            true
+//        );
+//        if ((out.atPosition && out.atHeading)|| getElapsedSeconds()>3) { //这里我也不知道为什么，只要把上面的deadband调成1 就有概率触发小彩蛋。车会直接卡死不动。
+//            transitionToNextStep();
+//            autoDrive.driveToAdaptive(
+//                drive,
+//                adaptiveController,
+//                Constants.blueShootingPosBottom[0][0],  // X坐标
+//                Constants.blueShootingPosBottom[0][1],     // Y坐标
+//                Constants.blueShootingPosBottom[0][2],     // 角度
+//                odo,
+//                0,
+//                true
+//            );
+//        }
+        transitionToNextStep();
     }
 
     /**
      * 执行发射球的动作，在允许球通过后等待一段时间再进入下一阶段
      */
     private void shootBalls() {
+        if(getElapsedSeconds()<0.1){
+            intake.outTake().schedule();
+        }else{
+            intake.startIntake(1).schedule();
+        }
         double timeAfterShoot = getElapsedSeconds() % 1;
         if (timeAfterShoot < 0.2 && timeAfterShoot > 0) {
             shooter.allowBallPassFar().schedule();
@@ -229,6 +241,12 @@ public class BottomRouteBlue extends XKCommandOpmode
         }
 
         if (getElapsedSeconds() > 4) {
+            transitionToNextStep();
+        }
+    }
+
+    private void waitFor5s(){
+        if (getElapsedSeconds() > 5) {
             transitionToNextStep();
         }
     }
@@ -253,12 +271,11 @@ public class BottomRouteBlue extends XKCommandOpmode
             Constants.bluePickUpPosition[posNum][1],   // Y坐标
             Constants.bluePickUpPosition[posNum][2],     // 角度
             odo,
-            0.75,
+            0.65,
             true
         );
 
-        // 检查是否到达位置且运行时间超过3秒
-        if (out.atPosition && out.atHeading || getElapsedSeconds() > 3) {
+        if (out.atPosition && out.atHeading || getElapsedSeconds() > 5) {
             transitionToNextStep();
         }
     }
@@ -279,7 +296,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             Constants.blueBallPosition[posNum][1],   // Y坐标
             Constants.blueBallPosition[posNum][2],     // 角度
             odo,
-            0.8,
+            0.7,
             true
         );
 
@@ -319,7 +336,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             Constants.blueParkPosition[1],   // Y坐标
             Constants.blueParkPosition[2],     // 角度
             odo,
-            1,
+            0.7,
             false
         );
     }

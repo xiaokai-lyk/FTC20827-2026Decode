@@ -30,7 +30,7 @@ public class Constants {
     public static ShooterConfig shooter40cm = new ShooterConfig(1100, 500);
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 1200);
         public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
-    public static ShooterConfig shooterFar = new ShooterConfig(350, 1925);
+    public static ShooterConfig shooterFar = new ShooterConfig(330, 2100);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerFar = 0.4;
     public static double intakePowerClose = 1.0;
@@ -43,7 +43,7 @@ public class Constants {
             {-228,-65,90}, //Blue Bottom Intake,
     };
     public static double[][] bluePickUpPosition = {
-            {86,138,180},
+            {90,138,180},
             {75,38,90}
     };
 
@@ -53,7 +53,7 @@ public class Constants {
     };
 
     public static double[][] blueBallPosition ={
-            {10,138,180},
+            {0,138,180},
             {75, 155, 90}
     };
 
@@ -70,10 +70,10 @@ public class Constants {
             {}   //Blue far
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
-            {7.5,16,21},   //Blue far
+            {7.5,16,18},   //Blue far
     };
     public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
-    public static double[] blueParkPosition = {50,0,0}; //x,y,heading
+    public static double[] blueParkPosition = {30,80,0}; //x,y,heading
     public static double[] blueGatePosition ={-137,34,90};  // open gate
     public static double[] blueGateControlPoint = {-168, -30, 90};//若是调到gate右侧则是绕开门否则是打开门
 
@@ -89,7 +89,7 @@ public class Constants {
             {} //Red far
     };
     public static double[][] redShootingPosBottom = {
-            {7.5,-16,-21},
+            {7.5,-16,-18},
     };
     public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
     public static double[] redParkPosition = {50, -20, -0}; //x,y,heading
