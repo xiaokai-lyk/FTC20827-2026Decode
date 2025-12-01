@@ -92,7 +92,7 @@ public class Constants {
             {7.5,-16,-18},
     };
     public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
-    public static double[] redParkPosition = {50, -20, -0}; //x,y,heading
+    public static double[] redParkPosition = {30,-80,0}; //x,y,heading
     public static double[] redGatePosition = {-137, -34,-90};
     public static double[] redGateControlPoint = {-168, 30, -90};//
 
