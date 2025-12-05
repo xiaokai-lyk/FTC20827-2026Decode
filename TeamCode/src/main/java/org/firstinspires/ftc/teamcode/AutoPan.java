@@ -7,13 +7,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name = "AutoPan", group = "TeleOp")
 public class AutoPan extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(120);
+        limelight.setPollRateHz(250);
         limelight.pipelineSwitch(7);
         limelight.start();
 
@@ -23,6 +24,14 @@ public class AutoPan extends LinearOpMode {
         DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
         DcMotorEx pan = hardwareMap.get(DcMotorEx.class, "pan");
 
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
         // Initialize pan encoder
         pan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -30,14 +39,14 @@ public class AutoPan extends LinearOpMode {
         pan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Tunable parameters (adjust on your robot)
-        final double TICKS_PER_DEGREE = 0.33333;      // encoder ticks per 1 degree pan rotation (tune this)
-        final double TX_DEGREE_THRESHOLD = 0.5;    // only command if |tx| > threshold (deg)
+        final double TICKS_PER_DEGREE = 72.1;      // encoder ticks per 1 degree pan rotation (tune this)
+        final double TX_DEGREE_THRESHOLD = 1.0;    // only command if |tx| > threshold (deg)
         // Mechanical limits: set wide defaults (change to your robot's limits)
         final int MIN_PAN_TICKS = -10000;           // mechanical minimum encoder ticks (tune)
         final int MAX_PAN_TICKS = 10000;            // mechanical maximum encoder ticks (tune)
 
         // PID tuning (units: degrees -> degrees/sec output)
-        final double KP = 4.0;    // proportional gain
+        final double KP = 40.0;    // proportional gain
         final double KI = 0.02;   // integral gain
         final double KD = 0.8;    // derivative gain
 
@@ -57,14 +66,15 @@ public class AutoPan extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Drive controls (kept from original)
-            double x = gamepad1.left_stick_y;
-            double y = gamepad1.left_stick_x;
-            double rx = -gamepad1.right_stick_x;
+            double x = -gamepad1.left_stick_y;
+            double y = gamepad1.left_stick_x * 1.1;
+            double rx = gamepad1.right_stick_x;
 
-            frontLeft.setPower(x + y + rx);
-            frontRight.setPower(x - y - rx);
-            backLeft.setPower(x - y + rx);
-            backRight.setPower(x + y - rx);
+            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            frontLeft.setPower((x + y + rx) / denominator);
+            backLeft.setPower((x - y + rx) / denominator);
+            frontRight.setPower((x - y - rx) / denominator);
+            backRight.setPower((x + y - rx) / denominator);
 
             // Toggle auto-pan with A (debounced)
             if (gamepad1.a && (System.currentTimeMillis() - lastToggleTime) > 300) {
@@ -96,32 +106,29 @@ public class AutoPan extends LinearOpMode {
             long now = System.currentTimeMillis();
 
             if (autoPanEnabled && res != null && res.isValid()) {
+                double velCounter = -gamepad1.right_stick_x * 45 * TICKS_PER_DEGREE;
+
                 double txDeg = res.getTx(); // positive = target to right
                 telemetry.addData("tx(deg)", String.format("%.2f", txDeg));
 
                 if (Math.abs(txDeg) > TX_DEGREE_THRESHOLD) {
                     // Use FTCLib PIDFController: measurement is txDeg, setpoint is 0
-                    double velCmdDps = pidfController.calculate(txDeg);
+                    double velCmd = pidfController.calculate(-txDeg * TICKS_PER_DEGREE);
 
                     // Clamp velocity (deg/sec)
-                    if (velCmdDps > MAX_VELOCITY_DPS) velCmdDps = MAX_VELOCITY_DPS;
-                    if (velCmdDps < -MAX_VELOCITY_DPS) velCmdDps = -MAX_VELOCITY_DPS;
-
-                    // Convert deg/sec -> ticks/sec for setVelocity
-                    double velCmdTps = velCmdDps * TICKS_PER_DEGREE;
+                    if (velCmd > MAX_VELOCITY_DPS) velCmd = MAX_VELOCITY_DPS;
+                    if (velCmd < -MAX_VELOCITY_DPS) velCmd = -MAX_VELOCITY_DPS;
 
                     // Safety: if moving would exceed mechanical limits, reduce/zero velocity
                     int current = pan.getCurrentPosition();
-                    if ((current <= MIN_PAN_TICKS && velCmdTps < 0) || (current >= MAX_PAN_TICKS && velCmdTps > 0)) {
-                        velCmdTps = 0.0;
-                        velCmdDps = 0.0;
+                    if ((current <= MIN_PAN_TICKS && velCmd < 0) || (current >= MAX_PAN_TICKS && velCmd > 0)) {
+                        velCmd = 0.0;
                     }
 
                     // send velocity command (ticks per second)
-                    pan.setVelocity(velCmdTps);
+                    pan.setVelocity(velCmd + velCounter);
 
-                    telemetry.addData("VelCmd(dps)", String.format("%.2f", velCmdDps));
-                    telemetry.addData("VelCmd(tps)", String.format("%.1f", velCmdTps));
+                    telemetry.addData("VelCmd(dps)", String.format("%.2f", velCmd));
 
                 } else {
                     // within deadband -> stop velocity
