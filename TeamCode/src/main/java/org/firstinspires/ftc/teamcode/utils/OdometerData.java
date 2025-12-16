@@ -16,18 +16,17 @@ import lombok.Getter;
 public class OdometerData {
     // 当前航向（弧度，场地坐标系，右手系，通常来自 IMU / 外部融合）
 
-    @Getter
     private final double headingRadians;
     // 机器人坐标系下的平移速度 (m/s 或 归一化，需与阻尼算法假设一致)
-    @Getter
+
     private final double robotVx;
-    @Getter
+
     private final double robotVy;
     // 可选：外部提供的瞬时航向角速度（rad/s），若不可用填 Double.NaN
-    @Getter
+
     private final double yawRate;
 
-    @Getter
+
     private final Pose2D robotPosition;
 
     public OdometerData(double headingRadians,

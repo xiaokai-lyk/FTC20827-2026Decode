@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
-
+@Disabled
 @Autonomous(name = "Test", group = "autos")
 public class Test extends XKCommandOpmode {
     Hardwares hardwares;
@@ -35,7 +36,7 @@ public class Test extends XKCommandOpmode {
         if(step ==0){
             shooter.blockBallPass().schedule();
             shooter.setShooter(Constants.shooter125cm).schedule();
-            intake.startIntake(false).schedule();
+            intake.startIntake(1).schedule();
             AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
                 adaptiveController,
@@ -51,8 +52,8 @@ public class Test extends XKCommandOpmode {
             }
         }
         if(step == 1){
-            shooter.allowBallPass().schedule();
-            intake.startIntake(true).schedule();
+            shooter.allowBallPassClose().schedule();
+            intake.startIntake(2).schedule();
             if(getRuntime() > 15)step = 2;
         }
         if(step == 2){

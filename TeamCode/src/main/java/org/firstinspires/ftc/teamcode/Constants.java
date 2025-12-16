@@ -1,8 +1,19 @@
 package org.firstinspires.ftc.teamcode;
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 
+@Config
 public class Constants {
+    @Config
+    public static class ShooterFarPIDF {
+        public static double kP = 70;
+        public static double kI = 3;
+        public static double kD = 8;
+        public static double kF = 0.25;
+    }
+
     public static class ShooterConfig {
         public int frontVelocity;
         public int backVelocity;
@@ -12,42 +23,91 @@ public class Constants {
         }
     }
 
+    // 云台电机参数
+    public static final double panTicksPerDegree = 72.1;
+    public static final double panMinAngleDegree = -180.0;
+    public static final double panMaxAngleDegree = 180.0;
+    public static final double panMaxPower = 0.85;
+
+    // 锁定容差（度）
+    public static final double PAN_LOCK_TOLERANCE_DEG = 5.0;
+
+    // 视觉控制增益
+    public static final double PAN_TX_KP = 0.5;
+
+
     public static double preShooterBlock = -1;
-    public static double preShooterRun = 1;
-    public static ShooterConfig shooter40cm = new ShooterConfig(700, 700);
-    public static ShooterConfig shooter125cm = new ShooterConfig(500, 1300);
-    public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
+    public static double preShooterRunClose = 1;
+    public static double preShooterRunFar = 0.3;
+    public static double preShooterRunMiddle = 0.9;
+    public static ShooterConfig shooter40cm = new ShooterConfig(1100, 500);
+    public static ShooterConfig shooter125cm = new ShooterConfig(500, 1200);
+        public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
+    public static ShooterConfig shooterFar = new ShooterConfig(330, 2100);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePowerSlow = 0.8;
-    public static double intakePowerFast = 1.0;
+    public static double intakePowerFar = 0.4;
+    public static double intakePowerClose = 1.0;
+    public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
-    public static double[][] bluePickUpPosition = {  //x,y,heading
-        {-108,-70,90}, //Blue Top Intake
-        {-168,-45,90}, //Blue Middle Intake
-        {-228,-45,90} //Blue Bottom Intake
+    public static double[][] bluePickUpPositionTop = {  //x,y,heading
+            {-108,-70,90}, //Blue Top Intake
+            {-168,-65,90}, //Blue Middle Intake
+            {-228,-65,90}, //Blue Bottom Intake,
+    };
+    public static double[][] bluePickUpPosition = {
+            {90,138,180},
+            {75,38,90}
     };
 
-    public static double[] blueParkPosition = {-85,-46,180}; //x,y,heading
-
-    public static double[][] redPickUpPosition = {  //x,y,heading
-        {-108,70,-90},
-        {-168,70,-90},
-        {-228,70,-90}
+    public static double[][] redPickUpPosition = {
+            {80,-120,-180},
+            {90,0,-90}
     };
 
-    // 吸球时把y轴怼到0就能吸进去。
-    public static double[][] blueShootingPosition = { //x,y,heading
-        {-85,-85,45}, //Blue close
-        {-150,-150,45},  //Blue middle
-        {}   //Blue far
+    public static double[][] blueBallPosition ={
+            {0,138,180},
+            {75, 155, 90}
     };
 
-    public static double[][] redShootingPosition = { //x,y,heading
-        {-85,85,-45}, //Red Close
-        {-150,150,-45}, //Red Middle
-        {} //Red far
+    public static double[] bluePreShootingPos={
+            25.0,30.2,20.4
     };
+    public static double[][] redBallPosition = {
+            {19,-138,-180},
+            {75, -155, -90}
+    };
+    public static double[][] blueShootingPosTop = { //x,y,heading
+            {-55,-55,50}, //Blue close
+            {-150,-150,45},  //Blue middle
+            {}   //Blue far
+    };
+    public static double[][] blueShootingPosBottom = { //x,y,heading
+            {7.5,16,18},   //Blue far
+    };
+    public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
+    public static double[] blueParkPosition = {30,80,0}; //x,y,heading
+    public static double[] blueGatePosition ={-137,34,90};  // open gate
+    public static double[] blueGateControlPoint = {-168, -30, 90};//若是调到gate右侧则是绕开门否则是打开门
+
+    public static double[][] redPickUpPositionTop = {  //x,y,heading
+            {-108,70,-90},
+            {-168,65,-90},
+            {-228,65,-90}
+    };
+
+    public static double[][] redShootingPosTop = { //x,y,heading
+            {-60,60,-50}, //Red Close
+            {-150,150,-45}, //Red Middle
+            {} //Red far
+    };
+    public static double[][] redShootingPosBottom = {
+            {7.5,-16,-18},
+    };
+    public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
+    public static double[] redParkPosition = {30,-80,0}; //x,y,heading
+    public static double[] redGatePosition = {-137, -34,-90};
+    public static double[] redGateControlPoint = {-168, 30, -90};//
 
 
     // 新增：自适应阻尼相关常量集中管理
@@ -127,3 +187,4 @@ public class Constants {
         }
     }
 }
+

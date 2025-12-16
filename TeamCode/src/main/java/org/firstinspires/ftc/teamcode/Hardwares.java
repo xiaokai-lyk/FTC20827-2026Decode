@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -23,6 +24,7 @@ public class Hardwares {
 
     public static class Sensors{
         public GoBildaPinpointDriver odo;
+        public Limelight3A limelight;
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "odo", GoBildaPinpointDriver.class);
@@ -30,11 +32,16 @@ public class Hardwares {
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+            limelight = getHardware(hardwareMap, "limelight", Limelight3A.class);
+            limelight.pipelineSwitch(7);
+            limelight.setPollRateHz(250);
+            limelight.start();
         }
     }
 
     public static class Motors{
-        public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight, preShooter, shooterFront, shooterBack, intake;
+        public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight, preShooter, shooterFront, shooterBack, intake, pan;
         public Motors(@NonNull HardwareMap hardwareMap){
             mFrontLeft = getHardware(hardwareMap, "frontLeft", DcMotorEx.class);
             mFrontRight = getHardware(hardwareMap, "frontRight", DcMotorEx.class);
@@ -64,6 +71,12 @@ public class Hardwares {
             intake.setDirection(DcMotorEx.Direction.REVERSE);
             shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             shooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            pan = getHardware(hardwareMap, "pan", DcMotorEx.class);
+            pan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            pan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         }
     }
 

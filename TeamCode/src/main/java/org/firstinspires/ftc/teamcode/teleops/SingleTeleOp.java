@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
+@Disabled
 @TeleOp(name = "SingleTeleOp", group = "teleops")
 public class SingleTeleOp extends XKCommandOpmode {
     private Shooter shooter;
@@ -97,14 +99,14 @@ public class SingleTeleOp extends XKCommandOpmode {
                 () -> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
         ).whenPressed(
             shooter.blockBallPass(),
-            intake.startIntake(true)
+            intake.startIntake(2)
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
         ).whenPressed(
-                shooter.allowBallPass(),
-                intake.startIntake(false)
+                shooter.allowBallPassClose(),
+                intake.startIntake(1)
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(

@@ -14,14 +14,18 @@ public class Intake {
         intakeMotor = hardwares.motors.intake;
     }
 
-    public InstantCommand startIntake(boolean useFastMode){
-        if(useFastMode){
+    public InstantCommand startIntake(int useMode){
+        if(useMode==1){
             return new InstantCommand(
-                    ()->intakeMotor.setPower(Constants.intakePowerFast)
+                    ()->intakeMotor.setPower(Constants.intakePowerClose)
+            );
+        }else if(useMode==2){
+            return new InstantCommand(
+                ()->intakeMotor.setPower(Constants.intakePowerFar)
             );
         }else{
             return new InstantCommand(
-                ()->intakeMotor.setPower(Constants.intakePowerSlow)
+                    ()->intakeMotor.setPower(0.8)
             );
         }
     }
@@ -29,6 +33,12 @@ public class Intake {
     public InstantCommand stopIntake(){
         return new InstantCommand(
                 ()->intakeMotor.setPower(0)
+        );
+    }
+
+    public InstantCommand outTake(){
+        return new InstantCommand(
+                ()->intakeMotor.setPower(Constants.intakePowerOut)
         );
     }
 }

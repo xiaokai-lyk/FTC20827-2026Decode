@@ -46,8 +46,13 @@ public class AdaptivePoseController {
     }
 
     // 到位判定阈值
-    private double positionDeadbandCm = 2.0;               // cm
-    private double headingDeadbandRad = Math.toRadians(5);  // rad
+    public double positionDeadbandCm = 2.0;               // cm
+    public double headingDeadbandRad = Math.toRadians(5);  // rad
+
+    public void resetDeadbands(){
+        this.positionDeadbandCm = 2.0;
+        this.headingDeadbandRad = Math.toRadians(5);
+    }
 
     // 新增：公开对内部 PID 控制器的访问，以便运行时调参
     // 轴向 PID 控制器
