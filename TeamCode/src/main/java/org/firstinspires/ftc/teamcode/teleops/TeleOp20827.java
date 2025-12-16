@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -38,6 +39,8 @@ public class TeleOp20827 extends XKCommandOpmode {
 
     public static int frontVel = 1100;
     public static int backVel = 600;
+
+    protected AutoPan.AutoPanCommand autoPanCommand;
 
     @Override
     public void initialize() {
@@ -68,10 +71,20 @@ public class TeleOp20827 extends XKCommandOpmode {
         );
 
         CommandScheduler.getInstance().schedule(driveCommand);
+
+        AutoPan autoPan=new AutoPan(hardwares);
+        autoPanCommand = new AutoPan.AutoPanCommand(
+            autoPan,
+            ()-> new OdometerData(hardwares.sensors.odo)
+            );
+
+        CommandScheduler.getInstance().schedule(autoPanCommand);
+
     }
 
     @Override
     public void onStart() {
+
     }
 
     @Override

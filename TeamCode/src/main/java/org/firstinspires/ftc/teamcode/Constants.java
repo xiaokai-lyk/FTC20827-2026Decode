@@ -23,6 +23,19 @@ public class Constants {
         }
     }
 
+    // 云台电机参数
+    public static final double panTicksPerDegree = 72.1;
+    public static final double panMinAngleDegree = -180.0;
+    public static final double panMaxAngleDegree = 180.0;
+    public static final double panMaxPower = 0.85;
+
+    // 锁定容差（度）
+    public static final double PAN_LOCK_TOLERANCE_DEG = 5.0;
+
+    // 视觉控制增益
+    public static final double PAN_TX_KP = 0.5;
+
+
     public static double preShooterBlock = -1;
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;
