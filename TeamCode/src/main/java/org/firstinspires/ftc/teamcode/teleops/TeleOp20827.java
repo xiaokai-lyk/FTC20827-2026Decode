@@ -71,8 +71,7 @@ public class TeleOp20827 extends XKCommandOpmode {
     }
 
     @Override
-    public void onStart() {
-    }
+    public void onStart() {}
 
     @Override
     public void run(){

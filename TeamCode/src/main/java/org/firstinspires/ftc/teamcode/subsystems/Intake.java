@@ -19,11 +19,7 @@ public class Intake {
             return new InstantCommand(
                     ()->intakeMotor.setPower(Constants.intakePowerClose)
             );
-        }else if(useMode==2){
-            return new InstantCommand(
-                ()->intakeMotor.setPower(Constants.intakePowerFar)
-            );
-        }else{
+        } else{
             return new InstantCommand(
                     ()->intakeMotor.setPower(0.8)
             );

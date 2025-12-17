@@ -6,7 +6,6 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public class Hardwares {
     public Sensors sensors;
     public Motors motors;
-    public Servos servos;
 
     public static <T> T getHardware(@NonNull HardwareMap hardwareMap, String name, Class<T> clazz){
         return hardwareMap.get(clazz, name);
@@ -67,16 +65,8 @@ public class Hardwares {
         }
     }
 
-    public static class Servos{
-        public Servo led;
-        public Servos(@NonNull HardwareMap hardwareMap){
-            led = getHardware(hardwareMap, "led", Servo.class);
-        }
-    }
-
     public Hardwares(HardwareMap hardwareMap){
         sensors = new Sensors(hardwareMap);
         motors = new Motors(hardwareMap);
-        servos = new Servos(hardwareMap);
     }
 }

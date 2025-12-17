@@ -32,7 +32,6 @@ public class Constants {
         public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooterFar = new ShooterConfig(330, 2100);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
-    public static double intakePowerFar = 0.4;
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;

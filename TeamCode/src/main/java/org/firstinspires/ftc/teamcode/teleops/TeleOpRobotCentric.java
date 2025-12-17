@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Light;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
@@ -26,7 +25,6 @@ public class TeleOpRobotCentric extends XKCommandOpmode {
     private Shooter shooter;
     private Hardwares hardwares;
     private Intake intake;
-    private Light light;
     private GamepadEx gamepad1, gamepad2;
     private Constants.ShooterConfig shooterConfig;
     protected Drive.DriveCommand driveCommand;
@@ -39,8 +37,6 @@ public class TeleOpRobotCentric extends XKCommandOpmode {
         hardwares = new Hardwares(hardwareMap);
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
-        light = new Light(hardwares);
-
 
         Drive drive = new Drive(hardwares);
 
@@ -59,9 +55,7 @@ public class TeleOpRobotCentric extends XKCommandOpmode {
     }
 
     @Override
-    public void onStart() {
-        light.setLightColor(255, 255, 255).schedule();
-    }
+    public void onStart() {}
 
     @Override
     public void run(){
@@ -112,8 +106,7 @@ public class TeleOpRobotCentric extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad2.getButton(GamepadKeys.Button.X)
         ).whenPressed(
-            shooter.setShooter(Constants.shooter250cm),
-            light.setLightColor(255, 0, 0)
+            shooter.setShooter(Constants.shooter250cm)
         ).whenReleased(
             shooter.setShooter(Constants.shooterStop)
         );
@@ -127,14 +120,13 @@ public class TeleOpRobotCentric extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad2.getButton(GamepadKeys.Button.B)
         ).whenPressed(
-            shooter.setShooter(Constants.shooter40cm),
-            light.setLightColor(0, 255, 0)
-            );
+            shooter.setShooter(Constants.shooter40cm)
+        );
 
         new ButtonEx(
                 ()-> gamepad2.getButton(GamepadKeys.Button.A)
         ).whenPressed(
-            shooter.setShooter(Constants.shooter125cm),
-            light.setLightColor(0, 0, 255));
+            shooter.setShooter(Constants.shooter125cm)
+        );
     }
 }
