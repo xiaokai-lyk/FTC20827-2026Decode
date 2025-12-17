@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@TeleOp(name = "SingleTeleOp", group = "teleops")
-public class SingleTeleOp extends XKCommandOpmode {
+@TeleOp(name = "RobotCenTeleOp", group = "teleops")
+public class RobotCenTeleOp extends XKCommandOpmode {
     private Shooter shooter;
     private Hardwares hardwares;
     private Intake intake;
@@ -53,7 +53,7 @@ public class SingleTeleOp extends XKCommandOpmode {
                 ()-> new OdometerData(hardwares.sensors.odo),
                 ()->1,
                 ()-> true,
-                ()->true
+                ()->false
         );
 
         CommandScheduler.getInstance().schedule(driveCommand);
@@ -104,21 +104,21 @@ public class SingleTeleOp extends XKCommandOpmode {
                 intake.stopIntake()
         );
         new ButtonEx(
-                () -> gamepad1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
+                () -> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
         ).whenPressed(
             shooter.blockBallPass(),
             intake.startIntake(1)
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                ()-> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
                 shooter.allowBallPassClose(),
                 intake.startIntake(1)
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
+                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
         ).whenPressed(
                 shooter.setShooter(Constants.shooterStop)
         );
@@ -130,7 +130,7 @@ public class SingleTeleOp extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.B)
+                ()-> gamepad1.getButton(GamepadKeys.Button.Y)
         ).whenPressed(
             shooter.setShooter(Constants.shooter40cm)
         );
