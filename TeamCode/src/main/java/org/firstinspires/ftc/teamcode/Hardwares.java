@@ -24,7 +24,7 @@ public class Hardwares {
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "odo", GoBildaPinpointDriver.class);
-            odo.setOffsets(100,-48, DistanceUnit.MM);
+            odo.setOffsets(-142.5,16, DistanceUnit.MM);
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);

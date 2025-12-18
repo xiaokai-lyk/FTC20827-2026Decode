@@ -154,16 +154,18 @@ public class TranslationalDamping {
         if (inDeadzoneX && Math.abs(vxFiltered) > Constants.Damping.TRANS_NOISE) {
             outX = rawX - adaptiveKx * vxFiltered;
         } else if (inDeadzoneX) {
-            // 如果在死区但速度很小，则直接置零
-            outX = 0.0;
+            // 如果在死区但速度很小时，使用线性过渡而不是直接置零，避免突然停止
+            double factor = Math.abs(vxFiltered) / Constants.Damping.TRANS_NOISE;
+            outX = (rawX - adaptiveKx * vxFiltered) * factor;
         }
 
         // 如果Y方向在死区且速度超过噪声阈值，则执行阻尼补偿
         if (inDeadzoneY && Math.abs(vyFiltered) > Constants.Damping.TRANS_NOISE) {
             outY = rawY - adaptiveKy * vyFiltered;
         } else if (inDeadzoneY) {
-            // 如果在死区但速度很小，则直接置零
-            outY = 0.0;
+            // 如果在死区但速度很小时，使用线性过渡而不是直接置零，避免突然停止
+            double factor = Math.abs(vyFiltered) / Constants.Damping.TRANS_NOISE;
+            outY = (rawY - adaptiveKy * vyFiltered) * factor;
         }
 
         // 保证输出值不超过[-1, 1]范围

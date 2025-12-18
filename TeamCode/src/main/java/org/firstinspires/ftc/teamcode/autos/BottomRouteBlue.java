@@ -267,9 +267,9 @@ public class BottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPosition[posNum][0],  // X坐标
-            Constants.bluePickUpPosition[posNum][1],   // Y坐标
-            Constants.bluePickUpPosition[posNum][2],     // 角度
+            Constants.bluePickUpPosition[posNum].x,  // X坐标
+            Constants.bluePickUpPosition[posNum].y,   // Y坐标
+            Constants.bluePickUpPosition[posNum].heading,     // 角度
             odo,
             0.65,
             true
@@ -292,9 +292,9 @@ public class BottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueBallPosition[posNum][0],  // X坐标
-            Constants.blueBallPosition[posNum][1],   // Y坐标
-            Constants.blueBallPosition[posNum][2],     // 角度
+            Constants.blueBallPosition[posNum].x,  // X坐标
+            Constants.blueBallPosition[posNum].y,   // Y坐标
+            Constants.blueBallPosition[posNum].heading,     // 角度
             odo,
             0.7,
             true
@@ -332,9 +332,9 @@ public class BottomRouteBlue extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueParkPosition[0],  // X坐标
-            Constants.blueParkPosition[1],   // Y坐标
-            Constants.blueParkPosition[2],     // 角度
+            Constants.blueParkPositionBottom.x,  // X坐标
+            Constants.blueParkPositionBottom.y,   // Y坐标
+            Constants.blueParkPositionBottom.heading,     // 角度
             odo,
             0.7,
             false

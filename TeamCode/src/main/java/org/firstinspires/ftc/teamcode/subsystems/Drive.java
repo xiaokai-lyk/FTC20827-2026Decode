@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -109,15 +108,17 @@ public class Drive {
                     y.getAsDouble()
             );
             dampedRotate = angResult.rotateCmd;
-//            double yawRateFiltered = angResult.yawRateFiltered; // 传给平移阻尼耦合因子
-//            TranslationalDamping.Result dampingResult = translationalDamping.updateAndApply(
-//                    x.getAsDouble(),
-//                    y.getAsDouble(),
-//                    yawRateFiltered,
-//                    data
-//            );
-//            dampedX = dampingResult.x;
-//            dampedY = dampingResult.y;
+            double yawRateFiltered = angResult.yawRateFiltered; // 传给平移阻尼耦合因子
+
+            TranslationalDamping.Result dampingResult = translationalDamping.updateAndApply(
+                    x.getAsDouble(),
+                    y.getAsDouble(),
+                    yawRateFiltered,
+                    data
+            );
+            dampedX = dampingResult.x;
+            dampedY = dampingResult.y;
+
             double[] potentials = drive.calculateComponents(
                     x.getAsDouble(),
                     y.getAsDouble(),

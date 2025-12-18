@@ -23,6 +23,17 @@ public class Constants {
         }
     }
 
+    public static class Position {
+        public int x;
+        public int y;
+        public int heading;
+        public Position(int x, int y, int heading) {
+            this.x = x;
+            this.y = y;
+            this.heading = heading;
+        }
+    }
+
     public static double preShooterBlock = -1;
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;
@@ -36,14 +47,14 @@ public class Constants {
     public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
-    public static double[][] bluePickUpPositionTop = {  //x,y,heading
-            {-108,-70,90}, //Blue Top Intake
-            {-168,-65,90}, //Blue Middle Intake
-            {-228,-65,90}, //Blue Bottom Intake,
+    public static Position[] bluePickUpPositionTop = {  //x,y,heading
+            new Position(-108,-70,90), //Blue Top Intake
+            new Position(-168,-65,90), //Blue Middle Intake
+            new Position(-228,-65,90) //Blue Bottom Intake,
     };
-    public static double[][] bluePickUpPosition = {
-            {90,138,180},
-            {75,38,90}
+    public static Position[] bluePickUpPosition = {
+            new Position(90,138,180),
+            new Position(75,38,90)
     };
 
     public static double[][] redPickUpPosition = {
@@ -51,9 +62,9 @@ public class Constants {
             {90,0,-90}
     };
 
-    public static double[][] blueBallPosition ={
-            {0,138,180},
-            {75, 155, 90}
+    public static Position[] blueBallPosition ={
+            new Position(0,138,180),
+            new Position(75, 155, 90)
     };
 
     public static double[] bluePreShootingPos={
@@ -63,18 +74,18 @@ public class Constants {
             {19,-138,-180},
             {75, -155, -90}
     };
-    public static double[][] blueShootingPosTop = { //x,y,heading
-            {-55,-55,50}, //Blue close
-            {-150,-150,45},  //Blue middle
-            {}   //Blue far
+    public static Position[] blueShootingPosTop = { //x,y,heading
+            new Position(-55,-55,50), //Blue close
+            new Position(-150,-150,45),  //Blue middle
+//            new Position()   //Blue far
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
             {7.5,16,18},   //Blue far
     };
-    public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
-    public static double[] blueParkPosition = {30,80,0}; //x,y,heading
-    public static double[] blueGatePosition ={-137,34,90};  // open gate
-    public static double[] blueGateControlPoint = {-168, -30, 90};//若是调到gate右侧则是绕开门否则是打开门
+    public static Position blueParkPositionTop = new Position(-140,-30,0); //x,y,heading
+    public static Position blueParkPositionBottom = new Position(30,80,0); //x,y,heading
+    public static Position blueGatePosition = new Position(-137,34,90);  // open gate
+    public static Position blueGateControlPoint = new Position(-168, -30, 90);//若是调到gate右侧则是绕开门否则是打开门
 
     public static double[][] redPickUpPositionTop = {  //x,y,heading
             {-108,70,-90},

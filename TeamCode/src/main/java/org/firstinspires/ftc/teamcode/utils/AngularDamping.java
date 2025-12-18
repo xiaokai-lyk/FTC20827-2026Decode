@@ -110,9 +110,11 @@ public class AngularDamping {
                 // 执行角阻尼补偿公式：rotateCmd = rotateInput - adaptiveK * yawRateFiltered
                 rotateCmd = rotateInput - adaptiveK * yawRateFiltered;
             } else {
-                // 否则不施加补偿力矩，直接归零
-                rotateCmd = 0.0;
+                // 当角速度很小时，使用线性过渡而不是直接归零，避免突然停止
+                double factor = Math.abs(yawRateFiltered) / Constants.Damping.YAW_RATE_NOISE;
+                rotateCmd = (rotateInput - adaptiveK * yawRateFiltered) * factor;
             }
+
         } else { // 不在死区范围内时的操作
 
             // 清除死区帧计数
