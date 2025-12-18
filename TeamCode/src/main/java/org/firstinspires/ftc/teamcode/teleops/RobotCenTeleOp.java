@@ -107,14 +107,14 @@ public class RobotCenTeleOp extends XKCommandOpmode {
                 () -> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
         ).whenPressed(
             shooter.blockBallPass(),
-            intake.startIntake(1)
+            intake.startIntake()
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
                 ()-> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
                 shooter.allowBallPassClose(),
-                intake.startIntake(1)
+                intake.startIntake()
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(

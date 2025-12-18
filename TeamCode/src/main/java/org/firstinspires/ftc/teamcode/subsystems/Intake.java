@@ -14,16 +14,10 @@ public class Intake {
         intakeMotor = hardwares.motors.intake;
     }
 
-    public InstantCommand startIntake(int useMode){
-        if(useMode==1){
-            return new InstantCommand(
-                    ()->intakeMotor.setPower(Constants.intakePowerClose)
-            );
-        } else{
-            return new InstantCommand(
-                    ()->intakeMotor.setPower(0.8)
-            );
-        }
+    public InstantCommand startIntake(){
+        return new InstantCommand(
+                ()->intakeMotor.setPower(Constants.intakePowerClose)
+        );
     }
 
     public InstantCommand stopIntake(){

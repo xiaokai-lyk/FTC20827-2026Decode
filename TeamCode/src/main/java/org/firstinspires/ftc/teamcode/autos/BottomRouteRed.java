@@ -192,7 +192,7 @@ public class BottomRouteRed extends XKCommandOpmode
     private void moveToShootingPos() {
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooterFar).schedule();
-        intake.startIntake(1).schedule();
+        intake.startIntake().schedule();
 
         adaptiveController.headingDeadbandRad = Math.toRadians(1);
         adaptiveController.positionDeadbandCm = 1;
@@ -232,7 +232,7 @@ public class BottomRouteRed extends XKCommandOpmode
         if(getElapsedSeconds()<0.1){
             intake.outTake().schedule();
         }else{
-            intake.startIntake(1).schedule();
+            intake.startIntake().schedule();
         }
         double timeAfterShoot = getElapsedSeconds() % 1;
         if (timeAfterShoot < 0.2 && timeAfterShoot > 0) {

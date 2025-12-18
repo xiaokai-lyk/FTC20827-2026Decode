@@ -133,7 +133,7 @@ public class TeleOp20827 extends XKCommandOpmode {
                 () -> gamepad2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5
         ).whenPressed(
             shooter.blockBallPass(),
-            intake.startIntake(1)
+            intake.startIntake()
         ).whenReleased(
             stopIfNoTriggers
         );
@@ -143,7 +143,7 @@ public class TeleOp20827 extends XKCommandOpmode {
                 ()-> gamepad2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
                 shooter.allowBallPassClose(),
-                intake.startIntake(1)
+                intake.startIntake()
         ).whenReleased(
             stopIfNoTriggers
         );

@@ -191,7 +191,7 @@ public class BottomRouteBlue extends XKCommandOpmode
     private void moveToShootingPos() {
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooterFar).schedule();
-        intake.startIntake(1).schedule();
+        intake.startIntake().schedule();
 
         adaptiveController.headingDeadbandRad = Math.toRadians(1);
         adaptiveController.positionDeadbandCm = 1;
@@ -231,7 +231,7 @@ public class BottomRouteBlue extends XKCommandOpmode
         if(getElapsedSeconds()<0.1){
             intake.outTake().schedule();
         }else{
-            intake.startIntake(1).schedule();
+            intake.startIntake().schedule();
         }
         double timeAfterShoot = getElapsedSeconds() % 1;
         if (timeAfterShoot < 0.2 && timeAfterShoot > 0) {
@@ -286,7 +286,7 @@ public class BottomRouteBlue extends XKCommandOpmode
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake(2).schedule();
+        intake.startIntake().schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(

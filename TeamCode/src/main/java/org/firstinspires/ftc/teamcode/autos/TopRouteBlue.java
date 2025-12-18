@@ -53,13 +53,12 @@ public class TopRouteBlue extends XKCommandOpmode {
         SHOOT_BALLS1,                     // 发射第一组球
         MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
         INTAKE_BALLS2,                    // 取第二组球
-        GO_THROUGH_GATE,                  // 绕过门（或打开？）
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
-        MOVE_TO_INTAKE_POSITION3,         // 移动至第三组取球点
-        INTAKE_BALLS3,                    // 取第三组球
-        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
-        SHOOT_BALLS3,                     // 发射第三组球
+        OPEN_GATE_REPEAT1,                  // 重复开门+吸球
+        SHOOT_BALLS_REPEAT1,              // 发射球
+        OPEN_GATE_REPEAT2,                  // 重复开门+吸球
+        SHOOT_BALLS_REPEAT2,              // 发射球
         MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -70,6 +69,7 @@ public class TopRouteBlue extends XKCommandOpmode {
      */
     @Override
     public void onStart() {
+        hardwares.sensors.odo.setPosition(Constants.initialPosision);
         // 初始化状态机
         currentStep = AutoStep.MOVE_TO_FIRST_POSITION;
         stepStartTime = System.currentTimeMillis();
@@ -140,10 +140,6 @@ public class TopRouteBlue extends XKCommandOpmode {
                 IntakeBalls(1);
                 break;
 
-            case GO_THROUGH_GATE:
-                GoThoughGate();
-                break;
-
             case MOVE_TO_SHOOTING_POSITION2:
                 moveToShootingPos();
                 break;
@@ -152,21 +148,17 @@ public class TopRouteBlue extends XKCommandOpmode {
                 shootBalls();
                 break;
 
-            case MOVE_TO_INTAKE_POSITION3:
-                moveToIntakePos(2);
-                break;
+            case OPEN_GATE_REPEAT1:
+                repeatOpenGate();
 
-            case INTAKE_BALLS3:
-                IntakeBalls(2);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION3:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS3:
+            case SHOOT_BALLS_REPEAT1:
                 shootBalls();
-                break;
+
+            case OPEN_GATE_REPEAT2:
+                repeatOpenGate();
+
+            case SHOOT_BALLS_REPEAT2:
+                shootBalls();
 
             case MOVE_AWAY_FROM_LINE:
                 moveFromLine();
@@ -189,7 +181,7 @@ public class TopRouteBlue extends XKCommandOpmode {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
-        intake.startIntake(1).schedule();
+        intake.startIntake().schedule();
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -229,7 +221,22 @@ public class TopRouteBlue extends XKCommandOpmode {
             transitionToNextStep();
         }
     }
-
+    private void repeatOpenGate(){
+        AutoDrive.Output out = autoDrive.driveToAdaptive(
+            drive,
+            adaptiveController,
+            Constants.blueRepeatOpenGate.x,
+            Constants.blueRepeatOpenGate.y,
+            Constants.blueRepeatOpenGate.heading,
+            odo,
+            0,
+            false
+        );
+        intake.startIntake().schedule();
+        if (getElapsedSeconds()>3){
+            transitionToNextStep();
+        }
+    }
     /**
      * 控制机器人前往指定编号的取球点，并关闭预处理机构
      *
@@ -267,7 +274,7 @@ public class TopRouteBlue extends XKCommandOpmode {
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake(2).schedule();
+        intake.startIntake().schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(

@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 
@@ -34,6 +38,8 @@ public class Constants {
         }
     }
 
+    public static Pose2D initialPosision= new Pose2D(DistanceUnit.CM,0, 20, AngleUnit.DEGREES,0);
+
     public static double preShooterBlock = -1;
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;
@@ -46,7 +52,7 @@ public class Constants {
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;
-    //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
+    public static Position blueRepeatOpenGate=new Position(0,0,0);
     public static Position[] bluePickUpPositionTop = {  //x,y,heading
             new Position(-108,-70,90), //Blue Top Intake
             new Position(-168,-65,90), //Blue Middle Intake
