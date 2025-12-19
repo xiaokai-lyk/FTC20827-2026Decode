@@ -274,14 +274,14 @@ public class TopRouteBlue extends XKCommandOpmode {
             drive,
             adaptiveController,
             Constants.bluePickUpPositionTop[posNum][0],  // X坐标
-            Constants.bluePickUpPositionTop[posNum][1]+100,   // Y坐标
+            Constants.bluePickUpPositionTop[posNum][1]+110,   // Y坐标
             Constants.bluePickUpPositionTop[posNum][2],     // 角度
             odo,
             0.9,
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
         }
     }
@@ -333,10 +333,10 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1], //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.75,
+            0.9,
             false
         );
-        if (getElapsedSeconds() > 1.3) {
+        if (getElapsedSeconds() > 1.5) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }
