@@ -39,7 +39,10 @@ public class Constants {
     }
 
     public static Pose2D initialPosision= new Pose2D(DistanceUnit.CM,0, 20, AngleUnit.DEGREES,0);
-
+    public static Position[] openGatePosBlue= {
+        new Position(0,0,0), //常规开门位置
+        new Position(0,0,0)  //循环开门位置
+    };
     public static double preShooterBlock = -1;
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;

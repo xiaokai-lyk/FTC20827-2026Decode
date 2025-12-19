@@ -45,20 +45,25 @@ public class TopRouteBlue extends XKCommandOpmode {
     private enum AutoStep {
         MOVE_TO_FIRST_POSITION,           // 移动到初始射击位置
         FIRST_SHOOT_BALLS,                // 初始射球阶段
-        MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
-        INTAKE_BALLS1,                    // 取第一组球
-        MOVE_TO_GATE,
-        OPEN_GATE,
-        MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
-        SHOOT_BALLS1,                     // 发射第一组球
+
+//        MOVE_TO_GATE,
+//        OPEN_GATE,
         MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
         INTAKE_BALLS2,                    // 取第二组球
         MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
         SHOOT_BALLS2,                     // 发射第二组球
-        OPEN_GATE_REPEAT1,                  // 重复开门+吸球
+        OPEN_GATE_POS1,                   //直线过去会打掉第一组球+卡住
+        OPEN_GATE_REPEAT1,                // 重复开门+吸球
+        MOVE_TO_SHOOTING_POS_REPEAT1,     //移动到位
         SHOOT_BALLS_REPEAT1,              // 发射球
-        OPEN_GATE_REPEAT2,                  // 重复开门+吸球
+        OPEN_GATE_POS2,                   //直线过去会打掉第一组球+卡住
+        OPEN_GATE_REPEAT2,                // 重复开门+吸球
+        MOVE_TO_SHOOTING_POS_REPEAT2,     //移动到位
         SHOOT_BALLS_REPEAT2,              // 发射球
+        MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
+        INTAKE_BALLS1,                    // 取第一组球
+        MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
+        SHOOT_BALLS1,                     // 发射第一组球
         MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -107,30 +112,14 @@ public class TopRouteBlue extends XKCommandOpmode {
             case FIRST_SHOOT_BALLS:
                 shootBalls();
                 break;
-
-            case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(0);
-                break;
-
-            case INTAKE_BALLS1:
-                IntakeBalls(0);
-                break;
-
-            case MOVE_TO_GATE:
-                moveToGate();
-                break;
-
-            case OPEN_GATE:
-                openGate();
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS1:
-                shootBalls();
-                break;
+//
+//            case MOVE_TO_GATE:
+//                moveToGate(0);
+//                break;
+//
+//            case OPEN_GATE:
+//                openGate();
+//                break;
 
             case MOVE_TO_INTAKE_POSITION2:
                 moveToIntakePos(1);
@@ -148,17 +137,53 @@ public class TopRouteBlue extends XKCommandOpmode {
                 shootBalls();
                 break;
 
+            case OPEN_GATE_POS1:
+                moveToGate(1);
+                break;
+
             case OPEN_GATE_REPEAT1:
                 repeatOpenGate();
+                break;
+
+            case MOVE_TO_SHOOTING_POS_REPEAT1:
+                moveToShootingPos();
+                break;
 
             case SHOOT_BALLS_REPEAT1:
                 shootBalls();
+                break;
+
+            case OPEN_GATE_POS2:
+                moveToGate(1);
+                break;
 
             case OPEN_GATE_REPEAT2:
                 repeatOpenGate();
+                break;
+
+            case MOVE_TO_SHOOTING_POS_REPEAT2:
+                moveToShootingPos();
+                break;
 
             case SHOOT_BALLS_REPEAT2:
                 shootBalls();
+                break;
+
+            case MOVE_TO_INTAKE_POSITION1:
+                moveToIntakePos(0);
+                break;
+
+            case INTAKE_BALLS1:
+                IntakeBalls(0);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION1:
+                moveToShootingPos();
+                break;
+
+            case SHOOT_BALLS1:
+                shootBalls();
+                break;
 
             case MOVE_AWAY_FROM_LINE:
                 moveFromLine();
@@ -312,15 +337,15 @@ public class TopRouteBlue extends XKCommandOpmode {
         }
     }
 
-    private void moveToGate() {
+    private void moveToGate(int posNum) {
         adaptiveController.positionDeadbandCm = 10;
         adaptiveController.headingDeadbandRad = Math.toRadians(10);
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueGatePosition.x, // x
-            Constants.blueGatePosition.y - 50, //y
-            Constants.blueGatePosition.heading, // heading
+            Constants.openGatePosBlue[posNum].x,
+            Constants.openGatePosBlue[posNum].y, //y
+            Constants.openGatePosBlue[posNum].heading, // heading
             odo,
             1,
             false
