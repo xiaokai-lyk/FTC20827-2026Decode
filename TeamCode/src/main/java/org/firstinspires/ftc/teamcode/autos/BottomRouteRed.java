@@ -259,9 +259,9 @@ public class BottomRouteRed extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redParkPosition[0],  // X坐标
-            Constants.redParkPosition[1],   // Y坐标
-            Constants.redParkPosition[2],     // 角度
+            Constants.redParkPosition.x,  // X坐标
+            Constants.redParkPosition.y,   // Y坐标
+            Constants.redParkPosition.heading,     // 角度
             odo,
             0.7,
             false

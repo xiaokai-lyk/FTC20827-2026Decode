@@ -40,16 +40,16 @@ public class Constants {
     public static double preShooterRunMiddle = 0.9;
     public static ShooterConfig shooter40cm = new ShooterConfig(1100, 500);
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 1200);
-        public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
+    public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
     public static ShooterConfig shooterFar = new ShooterConfig(330, 2100);
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
     public static int driveMaxVelocity = 2960;
-    //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
+
     public static Position[] bluePickUpPositionTop = {  //x,y,heading
             new Position(-108,-70,90), //Blue Top Intake
-            new Position(-168,-65,90), //Blue Middle Intake
+            new Position(-166,-65,90), //Blue Middle Intake
             new Position(-228,-65,90) //Blue Bottom Intake,
     };
     public static Position[] bluePickUpPosition = {
@@ -57,10 +57,6 @@ public class Constants {
             new Position(75,38,90)
     };
 
-    public static double[][] redPickUpPosition = {
-            {80,-120,-180},
-            {90,0,-90}
-    };
 
     public static Position[] blueBallPosition ={
             new Position(0,138,180),
@@ -70,42 +66,60 @@ public class Constants {
     public static double[] bluePreShootingPos={
             25.0,30.2,20.4
     };
-    public static double[][] redBallPosition = {
-            {19,-138,-180},
-            {75, -155, -90}
-    };
+
     public static Position[] blueShootingPosTop = { //x,y,heading
-            new Position(-55,-55,50), //Blue close
+            new Position(-52,-52,46), //Blue close
             new Position(-150,-150,45),  //Blue middle
-//            new Position()   //Blue far
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
             {7.5,16,18},   //Blue far
     };
     public static Position blueParkPositionTop = new Position(-140,-30,0); //x,y,heading
     public static Position blueParkPositionBottom = new Position(30,80,0); //x,y,heading
-    public static Position blueGatePosition = new Position(-137,34,90);  // open gate
-    public static Position blueGateControlPoint = new Position(-168, -30, 90);//若是调到gate右侧则是绕开门否则是打开门
-
-    public static double[][] redPickUpPositionTop = {  //x,y,heading
-            {-108,70,-90},
-            {-168,65,-90},
-            {-228,65,-90}
+    public static Position blueGatePosition = new Position(-136,34,90);  // open gate
+    public static Position blueGateControlPoint = new Position(-168, -30, 90);
+    // 修改：redPickUpPosition → Position[]
+    public static Position[] redPickUpPosition = {
+            new Position(90, -138, -180),
+            new Position(75, 0, -90)
     };
 
-    public static double[][] redShootingPosTop = { //x,y,heading
-            {-60,60,-50}, //Red Close
-            {-150,150,-45}, //Red Middle
-            {} //Red far
+    // 修改：redBallPosition → Position[]
+    public static Position[] redBallPosition = {
+            new Position(0, -138, -180),
+            new Position(75, -155, -90)
     };
-    public static double[][] redShootingPosBottom = {
-            {7.5,-16,-18},
-    };
-    public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
-    public static double[] redParkPosition = {30,-80,0}; //x,y,heading
-    public static double[] redGatePosition = {-137, -34,-90};
-    public static double[] redGateControlPoint = {-168, 30, -90};//
 
+    // 修改：redPickUpPositionTop → Position[]
+    public static Position[] redPickUpPositionTop = {
+            new Position(-108, 70, -90),
+            new Position(-166, 65, -90),
+            new Position(-228, 65, -90)
+    };
+
+    // 修改：redShootingPosTop → Position[]
+    public static Position[] redShootingPosTop = {
+            new Position(-52, 52, -46), //Red Close
+            new Position(-150, 150, -45), //Red Middle
+            // new Position()   //Red far (保留注释)
+    };
+
+    // 修改：redShootingPosBottom → Position[]
+    public static Position[] redShootingPosBottom = {
+            new Position(7, -16, -18),
+    };
+
+    // 修改：redParkPositionTop → Position
+    public static Position redParkPositionTop = new Position(-140, 30, 0);
+
+    // 修改：redParkPosition → Position
+    public static Position redParkPosition = new Position(30, -80, 0);
+
+    // 修改：redGatePosition → Position
+    public static Position redGatePosition = new Position(-136, -34, -90);
+
+    // 修改：redGateControlPoint → Position
+    public static Position redGateControlPoint = new Position(-168, 30, -90);
 
     // 新增：自适应阻尼相关常量集中管理
     public static class Damping {
@@ -184,4 +198,3 @@ public class Constants {
         }
     }
 }
-

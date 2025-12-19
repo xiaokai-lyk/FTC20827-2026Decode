@@ -191,6 +191,9 @@ public class TopRouteBlue extends XKCommandOpmode {
         shooter.setShooter(Constants.shooter40cm).schedule();
         intake.startIntake(1).schedule();
 
+        adaptiveController.positionDeadbandCm = 2;
+        adaptiveController.headingDeadbandRad = Math.toRadians(2);
+
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
@@ -199,12 +202,13 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueShootingPosTop[0].y,     // Y坐标
             Constants.blueShootingPosTop[0].heading,     // 角度
             odo,
-            1,
+            0.75,
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
+        if ((out.atPosition && out.atHeading)) {
             transitionToNextStep();
+            adaptiveController.resetDeadbands();
         }
     }
 
@@ -255,7 +259,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             false
         );
 
-        if (out.atPosition && out.atHeading) {
+        if ((out.atPosition && out.atHeading)||getElapsedSeconds()>2.5) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }
@@ -277,7 +281,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.bluePickUpPositionTop[posNum].y + 100,   // Y坐标
             Constants.bluePickUpPositionTop[posNum].heading,     // 角度
             odo,
-            0.9,
+            0.85,
             true
         );
 
@@ -318,7 +322,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             1,
             false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
@@ -336,7 +340,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             0.5,
             false
         );
-        if (getElapsedSeconds() > 1.3) {
+        if (getElapsedSeconds() > 1) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }
@@ -397,7 +401,7 @@ public class TopRouteBlue extends XKCommandOpmode {
         odo = new OdometerData(hardwares.sensors.odo);
         // 设置初始位置
         // hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES); // 贴着二维码初始位置
-        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 16, -33, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 16, -29, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
         telemetry.addData("Auto Status", "Initialized");
     }
 
