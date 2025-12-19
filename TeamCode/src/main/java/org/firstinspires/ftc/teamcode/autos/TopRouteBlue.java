@@ -296,7 +296,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGateControlPoint[1],
             Constants.blueGateControlPoint[2],
             odo,
-            0.8,
+            0.85,
             true
         );
         if((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
@@ -315,7 +315,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1]-50, //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.8,
+            0.9,
             false
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
@@ -333,7 +333,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1], //y
             Constants.blueGatePosition[2], // heading
             odo,
-            0.5,
+            0.75,
             false
         );
         if (getElapsedSeconds() > 1.3) {

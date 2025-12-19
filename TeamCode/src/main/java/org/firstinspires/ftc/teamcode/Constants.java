@@ -34,7 +34,7 @@ public class Constants {
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
-    public static int driveMaxVelocity = 2500;
+    public static int driveMaxVelocity = 2500; // 非常重要！！！！！！！
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
     public static double[][] bluePickUpPositionTop = {  //x,y,heading
             {-108,-50,90}, //Blue Top Intake
@@ -46,22 +46,10 @@ public class Constants {
             {75,38,90}
     };
 
-    public static double[][] redPickUpPosition = {
-            {80,-120,-180},
-            {90,0,-90}
-    };
 
     public static double[][] blueBallPosition ={
             {0,138,180},
             {75, 155, 90}
-    };
-
-    public static double[] bluePreShootingPos={
-            25.0,30.2,20.4
-    };
-    public static double[][] redBallPosition = {
-            {19,-138,-180},
-            {75, -155, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
             {-55,-55,48}, //Blue close
@@ -77,23 +65,26 @@ public class Constants {
     public static double[] blueGateControlPoint = {-168, -30, 90};
 
     public static double[][] redPickUpPositionTop = {  //x,y,heading
-            {-108,70,-90},
-            {-168,65,-90},
-            {-228,65,-90}
+            {-108,50,-90}, //Red Top Intake (原Blue Top Intake的y变为正数且heading反转)
+            {-168,45,-90}, //Red Middle Intake (同上)
+            {-228,45,-90} //Red Bottom Intake (同上)
     };
 
     public static double[][] redShootingPosTop = { //x,y,heading
-            {-60,60,-50}, //Red Close
-            {-150,150,-45}, //Red Middle
-            {} //Red far
+            {-55,55,-48}, //Red close (原blueShootingPosTop的y取反且heading反转)
+            {-150,150,-45},  //Red middle (仅heading反转)
+            {}   //Red far (未定义)
     };
-    public static double[][] redShootingPosBottom = {
-            {7.5,-16,-18},
+
+    public static double[][] redShootingPosBottom = { //x,y,heading
+            {-7.5,-16,-18},   //Red far (原blueShootingPosBottom的x和y取反)
     };
-    public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
-    public static double[] redParkPosition = {30,-80,0}; //x,y,heading
-    public static double[] redGatePosition = {-137, -34,-90};
-    public static double[] redGateControlPoint = {-168, 30, -90};//
+
+    public static double[] redParkPositionTop = {-140,30,0}; //x,y,heading (仅y变正)
+    public static double[] redParkPosition = {-30,-80,0}; //x,y,heading (x变负)
+
+    public static double[] redGatePosition ={-125,-42,-90};  // open gate (y变负)
+    public static double[] redGateControlPoint = {-168, 30, -90}; // y变正
 
 
     // 新增：自适应阻尼相关常量集中管理

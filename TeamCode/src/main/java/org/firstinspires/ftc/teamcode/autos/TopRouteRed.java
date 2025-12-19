@@ -193,17 +193,17 @@ public class TopRouteRed extends XKCommandOpmode {
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redShootingPosTop[0][0],  // X坐标
-                Constants.redShootingPosTop[0][1],     // Y坐标
-                Constants.redShootingPosTop[0][2],     // 角度
-                odo,
-                1,
-                true
+            drive,
+            adaptiveController,
+            Constants.redShootingPosTop[0][0],  // X坐标
+            Constants.redShootingPosTop[0][1],     // Y坐标
+            Constants.redShootingPosTop[0][2],     // 角度
+            odo,
+            1,
+            true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
+        if (out.atPosition && out.atHeading){
             transitionToNextStep();
         }
     }
@@ -214,14 +214,14 @@ public class TopRouteRed extends XKCommandOpmode {
     private void shootBalls() {
         // 允许球通过并开始进球
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redShootingPosTop[0][0],  // X坐标
-                Constants.redShootingPosTop[0][1],     // Y坐标
-                Constants.redShootingPosTop[0][2],     // 角度
-                odo,
-                0,
-                false
+            drive,
+            adaptiveController,
+            Constants.redShootingPosTop[0][0],  // X坐标
+            Constants.redShootingPosTop[0][1],     // Y坐标
+            Constants.redShootingPosTop[0][2],     // 角度
+            odo,
+            0,
+            false
         );
         shooter.allowBallPassClose().schedule();
 
@@ -245,14 +245,14 @@ public class TopRouteRed extends XKCommandOpmode {
         adaptiveController.positionDeadbandCm = 10;
         adaptiveController.headingDeadbandRad = Math.toRadians(10);
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redPickUpPositionTop[posNum][0],  // X坐标
-                Constants.redPickUpPositionTop[posNum][1],   // Y坐标
-                Constants.redPickUpPositionTop[posNum][2],     // 角度
-                odo,
-                1,
-                false
+            drive,
+            adaptiveController,
+            Constants.redPickUpPositionTop[posNum][0],  // X坐标
+            Constants.redPickUpPositionTop[posNum][1],   // Y坐标
+            Constants.redPickUpPositionTop[posNum][2],     // 角度
+            odo,
+            1,
+            false
         );
 
         if (out.atPosition && out.atHeading) {
@@ -271,14 +271,14 @@ public class TopRouteRed extends XKCommandOpmode {
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redPickUpPositionTop[posNum][0],  // X坐标
-                Constants.redPickUpPositionTop[posNum][1]-100,   // Y坐标
-                Constants.redPickUpPositionTop[posNum][2],     // 角度
-                odo,
-                0.9,
-                true
+            drive,
+            adaptiveController,
+            Constants.redPickUpPositionTop[posNum][0],  // X坐标
+            Constants.redPickUpPositionTop[posNum][1]-100,   // Y坐标
+            Constants.redPickUpPositionTop[posNum][2],     // 角度
+            odo,
+            0.9,
+            true
         );
 
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
@@ -290,14 +290,14 @@ public class TopRouteRed extends XKCommandOpmode {
         adaptiveController.headingDeadbandRad = Math.toRadians(10);
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redGateControlPoint[0],
-                Constants.redGateControlPoint[1],
-                Constants.redGateControlPoint[2],
-                odo,
-                1,
-                false
+            drive,
+            adaptiveController,
+            Constants.redGateControlPoint[0],
+            Constants.redGateControlPoint[1],
+            Constants.redGateControlPoint[2],
+            odo,
+            0.85,
+            true
         );
         if((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
             transitionToNextStep();
@@ -309,14 +309,14 @@ public class TopRouteRed extends XKCommandOpmode {
         adaptiveController.positionDeadbandCm = 10;
         adaptiveController.headingDeadbandRad = Math.toRadians(10);
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redGatePosition[0], // x
-                Constants.redGatePosition[1]+50, //y
-                Constants.redGatePosition[2], // heading
-                odo,
-                1,
-                false
+            drive,
+            adaptiveController,
+            Constants.redGatePosition[0], // x
+            Constants.redGatePosition[1]+50, //y
+            Constants.redGatePosition[2], // heading
+            odo,
+            0.9,
+            false
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
@@ -327,14 +327,14 @@ public class TopRouteRed extends XKCommandOpmode {
         adaptiveController.positionDeadbandCm = 10;
         adaptiveController.headingDeadbandRad = Math.toRadians(10);
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redGatePosition[0], // x
-                Constants.redGatePosition[1], //y
-                Constants.redGatePosition[2], // heading
-                odo,
-                0.5,
-                false
+            drive,
+            adaptiveController,
+            Constants.redGatePosition[0], // x
+            Constants.redGatePosition[1], //y
+            Constants.redGatePosition[2], // heading
+            odo,
+            0.75,
+            false
         );
         if (getElapsedSeconds() > 1.3) {
             adaptiveController.resetDeadbands();
@@ -348,14 +348,14 @@ public class TopRouteRed extends XKCommandOpmode {
      */
     private void moveFromLine() {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-                drive,
-                adaptiveController,
-                Constants.redParkPositionTop[0],  // X坐标
-                Constants.redParkPositionTop[1],   // Y坐标
-                Constants.redParkPositionTop[2],     // 角度
-                odo,
-                1,
-                true
+            drive,
+            adaptiveController,
+            Constants.redParkPositionTop[0],  // X坐标
+            Constants.redParkPositionTop[1],   // Y坐标
+            Constants.redParkPositionTop[2],     // 角度
+            odo,
+            1,
+            true
         );
     }
 
@@ -396,13 +396,11 @@ public class TopRouteRed extends XKCommandOpmode {
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
         // 设置初始位置
-        // hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES); // 贴着二维码初始位置
-        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 16, 33, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, -48));
         telemetry.addData("Auto Status", "Initialized");
     }
 
     /**
-     * 转换到下一个步骤（基于枚举顺序递增）
      */
     private void transitionToNextStep() {
         currIndex++;
@@ -431,9 +429,9 @@ public class TopRouteRed extends XKCommandOpmode {
         telemetry.addData("distance deadband", adaptiveController.positionDeadbandCm);
         if (odo != null) {
             telemetry.addData("Robot Position", "X:%.1f Y:%.1f H:%.1f",
-                    odo.getRobotPosition().getX(DistanceUnit.MM),
-                    odo.getRobotPosition().getY(DistanceUnit.MM),
-                    Math.toDegrees(odo.getHeadingRadians()));
+                odo.getRobotPosition().getX(DistanceUnit.MM),
+                odo.getRobotPosition().getY(DistanceUnit.MM),
+                Math.toDegrees(odo.getHeadingRadians()));
         }
         telemetry.update();
     }
