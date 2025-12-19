@@ -34,12 +34,12 @@ public class Constants {
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
-    public static int driveMaxVelocity = 2960;
+    public static int driveMaxVelocity = 2500;
     //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
     public static double[][] bluePickUpPositionTop = {  //x,y,heading
-            {-108,-70,90}, //Blue Top Intake
-            {-168,-65,90}, //Blue Middle Intake
-            {-228,-65,90}, //Blue Bottom Intake,
+            {-108,-50,90}, //Blue Top Intake
+            {-168,-45,90}, //Blue Middle Intake
+            {-228,-45,90}, //Blue Bottom Intake,
     };
     public static double[][] bluePickUpPosition = {
             {90,138,180},
@@ -64,7 +64,7 @@ public class Constants {
             {75, -155, -90}
     };
     public static double[][] blueShootingPosTop = { //x,y,heading
-            {-55,-55,50}, //Blue close
+            {-55,-55,48}, //Blue close
             {-150,-150,45},  //Blue middle
             {}   //Blue far
     };
@@ -73,8 +73,8 @@ public class Constants {
     };
     public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
     public static double[] blueParkPosition = {30,80,0}; //x,y,heading
-    public static double[] blueGatePosition ={-137,34,90};  // open gate
-    public static double[] blueGateControlPoint = {-168, -30, 90};//若是调到gate右侧则是绕开门否则是打开门
+    public static double[] blueGatePosition ={-125,42,90};  // open gate
+    public static double[] blueGateControlPoint = {-168, -30, 90};
 
     public static double[][] redPickUpPositionTop = {  //x,y,heading
             {-108,70,-90},
@@ -129,9 +129,9 @@ public class Constants {
     // ========= PID 可配置实例 =========
     public static class PID {
         // 平移 PID 参数（X/Y）
-        public static final double TRANS_KP = 1.5;
+        public static final double TRANS_KP = 1.0;
         public static final double TRANS_KI = 0.00;
-        public static final double TRANS_KD = 0.07;
+        public static final double TRANS_KD = 0.1;
         public static final double TRANS_MAX_OUT = 1.0;
         public static final double TRANS_MIN_CMD = 0.00;
         public static final double TRANS_DEADZONE_CM = 0.5;

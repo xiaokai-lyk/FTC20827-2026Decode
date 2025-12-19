@@ -203,7 +203,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
+        if (out.atPosition && out.atHeading){
             transitionToNextStep();
         }
     }
@@ -315,7 +315,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             Constants.blueGatePosition[1]-50, //y
             Constants.blueGatePosition[2], // heading
             odo,
-            1,
+            0.8,
             false
         );
         if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
@@ -396,8 +396,7 @@ public class TopRouteBlue extends XKCommandOpmode {
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
         // 设置初始位置
-        // hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES); // 贴着二维码初始位置
-        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 16, -33, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 48));
         telemetry.addData("Auto Status", "Initialized");
     }
 
