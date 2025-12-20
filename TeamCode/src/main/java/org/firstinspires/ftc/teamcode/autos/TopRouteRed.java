@@ -191,6 +191,9 @@ public class TopRouteRed extends XKCommandOpmode {
         shooter.setShooter(Constants.shooter40cm).schedule();
         intake.startIntake(1).schedule();
 
+        adaptiveController.positionDeadbandCm = 5;
+        adaptiveController.headingDeadbandRad = Math.toRadians(2);
+
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
@@ -205,6 +208,7 @@ public class TopRouteRed extends XKCommandOpmode {
 
         if (out.atPosition && out.atHeading){
             transitionToNextStep();
+            adaptiveController.resetDeadbands();
         }
     }
 
@@ -312,7 +316,7 @@ public class TopRouteRed extends XKCommandOpmode {
             drive,
             adaptiveController,
             Constants.redGatePosition[0], // x
-            Constants.redGatePosition[1]+50, //y
+            Constants.redGatePosition[1]+60, //y
             Constants.redGatePosition[2], // heading
             odo,
             0.9,
