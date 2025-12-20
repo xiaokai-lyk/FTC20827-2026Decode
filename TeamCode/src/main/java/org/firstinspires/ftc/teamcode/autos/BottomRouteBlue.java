@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
@@ -231,7 +232,11 @@ public class BottomRouteBlue extends XKCommandOpmode
     private void shootBalls() {
         double timeEachLoop = getElapsedSeconds() % 3;
 
-        if (rounds != 3 && timeEachLoop > 2.8) {
+        if (rounds == 1 && timeEachLoop > 2.9) {
+            intake.startIntake(1).schedule();
+            shooter.allowBallPassClose().schedule();
+            rounds++;
+        } else if (rounds == 2 && timeEachLoop > 2.94) {
             intake.startIntake(1).schedule();
             shooter.allowBallPassClose().schedule();
             rounds++;
@@ -243,13 +248,13 @@ public class BottomRouteBlue extends XKCommandOpmode
             shooter.blockBallPass().schedule();
         }
 
-        if (getElapsedSeconds() > 10) {
+        if (getElapsedSeconds() > 20) {
             transitionToNextStep();
         }
     }
 
     private void waitFor5s(){
-        if (getElapsedSeconds() > 5) {
+        if (getElapsedSeconds() > 4) {
             transitionToNextStep();
         }
     }
@@ -333,14 +338,14 @@ public class BottomRouteBlue extends XKCommandOpmode
 
     private void moveFromLine() {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
-            drive,
-            adaptiveController,
-            5,  // X坐标
-            40,   // Y坐标
-            0,     // 角度
-            odo,
-            1,
-            false
+                drive,
+                adaptiveController,
+                5,  // X坐标
+                45,   // Y坐标
+                0,     // 角度
+                odo,
+                1,
+                false
         );
         if(getElapsedSeconds() > 3){
             transitionToNextStep();
@@ -395,6 +400,7 @@ public class BottomRouteBlue extends XKCommandOpmode
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
+        hardwares.sensors.odo.setHeading(13.5, AngleUnit.DEGREES);
         telemetry.addData("Auto Status", "Initialized");
     }
 }

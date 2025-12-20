@@ -185,7 +185,7 @@ public class BottomRouteRed extends XKCommandOpmode
      */
     public void waitForAcceleration(){
         shooter.setShooter(Constants.shooterFar).schedule();
-        if(getElapsedSeconds() > 5){
+        if(getElapsedSeconds() > 4){
             transitionToNextStep();
         }
     }
@@ -231,7 +231,11 @@ public class BottomRouteRed extends XKCommandOpmode
     private void shootBalls() {
         double timeEachLoop = getElapsedSeconds() % 3;
 
-        if (rounds != 3 && timeEachLoop > 2.8) {
+        if (rounds == 1 && timeEachLoop > 2.9) {
+            intake.startIntake(1).schedule();
+            shooter.allowBallPassClose().schedule();
+            rounds++;
+        } else if (rounds == 2 && timeEachLoop > 2.94) {
             intake.startIntake(1).schedule();
             shooter.allowBallPassClose().schedule();
             rounds++;
@@ -243,7 +247,7 @@ public class BottomRouteRed extends XKCommandOpmode
             shooter.blockBallPass().schedule();
         }
 
-        if (getElapsedSeconds() > 10) {
+        if (getElapsedSeconds() > 20) {
             transitionToNextStep();
         }
     }
@@ -259,7 +263,7 @@ public class BottomRouteRed extends XKCommandOpmode
             drive,
             adaptiveController,
             5,  // X坐标
-            -40,   // Y坐标
+            -45,   // Y坐标
             0,     // 角度
             odo,
             1,
