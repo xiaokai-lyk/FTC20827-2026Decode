@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Constants;

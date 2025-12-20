@@ -65,9 +65,9 @@ public class Constants {
     public static double[] blueGateControlPoint = {-168, -30, 90};
 
     public static double[][] redPickUpPositionTop = {  //x,y,heading
-            {-108,50,-90}, //Red Top Intake (原Blue Top Intake的y变为正数且heading反转)
-            {-168,45,-90}, //Red Middle Intake (同上)
-            {-228,45,-90} //Red Bottom Intake (同上)
+            {-108,55,-90}, //Red Top Intake (原Blue Top Intake的y变为正数且heading反转)
+            {-168,50,-90}, //Red Middle Intake (同上)
+            {-228,50,-90} //Red Bottom Intake (同上)
     };
 
     public static double[][] redShootingPosTop = { //x,y,heading
