@@ -82,8 +82,7 @@ public class Constants {
 
     public static double[] redParkPositionTop = {-140,30,0}; //x,y,heading (仅y变正)
     public static double[] redParkPosition = {-30,-80,0}; //x,y,heading (x变负)
-
-    public static double[] redGatePosition ={-125,-42,-90};  // open gate (y变负)
+    public static double[] redGatePosition ={-130,-42,-90};  // open gate (y变负)
     public static double[] redGateControlPoint = {-168, 30, -90}; // y变正
 
 

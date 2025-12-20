@@ -191,8 +191,8 @@ public class TopRouteBlue extends XKCommandOpmode {
         shooter.setShooter(Constants.shooter40cm).schedule();
         intake.startIntake(1).schedule();
 
-        adaptiveController.positionDeadbandCm = 5;
-        adaptiveController.headingDeadbandRad = Math.toRadians(2);
+        adaptiveController.positionDeadbandCm = 2;
+        adaptiveController.headingDeadbandRad = Math.toRadians(1);
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -206,7 +206,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        if (out.atPosition && out.atHeading){
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 4.5){
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }

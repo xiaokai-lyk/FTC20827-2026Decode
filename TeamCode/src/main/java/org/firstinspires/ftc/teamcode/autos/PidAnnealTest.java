@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -28,6 +29,7 @@ import java.util.Random;
  * 循环测试: 在 起点 与 目标 之间往返, 每次记录 从开始移动 到 atPosition && atHeading 的用时
  * 模拟退火: 在选定模式下自动迭代 PID 参数, 目标是最小化到达用时 (cost = arrivalTimeSec)
  */
+@Disabled
 @Autonomous(name = "PidAnnealTest", group = "autos")
 public class PidAnnealTest extends XKCommandOpmode {
     // 基础硬件
