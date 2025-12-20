@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static java.lang.Math.abs;
-
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -9,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.jetbrains.annotations.Contract;
@@ -85,7 +82,7 @@ public class Shooter {
     }
 
     public boolean shooterReady(Constants.ShooterConfig targetVelocity){
-        if(Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity)>40 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity)>40){
+        if(Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity) > 60 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity) > 60){
             return false;
         }
         return true;

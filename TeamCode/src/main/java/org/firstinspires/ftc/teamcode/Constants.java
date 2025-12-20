@@ -61,7 +61,7 @@ public class Constants {
     };
     public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
     public static double[] blueParkPosition = {30,80,0}; //x,y,heading
-    public static double[] blueGatePosition ={-125,42,90};  // open gate
+    public static double[] blueGatePosition ={-125,42,85};  // open gate
     public static double[] blueGateControlPoint = {-168, -30, 90};
 
     public static double[][] redPickUpPositionTop = {  //x,y,heading
@@ -82,7 +82,7 @@ public class Constants {
 
     public static double[] redParkPositionTop = {-140,30,0}; //x,y,heading (仅y变正)
     public static double[] redParkPosition = {-30,-80,0}; //x,y,heading (x变负)
-    public static double[] redGatePosition ={-130,-42,-90};  // open gate (y变负)
+    public static double[] redGatePosition ={-130,-42,-85};  // open gate (y变负)
     public static double[] redGateControlPoint = {-168, 30, -90}; // y变正
 
 

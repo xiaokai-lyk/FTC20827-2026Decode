@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.autos;
 
-import androidx.annotation.NonNull;
-
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -33,6 +31,7 @@ public class BottomRouteRed extends XKCommandOpmode
     private long stepStartTime;
     private OdometerData odo;
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
+    int rounds = 1;
 
 
     /**
@@ -231,7 +230,12 @@ public class BottomRouteRed extends XKCommandOpmode
      */
     private void shootBalls() {
         double timeEachLoop = getElapsedSeconds() % 3;
-        if (timeEachLoop > 2.9) {
+
+        if (rounds != 3 && timeEachLoop > 2.8) {
+            intake.startIntake(1).schedule();
+            shooter.allowBallPassClose().schedule();
+            rounds++;
+        } else if (rounds == 3 && timeEachLoop > 2.7) {
             intake.startIntake(1).schedule();
             shooter.allowBallPassClose().schedule();
         } else {
@@ -249,9 +253,6 @@ public class BottomRouteRed extends XKCommandOpmode
             transitionToNextStep();
         }
     }
-
-
-
 
     private void moveFromLine() {
         AutoDrive.Output out = autoDrive.driveToAdaptive(

@@ -101,7 +101,7 @@ public class TopRouteRed extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos(2);
+                moveToShootingPos(2.5);
                 break;
 
             case FIRST_SHOOT_BALLS:
@@ -323,7 +323,7 @@ public class TopRouteRed extends XKCommandOpmode {
             0.9,
             false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
