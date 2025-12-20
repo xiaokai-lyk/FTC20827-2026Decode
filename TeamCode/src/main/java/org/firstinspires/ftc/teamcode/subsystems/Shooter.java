@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static java.lang.Math.abs;
+
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -80,5 +82,12 @@ public class Shooter {
             shooterFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             shooterBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         });
+    }
+
+    public boolean shooterReady(Constants.ShooterConfig targetVelocity){
+        if(Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity)>40 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity)>40){
+            return false;
+        }
+        return true;
     }
 }

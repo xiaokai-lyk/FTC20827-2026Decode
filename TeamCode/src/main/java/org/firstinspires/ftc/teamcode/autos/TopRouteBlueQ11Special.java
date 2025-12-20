@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -21,8 +22,9 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
  * 改进版自动驾驶测试程序
  * 使用状态机模式提高可扩展性和可维护性
  */
-@Autonomous(name = "TopRouteBlue", group = "autos")
-public class TopRouteBlue extends XKCommandOpmode {
+@Disabled
+@Autonomous(name = "TopRouteBlueQ11Special", group = "autos")
+public class TopRouteBlueQ11Special extends XKCommandOpmode {
     // 硬件子系统
 
     private Hardwares hardwares;
@@ -285,7 +287,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             true
         );
 
-        if ((out.atPosition && out.atHeading && shooter.shooterReady(Constants.shooter40cm)) || getElapsedSeconds() > 1.5) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
         }
     }
@@ -340,7 +342,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             0.9,
             false
         );
-        if (getElapsedSeconds() > 1.3) {
+        if (getElapsedSeconds() > 1.5) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }
@@ -400,7 +402,7 @@ public class TopRouteBlue extends XKCommandOpmode {
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
         // 设置初始位置
-        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 48));
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, -55, -55, AngleUnit.DEGREES, 48));
         telemetry.addData("Auto Status", "Initialized");
     }
 

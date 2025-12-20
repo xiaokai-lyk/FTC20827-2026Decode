@@ -101,7 +101,7 @@ public class TopRouteRed extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos();
+                moveToShootingPos(2);
                 break;
 
             case FIRST_SHOOT_BALLS:
@@ -125,7 +125,7 @@ public class TopRouteRed extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos();
+                moveToShootingPos(2.5);
                 break;
 
             case SHOOT_BALLS1:
@@ -145,7 +145,7 @@ public class TopRouteRed extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos();
+                moveToShootingPos(3);
                 break;
 
             case SHOOT_BALLS2:
@@ -161,7 +161,7 @@ public class TopRouteRed extends XKCommandOpmode {
                 break;
 
             case MOVE_TO_SHOOTING_POSITION3:
-                moveToShootingPos();
+                moveToShootingPos(4.5);
                 break;
 
             case SHOOT_BALLS3:
@@ -185,7 +185,7 @@ public class TopRouteRed extends XKCommandOpmode {
     /**
      * 控制机器人移动到指定编号的射击位置，并设置射击准备动作
      */
-    private void moveToShootingPos() {
+    private void moveToShootingPos(double expTime) {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
@@ -206,7 +206,7 @@ public class TopRouteRed extends XKCommandOpmode {
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 4){
+        if ((out.atPosition && out.atHeading && shooter.shooterReady(Constants.shooter40cm)) || getElapsedSeconds() > expTime){
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
@@ -341,7 +341,7 @@ public class TopRouteRed extends XKCommandOpmode {
             0.9,
             false
         );
-        if (getElapsedSeconds() > 1.5) {
+        if (getElapsedSeconds() > 1.3) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }

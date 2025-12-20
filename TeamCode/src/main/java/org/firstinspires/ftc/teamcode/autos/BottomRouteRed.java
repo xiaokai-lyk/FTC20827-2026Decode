@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@Autonomous(name = "BottomRouteRED", group = "autos")
+@Autonomous(name = "BottomRouteRed", group = "autos")
 public class BottomRouteRed extends XKCommandOpmode
 {
     private Hardwares hardwares;
@@ -39,10 +40,10 @@ public class BottomRouteRed extends XKCommandOpmode
      */
     private enum AutoStep {
 
-        MOVE_TO_SHOOTING_POSITION,        //初始射球预热
+//        MOVE_TO_SHOOTING_POSITION,        //初始射球预热
         WAIT_FOR_ACCELERATION,
         INITIAL_POSITION_SHOOT,           //初始位置射击
-        WAIT_FOR_5S,
+//        WAIT_FOR_5S,
         //        MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
 //        INTAKE_BALLS1,                    // 取第一组球
 //        MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
@@ -51,8 +52,9 @@ public class BottomRouteRed extends XKCommandOpmode
 //        INTAKE_BALLS2,                    // 取第二组球
 //        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
 //        SHOOT_BALLS2,                     // 发射第二组球
-        STOP_SYSTEMS,                     // 停止所有系统
         AWAY_FROM_LINE,                   // 离线
+
+        STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
     }
 
@@ -62,7 +64,7 @@ public class BottomRouteRed extends XKCommandOpmode
     @Override
     public void onStart() {
         // 初始化状态机
-        currentStep = AutoStep.MOVE_TO_SHOOTING_POSITION;
+        currentStep = AutoStep.WAIT_FOR_ACCELERATION;
         stepStartTime = System.currentTimeMillis();
         telemetry.addData("Auto Status", "Started");
     }
@@ -91,9 +93,9 @@ public class BottomRouteRed extends XKCommandOpmode
      */
     private void executeCurrentStep() {
         switch (currentStep) {
-            case MOVE_TO_SHOOTING_POSITION:
-                moveToShootingPos();//远射位置
-                break;
+//            case MOVE_TO_SHOOTING_POSITION:
+//                moveToShootingPos();//远射位置
+//                break;
 
             case WAIT_FOR_ACCELERATION:
                 waitForAcceleration();
@@ -103,10 +105,9 @@ public class BottomRouteRed extends XKCommandOpmode
                 shootBalls(); // 优化方案： 在射第一个球的时候让intake先反转0.1秒，为他先提供一个初速度，这样子第一个球就不会掉速。
                 break;
 
-            case WAIT_FOR_5S:
-                waitFor5s();
-                break;
-
+//            case WAIT_FOR_5S:
+//                waitFor5s();
+//                break;
 
 //            case MOVE_TO_INTAKE_POSITION1:
 //                moveToIntakePos(1);
@@ -185,7 +186,7 @@ public class BottomRouteRed extends XKCommandOpmode
      */
     public void waitForAcceleration(){
         shooter.setShooter(Constants.shooterFar).schedule();
-        if(getElapsedSeconds()>4){
+        if(getElapsedSeconds() > 5){
             transitionToNextStep();
         }
     }
@@ -229,19 +230,16 @@ public class BottomRouteRed extends XKCommandOpmode
      * 执行发射球的动作，在允许球通过后等待一段时间再进入下一阶段
      */
     private void shootBalls() {
-        if(getElapsedSeconds()<0.1){
-            intake.outTake().schedule();
-        }else{
+        double timeEachLoop = getElapsedSeconds() % 3;
+        if (timeEachLoop > 2.9) {
             intake.startIntake(1).schedule();
-        }
-        double timeAfterShoot = getElapsedSeconds() % 1;
-        if (timeAfterShoot < 0.2 && timeAfterShoot > 0) {
-            shooter.allowBallPassFar().schedule();
+            shooter.allowBallPassClose().schedule();
         } else {
+            intake.stopIntake().schedule();
             shooter.blockBallPass().schedule();
         }
 
-        if (getElapsedSeconds() > 4) {
+        if (getElapsedSeconds() > 10) {
             transitionToNextStep();
         }
     }
@@ -259,14 +257,14 @@ public class BottomRouteRed extends XKCommandOpmode
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redParkPosition[0],  // X坐标
-            Constants.redParkPosition[1],   // Y坐标
-            Constants.redParkPosition[2],     // 角度
+            5,  // X坐标
+            -40,   // Y坐标
+            0,     // 角度
             odo,
-            0.7,
+            1,
             false
         );
-        if(getElapsedSeconds() > 5){
+        if(getElapsedSeconds() > 3){
             transitionToNextStep();
         }
     }
@@ -336,6 +334,7 @@ public class BottomRouteRed extends XKCommandOpmode
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
+        hardwares.sensors.odo.setHeading(-13.5, AngleUnit.DEGREES);
         telemetry.addData("Auto Status", "Initialized");
     }
 }
