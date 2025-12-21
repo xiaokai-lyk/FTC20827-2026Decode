@@ -82,7 +82,7 @@ public class Shooter {
     }
 
     public boolean shooterReady(Constants.ShooterConfig targetVelocity){
-        if(Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity) > 60 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity) > 60){
+        if (Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity) > 100 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity) > 100) {
             return false;
         }
         return true;

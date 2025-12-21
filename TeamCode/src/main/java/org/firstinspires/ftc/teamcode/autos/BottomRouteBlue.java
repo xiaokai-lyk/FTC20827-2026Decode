@@ -232,15 +232,11 @@ public class BottomRouteBlue extends XKCommandOpmode
     private void shootBalls() {
         double timeEachLoop = getElapsedSeconds() % 3;
 
-        if (rounds == 1 && timeEachLoop > 2.9) {
+        if (rounds != 3 && timeEachLoop > 2.8 && shooter.shooterReady(Constants.shooterFar)) {
             intake.startIntake(1).schedule();
             shooter.allowBallPassClose().schedule();
             rounds++;
-        } else if (rounds == 2 && timeEachLoop > 2.94) {
-            intake.startIntake(1).schedule();
-            shooter.allowBallPassClose().schedule();
-            rounds++;
-        } else if (rounds == 3 && timeEachLoop > 2.7) {
+        } else if (rounds == 3 && timeEachLoop > 2.7 && shooter.shooterReady(Constants.shooterFar)) {
             intake.startIntake(1).schedule();
             shooter.allowBallPassClose().schedule();
         } else {
@@ -248,7 +244,7 @@ public class BottomRouteBlue extends XKCommandOpmode
             shooter.blockBallPass().schedule();
         }
 
-        if (getElapsedSeconds() > 20) {
+        if (getElapsedSeconds() > 10) {
             transitionToNextStep();
         }
     }
