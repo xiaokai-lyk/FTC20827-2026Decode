@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.jetbrains.annotations.Contract;
@@ -80,5 +79,12 @@ public class Shooter {
             shooterFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             shooterBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         });
+    }
+
+    public boolean shooterReady(Constants.ShooterConfig targetVelocity){
+        if (Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity) > 100 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity) > 100) {
+            return false;
+        }
+        return true;
     }
 }

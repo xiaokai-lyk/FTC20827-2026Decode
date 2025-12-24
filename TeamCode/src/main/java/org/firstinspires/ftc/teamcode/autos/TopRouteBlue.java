@@ -45,25 +45,21 @@ public class TopRouteBlue extends XKCommandOpmode {
     private enum AutoStep {
         MOVE_TO_FIRST_POSITION,           // 移动到初始射击位置
         FIRST_SHOOT_BALLS,                // 初始射球阶段
-
-//        MOVE_TO_GATE,
-//        OPEN_GATE,
-        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
-        INTAKE_BALLS2,                    // 取第二组球
-        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
-        SHOOT_BALLS2,                     // 发射第二组球
-        OPEN_GATE_POS1,                   //直线过去会打掉第一组球+卡住
-        OPEN_GATE_REPEAT1,                // 重复开门+吸球
-        MOVE_TO_SHOOTING_POS_REPEAT1,     //移动到位
-        SHOOT_BALLS_REPEAT1,              // 发射球
-        OPEN_GATE_POS2,                   //直线过去会打掉第一组球+卡住
-        OPEN_GATE_REPEAT2,                // 重复开门+吸球
-        MOVE_TO_SHOOTING_POS_REPEAT2,     //移动到位
-        SHOOT_BALLS_REPEAT2,              // 发射球
         MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
         INTAKE_BALLS1,                    // 取第一组球
+        MOVE_TO_GATE,
+        OPEN_GATE,
         MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
         SHOOT_BALLS1,                     // 发射第一组球
+        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
+        INTAKE_BALLS2,                    // 取第二组球
+        GO_THROUGH_GATE,                  // 绕过门（或打开？）
+        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
+        SHOOT_BALLS2,                     // 发射第二组球
+        MOVE_TO_INTAKE_POSITION3,         // 移动至第三组取球点
+        INTAKE_BALLS3,                    // 取第三组球
+        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
+        SHOOT_BALLS3,                     // 发射第三组球
         MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
@@ -74,7 +70,6 @@ public class TopRouteBlue extends XKCommandOpmode {
      */
     @Override
     public void onStart() {
-        hardwares.sensors.odo.setPosition(Constants.initialPosision);
         // 初始化状态机
         currentStep = AutoStep.MOVE_TO_FIRST_POSITION;
         stepStartTime = System.currentTimeMillis();
@@ -106,66 +101,10 @@ public class TopRouteBlue extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos();
+                moveToShootingPos(2.5);
                 break;
 
             case FIRST_SHOOT_BALLS:
-                shootBalls();
-                break;
-//
-//            case MOVE_TO_GATE:
-//                moveToGate(0);
-//                break;
-//
-//            case OPEN_GATE:
-//                openGate();
-//                break;
-
-            case MOVE_TO_INTAKE_POSITION2:
-                moveToIntakePos(1);
-                break;
-
-            case INTAKE_BALLS2:
-                IntakeBalls(1);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS2:
-                shootBalls();
-                break;
-
-            case OPEN_GATE_POS1:
-                moveToGate(1);
-                break;
-
-            case OPEN_GATE_REPEAT1:
-                repeatOpenGate();
-                break;
-
-            case MOVE_TO_SHOOTING_POS_REPEAT1:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS_REPEAT1:
-                shootBalls();
-                break;
-
-            case OPEN_GATE_POS2:
-                moveToGate(1);
-                break;
-
-            case OPEN_GATE_REPEAT2:
-                repeatOpenGate();
-                break;
-
-            case MOVE_TO_SHOOTING_POS_REPEAT2:
-                moveToShootingPos();
-                break;
-
-            case SHOOT_BALLS_REPEAT2:
                 shootBalls();
                 break;
 
@@ -177,11 +116,55 @@ public class TopRouteBlue extends XKCommandOpmode {
                 IntakeBalls(0);
                 break;
 
+            case MOVE_TO_GATE:
+                moveToGate();
+                break;
+
+            case OPEN_GATE:
+                openGate();
+                break;
+
             case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos();
+                moveToShootingPos(2.5);
                 break;
 
             case SHOOT_BALLS1:
+                shootBalls();
+                break;
+
+            case MOVE_TO_INTAKE_POSITION2:
+                moveToIntakePos(1);
+                break;
+
+            case INTAKE_BALLS2:
+                IntakeBalls(1);
+                break;
+
+            case GO_THROUGH_GATE:
+                GoThoughGate();
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION2:
+                moveToShootingPos(3);
+                break;
+
+            case SHOOT_BALLS2:
+                shootBalls();
+                break;
+
+            case MOVE_TO_INTAKE_POSITION3:
+                moveToIntakePos(2);
+                break;
+
+            case INTAKE_BALLS3:
+                IntakeBalls(2);
+                break;
+
+            case MOVE_TO_SHOOTING_POSITION3:
+                moveToShootingPos(4.5);
+                break;
+
+            case SHOOT_BALLS3:
                 shootBalls();
                 break;
 
@@ -202,26 +185,30 @@ public class TopRouteBlue extends XKCommandOpmode {
     /**
      * 控制机器人移动到指定编号的射击位置，并设置射击准备动作
      */
-    private void moveToShootingPos() {
+    private void moveToShootingPos(double expTime) {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
-        intake.startIntake().schedule();
+        intake.startIntake(1).schedule();
+
+        adaptiveController.positionDeadbandCm = 2;
+        adaptiveController.headingDeadbandRad = Math.toRadians(1);
 
         // 驱动到第一个位置
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueShootingPosTop[0].x,  // X坐标
-            Constants.blueShootingPosTop[0].y,     // Y坐标
-            Constants.blueShootingPosTop[0].heading,     // 角度
+            Constants.blueShootingPosTop[0][0],  // X坐标
+            Constants.blueShootingPosTop[0][1],     // Y坐标
+            Constants.blueShootingPosTop[0][2],     // 角度
             odo,
             1,
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 3) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > expTime){
             transitionToNextStep();
+            adaptiveController.resetDeadbands();
         }
     }
 
@@ -233,9 +220,9 @@ public class TopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
                 drive,
                 adaptiveController,
-                Constants.blueShootingPosTop[0].x,  // X坐标
-                Constants.blueShootingPosTop[0].y,     // Y坐标
-                Constants.blueShootingPosTop[0].heading,     // 角度
+                Constants.blueShootingPosTop[0][0],  // X坐标
+                Constants.blueShootingPosTop[0][1],     // Y坐标
+                Constants.blueShootingPosTop[0][2],     // 角度
                 odo,
                 0,
                 false
@@ -246,22 +233,7 @@ public class TopRouteBlue extends XKCommandOpmode {
             transitionToNextStep();
         }
     }
-    private void repeatOpenGate(){
-        AutoDrive.Output out = autoDrive.driveToAdaptive(
-            drive,
-            adaptiveController,
-            Constants.blueRepeatOpenGate.x,
-            Constants.blueRepeatOpenGate.y,
-            Constants.blueRepeatOpenGate.heading,
-            odo,
-            0,
-            false
-        );
-        intake.startIntake().schedule();
-        if (getElapsedSeconds()>3){
-            transitionToNextStep();
-        }
-    }
+
     /**
      * 控制机器人前往指定编号的取球点，并关闭预处理机构
      *
@@ -279,9 +251,9 @@ public class TopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPositionTop[posNum].x,  // X坐标
-            Constants.bluePickUpPositionTop[posNum].y,   // Y坐标
-            Constants.bluePickUpPositionTop[posNum].heading,     // 角度
+            Constants.bluePickUpPositionTop[posNum][0],  // X坐标
+            Constants.bluePickUpPositionTop[posNum][1],   // Y坐标
+            Constants.bluePickUpPositionTop[posNum][2],     // 角度
             odo,
             1,
             false
@@ -299,21 +271,21 @@ public class TopRouteBlue extends XKCommandOpmode {
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake().schedule();
+        intake.startIntake(2).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.bluePickUpPositionTop[posNum].x,  // X坐标
-            Constants.bluePickUpPositionTop[posNum].y + 100,   // Y坐标
-            Constants.bluePickUpPositionTop[posNum].heading,     // 角度
+            Constants.bluePickUpPositionTop[posNum][0],  // X坐标
+            Constants.bluePickUpPositionTop[posNum][1]+110,   // Y坐标
+            Constants.bluePickUpPositionTop[posNum][2],     // 角度
             odo,
             0.9,
             true
         );
 
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
+        if ((out.atPosition && out.atHeading && shooter.shooterReady(Constants.shooter40cm)) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
         }
     }
@@ -324,11 +296,11 @@ public class TopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueGateControlPoint.x,
-            Constants.blueGateControlPoint.y,
-            Constants.blueGateControlPoint.heading,
+            Constants.blueGateControlPoint[0],
+            Constants.blueGateControlPoint[1],
+            Constants.blueGateControlPoint[2],
             odo,
-            0.8,
+            0.85,
             true
         );
         if((out.atPosition && out.atHeading) || getElapsedSeconds() > 1) {
@@ -337,20 +309,20 @@ public class TopRouteBlue extends XKCommandOpmode {
         }
     }
 
-    private void moveToGate(int posNum) {
+    private void moveToGate() {
         adaptiveController.positionDeadbandCm = 10;
         adaptiveController.headingDeadbandRad = Math.toRadians(10);
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.openGatePosBlue[posNum].x,
-            Constants.openGatePosBlue[posNum].y, //y
-            Constants.openGatePosBlue[posNum].heading, // heading
+            Constants.blueGatePosition[0], // x
+            Constants.blueGatePosition[1]-50, //y
+            Constants.blueGatePosition[2], // heading
             odo,
-            1,
+            0.9,
             false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
@@ -361,11 +333,11 @@ public class TopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueGatePosition.x, // x
-            Constants.blueGatePosition.y, //y
-            Constants.blueGatePosition.heading, // heading
+            Constants.blueGatePosition[0], // x
+            Constants.blueGatePosition[1], //y
+            Constants.blueGatePosition[2], // heading
             odo,
-            0.5,
+            0.9,
             false
         );
         if (getElapsedSeconds() > 1.3) {
@@ -382,9 +354,9 @@ public class TopRouteBlue extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.blueParkPositionTop.x,  // X坐标
-            Constants.blueParkPositionTop.y,   // Y坐标
-            Constants.blueParkPositionTop.heading,     // 角度
+            Constants.blueParkPositionTop[0],  // X坐标
+            Constants.blueParkPositionTop[1],   // Y坐标
+            Constants.blueParkPositionTop[2],     // 角度
             odo,
             1,
             true
@@ -428,8 +400,7 @@ public class TopRouteBlue extends XKCommandOpmode {
         intake = new Intake(hardwares);
         odo = new OdometerData(hardwares.sensors.odo);
         // 设置初始位置
-        // hardwares.sensors.odo.setHeading(45, AngleUnit.DEGREES); // 贴着二维码初始位置
-        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 16, -33, AngleUnit.DEGREES, 0)); //贴着边栏初始位置
+        hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 48));
         telemetry.addData("Auto Status", "Initialized");
     }
 

@@ -43,7 +43,7 @@ public class AutoDrive {
         double scaledSpeed = speedCoefficient;
         if (distanceErr < 10.0 && autoDecelerate) {
             double ratio = distanceErr / 10.0; // 0..1
-            scaledSpeed = speedCoefficient * Math.max(ratio, 0.5);
+            scaledSpeed = speedCoefficient * Math.max(ratio, 0.35);
         }
         // 我不知道为什么，但是就是要把所有符号都弄成相反的才行！
         // 我觉得是ChatGPT的问题！如果有后人解决这个问题希望可以联系 kai_xk@qq.com

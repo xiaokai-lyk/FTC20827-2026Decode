@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePIDController;
 import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 
@@ -27,22 +23,6 @@ public class Constants {
         }
     }
 
-    public static class Position {
-        public int x;
-        public int y;
-        public int heading;
-        public Position(int x, int y, int heading) {
-            this.x = x;
-            this.y = y;
-            this.heading = heading;
-        }
-    }
-
-    public static Pose2D initialPosision= new Pose2D(DistanceUnit.CM,0, 20, AngleUnit.DEGREES,0);
-    public static Position[] openGatePosBlue= {
-        new Position(0,0,0), //常规开门位置
-        new Position(0,0,0)  //循环开门位置
-    };
     public static double preShooterBlock = -1;
     public static double preShooterRunClose = 1;
     public static double preShooterRunFar = 0.3;
@@ -54,66 +34,56 @@ public class Constants {
     public static ShooterConfig shooterStop = new ShooterConfig(0, 0);
     public static double intakePowerClose = 1.0;
     public static double intakePowerOut = -1.0;
-    public static int driveMaxVelocity = 2960;
-    public static Position blueRepeatOpenGate=new Position(0,0,0);
-    public static Position[] bluePickUpPositionTop = {  //x,y,heading
-            new Position(-108,-70,90), //Blue Top Intake
-            new Position(-168,-65,90), //Blue Middle Intake
-            new Position(-228,-65,90) //Blue Bottom Intake,
+    public static int driveMaxVelocity = 2500; // 非常重要！！！！！！！
+    //我想要把最开始设置成45度这样子后面的坐标的heading是正的，但是这样子的话换边会出问题。虽然我们用绝对坐标换边肯定会出问题
+    public static double[][] bluePickUpPositionTop = {  //x,y,heading
+            {-108,-50,90}, //Blue Top Intake
+            {-168,-45,90}, //Blue Middle Intake
+            {-228,-45,90}, //Blue Bottom Intake,
     };
-    public static Position[] bluePickUpPosition = {
-            new Position(90,138,180),
-            new Position(75,38,90)
-    };
-
-    public static double[][] redPickUpPosition = {
-            {80,-120,-180},
-            {90,0,-90}
+    public static double[][] bluePickUpPosition = {
+            {90,138,180},
+            {75,38,90}
     };
 
-    public static Position[] blueBallPosition ={
-            new Position(0,138,180),
-            new Position(75, 155, 90)
-    };
 
-    public static double[] bluePreShootingPos={
-            25.0,30.2,20.4
+    public static double[][] blueBallPosition ={
+            {0,138,180},
+            {75, 155, 90}
     };
-    public static double[][] redBallPosition = {
-            {19,-138,-180},
-            {75, -155, -90}
-    };
-    public static Position[] blueShootingPosTop = { //x,y,heading
-            new Position(-55,-55,50), //Blue close
-            new Position(-150,-150,45),  //Blue middle
-//            new Position()   //Blue far
+    public static double[][] blueShootingPosTop = { //x,y,heading
+            {-55,-55,48}, //Blue close
+            {-150,-150,45},  //Blue middle
+            {}   //Blue far
     };
     public static double[][] blueShootingPosBottom = { //x,y,heading
             {7.5,16,18},   //Blue far
     };
-    public static Position blueParkPositionTop = new Position(-140,-30,0); //x,y,heading
-    public static Position blueParkPositionBottom = new Position(30,80,0); //x,y,heading
-    public static Position blueGatePosition = new Position(-137,34,90);  // open gate
-    public static Position blueGateControlPoint = new Position(-168, -30, 90);//若是调到gate右侧则是绕开门否则是打开门
+    public static double[] blueParkPositionTop = {-140,-30,0}; //x,y,heading
+    public static double[] blueParkPosition = {30,80,0}; //x,y,heading
+    public static double[] blueGatePosition ={-125,42,85};  // open gate
+    public static double[] blueGateControlPoint = {-168, -30, 90};
 
     public static double[][] redPickUpPositionTop = {  //x,y,heading
-            {-108,70,-90},
-            {-168,65,-90},
-            {-228,65,-90}
+            {-108,55,-90}, //Red Top Intake (原Blue Top Intake的y变为正数且heading反转)
+            {-168,50,-90}, //Red Middle Intake (同上)
+            {-228,50,-90} //Red Bottom Intake (同上)
     };
 
     public static double[][] redShootingPosTop = { //x,y,heading
-            {-60,60,-50}, //Red Close
-            {-150,150,-45}, //Red Middle
-            {} //Red far
+            {-55,55,-48}, //Red close (原blueShootingPosTop的y取反且heading反转)
+            {-150,150,-45},  //Red middle (仅heading反转)
+            {}   //Red far (未定义)
     };
-    public static double[][] redShootingPosBottom = {
-            {7.5,-16,-18},
+
+    public static double[][] redShootingPosBottom = { //x,y,heading
+            {-7.5,-16,-18},   //Red far (原blueShootingPosBottom的x和y取反)
     };
-    public static double[] redParkPositionTop = {-140, 30, 0}; // red park pos
-    public static double[] redParkPosition = {30,-80,0}; //x,y,heading
-    public static double[] redGatePosition = {-137, -34,-90};
-    public static double[] redGateControlPoint = {-168, 30, -90};//
+
+    public static double[] redParkPositionTop = {-140,30,0}; //x,y,heading (仅y变正)
+    public static double[] redParkPosition = {-30,-80,0}; //x,y,heading (x变负)
+    public static double[] redGatePosition ={-130,-42,-85};  // open gate (y变负)
+    public static double[] redGateControlPoint = {-168, 30, -90}; // y变正
 
 
     // 新增：自适应阻尼相关常量集中管理
@@ -149,9 +119,9 @@ public class Constants {
     // ========= PID 可配置实例 =========
     public static class PID {
         // 平移 PID 参数（X/Y）
-        public static final double TRANS_KP = 1.5;
+        public static final double TRANS_KP = 1.0;
         public static final double TRANS_KI = 0.00;
-        public static final double TRANS_KD = 0.07;
+        public static final double TRANS_KD = 0.1;
         public static final double TRANS_MAX_OUT = 1.0;
         public static final double TRANS_MIN_CMD = 0.00;
         public static final double TRANS_DEADZONE_CM = 0.5;

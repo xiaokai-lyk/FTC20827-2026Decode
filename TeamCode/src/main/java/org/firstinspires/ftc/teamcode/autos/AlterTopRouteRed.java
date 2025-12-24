@@ -1,4 +1,3 @@
-// Test.java
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
@@ -17,12 +16,8 @@ import org.firstinspires.ftc.teamcode.utils.AdaptivePoseController;
 import org.firstinspires.ftc.teamcode.utils.OdometerData;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-/**
- * 改进版自动驾驶测试程序
- * 使用状态机模式提高可扩展性和可维护性
- */
-@Autonomous(name = "TopRouteRed", group = "autos")
-public class TopRouteRed extends XKCommandOpmode {
+@Autonomous(name = "AlterTopRouteRed", group = "autos")
+public class AlterTopRouteRed extends XKCommandOpmode {
     // 硬件子系统
 
     private Hardwares hardwares;
@@ -45,22 +40,6 @@ public class TopRouteRed extends XKCommandOpmode {
     private enum AutoStep {
         MOVE_TO_FIRST_POSITION,           // 移动到初始射击位置
         FIRST_SHOOT_BALLS,                // 初始射球阶段
-        MOVE_TO_INTAKE_POSITION1,         // 移动至第一组取球点
-        INTAKE_BALLS1,                    // 取第一组球
-        MOVE_TO_GATE,
-        OPEN_GATE,
-        MOVE_TO_SHOOTING_POSITION1,       // 回到射击位1
-        SHOOT_BALLS1,                     // 发射第一组球
-        MOVE_TO_INTAKE_POSITION2,         // 移动至第二组取球点
-        INTAKE_BALLS2,                    // 取第二组球
-        GO_THROUGH_GATE,                  // 绕过门（或打开？）
-        MOVE_TO_SHOOTING_POSITION2,       // 回到射击位2
-        SHOOT_BALLS2,                     // 发射第二组球
-        MOVE_TO_INTAKE_POSITION3,         // 移动至第三组取球点
-        INTAKE_BALLS3,                    // 取第三组球
-        MOVE_TO_SHOOTING_POSITION3,       // 回到射击位3
-        SHOOT_BALLS3,                     // 发射第三组球
-        MOVE_AWAY_FROM_LINE,              //离线
         STOP_SYSTEMS,                     // 停止所有系统
         COMPLETE                          // 完成整个流程
     }
@@ -101,75 +80,11 @@ public class TopRouteRed extends XKCommandOpmode {
     private void executeCurrentStep() {
         switch (currentStep) {
             case MOVE_TO_FIRST_POSITION:
-                moveToShootingPos(2.5);
+                moveToShootingPos();
                 break;
 
             case FIRST_SHOOT_BALLS:
                 shootBalls();
-                break;
-
-            case MOVE_TO_INTAKE_POSITION1:
-                moveToIntakePos(0);
-                break;
-
-            case INTAKE_BALLS1:
-                IntakeBalls(0);
-                break;
-
-            case MOVE_TO_GATE:
-                moveToGate();
-                break;
-
-            case OPEN_GATE:
-                openGate();
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION1:
-                moveToShootingPos(2.5);
-                break;
-
-            case SHOOT_BALLS1:
-                shootBalls();
-                break;
-
-            case MOVE_TO_INTAKE_POSITION2:
-                moveToIntakePos(1);
-                break;
-
-            case INTAKE_BALLS2:
-                IntakeBalls(1);
-                break;
-
-            case GO_THROUGH_GATE:
-                GoThoughGate();
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION2:
-                moveToShootingPos(3);
-                break;
-
-            case SHOOT_BALLS2:
-                shootBalls();
-                break;
-
-            case MOVE_TO_INTAKE_POSITION3:
-                moveToIntakePos(2);
-                break;
-
-            case INTAKE_BALLS3:
-                IntakeBalls(2);
-                break;
-
-            case MOVE_TO_SHOOTING_POSITION3:
-                moveToShootingPos(4.5);
-                break;
-
-            case SHOOT_BALLS3:
-                shootBalls();
-                break;
-
-            case MOVE_AWAY_FROM_LINE:
-                moveFromLine();
                 break;
 
             case STOP_SYSTEMS:
@@ -185,11 +100,11 @@ public class TopRouteRed extends XKCommandOpmode {
     /**
      * 控制机器人移动到指定编号的射击位置，并设置射击准备动作
      */
-    private void moveToShootingPos(double expTime) {
+    private void moveToShootingPos() {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
-        intake.startIntake().schedule();
+        intake.startIntake(1).schedule();
 
         adaptiveController.positionDeadbandCm = 2;
         adaptiveController.headingDeadbandRad = Math.toRadians(1);
@@ -198,15 +113,15 @@ public class TopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redShootingPosTop[0][0],  // X坐标
-            Constants.redShootingPosTop[0][1],     // Y坐标
-            Constants.redShootingPosTop[0][2],     // 角度
+            0,  // X坐标
+            77,     // Y坐标
+            -90,     // 角度
             odo,
             1,
             true
         );
 
-        if ((out.atPosition && out.atHeading && shooter.shooterReady(Constants.shooter40cm)) || getElapsedSeconds() > expTime){
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 4){
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
@@ -271,7 +186,7 @@ public class TopRouteRed extends XKCommandOpmode {
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake().schedule();
+        intake.startIntake(2).schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
@@ -323,7 +238,7 @@ public class TopRouteRed extends XKCommandOpmode {
             0.9,
             false
         );
-        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.3) {
+        if ((out.atPosition && out.atHeading) || getElapsedSeconds() > 1.5) {
             transitionToNextStep();
             adaptiveController.resetDeadbands();
         }
@@ -341,7 +256,7 @@ public class TopRouteRed extends XKCommandOpmode {
             0.9,
             false
         );
-        if (getElapsedSeconds() > 1.3) {
+        if (getElapsedSeconds() > 1.5) {
             adaptiveController.resetDeadbands();
             transitionToNextStep();
         }

@@ -134,5 +134,17 @@ public class RobotCenTeleOp extends XKCommandOpmode {
         ).whenPressed(
             shooter.setShooter(Constants.shooter40cm)
         );
+
+        new ButtonEx(
+                ()->gamepad1.getButton(GamepadKeys.Button.A)
+            ).whenPressed(
+                shooter.setShooter(Constants.shooter125cm)
+        );
+
+        new ButtonEx(
+                ()->gamepad1.getButton(GamepadKeys.Button.B)
+        ).whenPressed(
+                shooter.setShooter(Constants.shooter250cm)
+        );
     }
 }
