@@ -104,7 +104,7 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         // 设置射击器和进球系统
         shooter.blockBallPass().schedule();
         shooter.setShooter(Constants.shooter40cm).schedule();
-        intake.startIntake(1).schedule();
+        intake.startIntake().schedule();
 
         adaptiveController.positionDeadbandCm = 2;
         adaptiveController.headingDeadbandRad = Math.toRadians(1);
@@ -135,9 +135,9 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redShootingPosTop[0][0],  // X坐标
-            Constants.redShootingPosTop[0][1],     // Y坐标
-            Constants.redShootingPosTop[0][2],     // 角度
+            Constants.redShootingPosTop[0].x,  // X坐标
+            Constants.redShootingPosTop[0].y,     // Y坐标
+            Constants.redShootingPosTop[0].heading,     // 角度
             odo,
             0,
             false
@@ -166,9 +166,9 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redPickUpPositionTop[posNum][0],  // X坐标
-            Constants.redPickUpPositionTop[posNum][1],   // Y坐标
-            Constants.redPickUpPositionTop[posNum][2],     // 角度
+            Constants.redPickUpPositionTop[posNum].x,  // X坐标
+            Constants.redPickUpPositionTop[posNum].y,   // Y坐标
+            Constants.redPickUpPositionTop[posNum].heading,     // 角度
             odo,
             1,
             false
@@ -186,15 +186,15 @@ public class AlterTopRouteRed extends XKCommandOpmode {
      * @param posNum 取球位置索引（对应Constants.pickUpPosition数组）
      */
     private void IntakeBalls(int posNum) {
-        intake.startIntake(2).schedule();
+        intake.startIntake().schedule();
         shooter.blockBallPass().schedule();
 
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redPickUpPositionTop[posNum][0],  // X坐标
-            Constants.redPickUpPositionTop[posNum][1]-110,   // Y坐标
-            Constants.redPickUpPositionTop[posNum][2],     // 角度
+            Constants.redPickUpPositionTop[posNum].x,  // X坐标
+            Constants.redPickUpPositionTop[posNum].y-110,   // Y坐标
+            Constants.redPickUpPositionTop[posNum].heading,     // 角度
             odo,
             0.9,
             true
@@ -211,9 +211,9 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redGateControlPoint[0],
-            Constants.redGateControlPoint[1],
-            Constants.redGateControlPoint[2],
+            Constants.redGateControlPoint.x,
+            Constants.redGateControlPoint.y,
+            Constants.redGateControlPoint.heading,
             odo,
             0.85,
             true
@@ -230,10 +230,10 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redGatePosition[0], // x
+            Constants.redGatePosition.x, // x
 //            10, // special treatment
-            Constants.redGatePosition[1]+50,
-            Constants.redGatePosition[2], // heading
+            Constants.redGatePosition.y+50,
+            Constants.redGatePosition.heading, // heading
             odo,
             0.9,
             false
@@ -249,9 +249,9 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redGatePosition[0], // x
-            Constants.redGatePosition[1], //y
-            Constants.redGatePosition[2], // heading
+            Constants.redGatePosition.x, // x
+            Constants.redGatePosition.y, //y
+            Constants.redGatePosition.heading, // heading
             odo,
             0.9,
             false
@@ -270,9 +270,9 @@ public class AlterTopRouteRed extends XKCommandOpmode {
         AutoDrive.Output out = autoDrive.driveToAdaptive(
             drive,
             adaptiveController,
-            Constants.redParkPositionTop[0],  // X坐标
-            Constants.redParkPositionTop[1],   // Y坐标
-            Constants.redParkPositionTop[2],     // 角度
+            Constants.redParkPositionTop.x,  // X坐标
+            Constants.redParkPositionTop.y,   // Y坐标
+            Constants.redParkPositionTop.heading,     // 角度
             odo,
             1,
             true

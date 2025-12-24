@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -14,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public class Hardwares {
     public Sensors sensors;
     public Motors motors;
+    public Servos servos;
 
     public static <T> T getHardware(@NonNull HardwareMap hardwareMap, String name, Class<T> clazz){
         return hardwareMap.get(clazz, name);
@@ -21,18 +24,24 @@ public class Hardwares {
 
     public static class Sensors{
         public GoBildaPinpointDriver odo;
+        public Limelight3A limelight;
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "odo", GoBildaPinpointDriver.class);
-            odo.setOffsets(-142.5,16, DistanceUnit.MM);
+            odo.setOffsets(100,-48, DistanceUnit.MM);
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+            limelight = getHardware(hardwareMap, "limelight", Limelight3A.class);
+            limelight.pipelineSwitch(7);
+            limelight.setPollRateHz(250);
+            limelight.start();
         }
     }
 
     public static class Motors{
-        public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight, preShooter, shooterFront, shooterBack, intake;
+        public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight, preShooter, shooterFront, shooterBack, intake, pan;
         public Motors(@NonNull HardwareMap hardwareMap){
             mFrontLeft = getHardware(hardwareMap, "frontLeft", DcMotorEx.class);
             mFrontRight = getHardware(hardwareMap, "frontRight", DcMotorEx.class);
@@ -62,11 +71,25 @@ public class Hardwares {
             intake.setDirection(DcMotorEx.Direction.REVERSE);
             shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             shooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            pan = getHardware(hardwareMap, "pan", DcMotorEx.class);
+            pan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            pan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        }
+    }
+
+    public static class Servos{
+        public Servo led;
+        public Servos(@NonNull HardwareMap hardwareMap){
+            led = getHardware(hardwareMap, "led", Servo.class);
         }
     }
 
     public Hardwares(HardwareMap hardwareMap){
         sensors = new Sensors(hardwareMap);
         motors = new Motors(hardwareMap);
+        servos = new Servos(hardwareMap);
     }
 }

@@ -141,7 +141,7 @@ public class FromBottomToTopRed extends XKCommandOpmode {
     private void shoot() {
         // Spin up shooter and feed a ball
         shooter.allowBallPassClose().schedule();
-        intake.startIntake(1).schedule();
+        intake.startIntake().schedule();
 
         // Hold heading and position while shooting
         autoDrive.driveToAdaptive(
