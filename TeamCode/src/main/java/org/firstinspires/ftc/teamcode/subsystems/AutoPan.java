@@ -10,8 +10,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Hardwares;
 
-import java.util.function.Supplier;
-
+/* 优化了一些逻辑，加入了更多限制。如超过180度会就卡的限制以及limelight odo的权限限制，
+即为limelight比odo权限更高，优先使用limelight但是当limelight不行了会继续使用odo。
+同时考虑到电机转一圈并不等于云台转一圈，加入了tickperdegree的常量。
+*/
 public class AutoPan {
     public final Limelight3A limelight;
     private final DcMotorEx panMotor;
@@ -21,11 +23,11 @@ public class AutoPan {
     // ==============================
 
     // 1. 电机自身：每转多少 ticks（实测或查型号）
-    public static final double MOTOR_TICKS_PER_REV = 384.0; // ← 替换为你测得的电机 ticks/rev
+    public static final double MOTOR_TICKS_PER_REV = 145.6; // ← 替换为你测得的电机 ticks/rev
 
     // 2. 传动比：电机转多少圈，云台才转 1 圈
     //    例如：电机:云台 = 3:1 ⇒ motorRevsPerPanRev = 3.0
-    public static final double MOTOR_REVS_PER_PAN_REV = 3.0; // ← 替换为你的齿轮比！
+    public static final double MOTOR_REVS_PER_PAN_REV = (double) 105/25; // ← 替换为你的齿轮比！
 
     // 3. 推导出：云台每度对应多少电机 ticks
     public static final double PAN_TICKS_PER_DEGREE =
