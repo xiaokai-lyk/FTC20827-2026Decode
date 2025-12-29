@@ -23,16 +23,12 @@ public class TeleopTest extends LinearOpMode {
     private AutoPan autoPan;
     private Hardwares hardwares;
     protected AutoPan.AutoPanCommand autoPanCommand;
-    public Hardwares.Sensors sensors;
-    public Hardwares.Motors motors;
     @Override
     public void runOpMode() throws InterruptedException {
-        sensors=hardwares.sensors;
-        motors=hardwares.motors;
         DcMotorEx pan = hardwares.motors.pan;
 
         hardwares = new Hardwares(hardwareMap);
-        OdoData odo=new OdoData(sensors.odo);
+        OdoData odo=new OdoData(hardwares.sensors.odo);
 
         DcMotorEx frontLeftMotor = hardwareMap.get(DcMotorEx.class,"leftFront");
         DcMotorEx backLeftMotor = hardwareMap.get(DcMotorEx.class,"leftRear");
@@ -56,7 +52,7 @@ public class TeleopTest extends LinearOpMode {
         while (opModeIsActive()){
 
             if(gamepad1.dpad_up){
-                sensors.odo.setPosition(new Pose2D(DistanceUnit.CM,0,-360.68, AngleUnit.DEGREES,0));
+                hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM,0,-360.68, AngleUnit.DEGREES,0));
             }
 
             double y = -gamepad1.left_stick_y;
