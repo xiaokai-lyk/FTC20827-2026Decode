@@ -20,7 +20,6 @@ public class TeleopTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         hardwares = new Hardwares(hardwareMap);
-        OdoData odo = new OdoData(hardwares.sensors.odo);
 
         DcMotorEx pan = hardwares.motors.pan;
 
@@ -33,19 +32,25 @@ public class TeleopTest extends LinearOpMode {
         autoPan=new AutoPan(hardwares);
         autoPanCommand = new AutoPan.AutoPanCommand(
                 autoPan,
-                odo
+                hardwares.sensors.odo
         );
 
         CommandScheduler.getInstance().schedule(autoPanCommand);
 
         while (opModeIsActive()){
+
             CommandScheduler.getInstance().run();
-            if(gamepad1.dpad_up){
-                hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM,0,-360.68, AngleUnit.DEGREES,0));
+            hardwares.sensors.odo.update();
+            if(gamepad1.x){
+                hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM,-360.68,0, AngleUnit.DEGREES,0));
             }
+            telemetry.addData("x",hardwares.sensors.odo.getPosX(DistanceUnit.CM));
+            telemetry.addData("y",hardwares.sensors.odo.getPosY(DistanceUnit.CM));
+            telemetry.addData("headings",hardwares.sensors.odo.getHeading(AngleUnit.DEGREES));
+            telemetry.addData("headings+180",hardwares.sensors.odo.getHeading(AngleUnit.DEGREES)+180);
 
             double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x * 1.1;
+            double x = -gamepad1.left_stick_x * 1.1;
             double rx = gamepad1.right_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
@@ -62,6 +67,7 @@ public class TeleopTest extends LinearOpMode {
             backRightMotor.setPower(backRightPower * powerCoefficient);
 
             telemetry.addData("pan position",pan.getCurrentPosition());
+            telemetry.update();
         }
     }
 }

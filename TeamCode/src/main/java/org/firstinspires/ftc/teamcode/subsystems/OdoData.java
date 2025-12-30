@@ -26,24 +26,24 @@ public class OdoData {
     private final double yawRate;
     private final Pose2D robotPosition;
 
-    public OdoData(double headingRadians,
-                   double robotX,
-                   double robotY,
-                   double robotVx,
-                   double robotVy,
-                   double yawRate,
-                   Pose2D pos) {
-        this.headingRadians = headingRadians;
-        this.robotX = robotX;
-        this.robotY = robotY;
-        this.robotVx = robotVx;
-        this.robotVy = robotVy;
-        this.yawRate = yawRate;
-        this.robotPosition = pos;
-    }
+//    public OdoData(double headingRadians,
+//                   double robotX,
+//                   double robotY,
+//                   double robotVx,
+//                   double robotVy,
+//                   double yawRate,
+//                   Pose2D pos) {
+//        this.headingRadians = headingRadians;
+//        this.robotX = robotX;
+//        this.robotY = robotY;
+//        this.robotVx = robotVx;
+//        this.robotVy = robotVy;
+//        this.yawRate = yawRate;
+//        this.robotPosition = pos;
+//    }
 
     public OdoData(@NonNull GoBildaPinpointDriver odo){
-        this.headingRadians = odo.getHeading(AngleUnit.DEGREES);
+        this.headingRadians = odo.getHeading(AngleUnit.RADIANS);
         this.robotX = odo.getPosX(DistanceUnit.CM);
         this.robotY = odo.getPosY(DistanceUnit.CM);
         this.robotVx = odo.getVelX(DistanceUnit.METER);

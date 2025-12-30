@@ -28,7 +28,7 @@ public class Hardwares {
             odo = getHardware(hardwareMap, "pinpoint", GoBildaPinpointDriver.class);
             odo.setOffsets(0, -16.8, DistanceUnit.CM); // needs to be calibrated
             odo.recalibrateIMU();
-            odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
+//            odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
             limelight = getHardware(hardwareMap, "limelight", Limelight3A.class);

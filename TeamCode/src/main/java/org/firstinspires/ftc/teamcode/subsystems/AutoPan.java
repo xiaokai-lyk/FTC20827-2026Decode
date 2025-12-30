@@ -1,193 +1,145 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
-
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-/* 优化了一些逻辑，加入了更多限制。如超过180度会就卡的限制以及limelight odo的权限限制，
-即为limelight比odo权限更高，优先使用limelight但是当limelight不行了会继续使用odo。
-同时考虑到电机转一圈并不等于云台转一圈，加入了tickperdegree的常量。
-*/
+/**
+ * AutoPan: 基于 GoBILDA Pinpoint 的有限旋转自动云台（±180°）
+ *
+ * 特性：
+ * - 无视觉依赖，纯 Odo 驱动
+ * - 云台物理范围限制为 [-180°, +180°]（因理线限制）
+ * - 所有目标角度自动归一化并限制在此范围内
+ * - 球门坐标系：红方球门位于 (0, 0)
+ */
 public class AutoPan {
-    public final Limelight3A limelight;
     private final DcMotorEx panMotor;
 
     // ==============================
-    // 🔧 配置常量（请根据实测填写！）
+    // 🔧 硬件配置（根据你的实际结构修改）
     // ==============================
 
-    // 1. 电机自身：每转多少 ticks（实测或查型号）
-    public static final double MOTOR_TICKS_PER_REV = 145.6; // ← 替换为你测得的电机 ticks/rev
+    // GoBILDA 5203 系列 Yellow Jacket 5.2:1 电机（内部减速）
+    public static final double MOTOR_TICKS_PER_REV = 145.6; // 28 CPR × 5.2
 
-    // 2. 传动比：电机转多少圈，云台才转 1 圈
-    //    例如：电机:云台 = 3:1 ⇒ motorRevsPerPanRev = 3.0
-    public static final double MOTOR_REVS_PER_PAN_REV = (double) 105/25; // ← 替换为你的齿轮比！
+    // 外部齿轮比：电机输出轴齿数 / 云台轴齿数 = 105 / 25
+    public static final double MOTOR_REVS_PER_PAN_REV = 105.0 / 25.0;
 
-    // 3. 推导出：云台每度对应多少电机 ticks
+    // 云台每度对应的电机 ticks
     public static final double PAN_TICKS_PER_DEGREE =
             (MOTOR_TICKS_PER_REV * MOTOR_REVS_PER_PAN_REV) / 360.0;
 
-    // 4. 云台物理极限（以云台实际角度为准）
-    public static final double PAN_MIN_ANGLE_DEG = -180.0;
-    public static final double PAN_MAX_ANGLE_DEG = 180.0;
-
-    // 5. 其他参数
+    // 电机最大功率
     public static final double PAN_MAX_POWER = 0.85;
-    public static final double PAN_LOCK_TOLERANCE_DEG = 5.0;
-    public static final double PAN_TX_KP = 0.5;
 
-    // === 绑定状态 ===
-    private boolean bound = false;
+    // 最小有效跟踪距离（厘米），避免在原点附近抖动
+    public static final double MIN_DISTANCE_CM = 5.0;
+
+    // （可选）如果你的云台实际不能完全到 ±180°，可启用软限位
+    // 例如：限制到 ±170° 防止拉线过紧
+    public static final boolean USE_SOFT_LIMIT = true;
+    public static final double MAX_ANGLE_DEG = 170.0; // 仅当 USE_SOFT_LIMIT = true 时生效
+
+    // ==============================
+    // 构造函数
+    // ==============================
 
     public AutoPan(@NonNull Hardwares hardwares) {
-        this.limelight = hardwares.sensors.limelight;
         this.panMotor = hardwares.motors.pan;
 
-        // 初始化电机模式
+        // 初始化编码器
         panMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         panMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         panMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // ==============================
-    // Subsystem: 绑定状态管理
+    // 核心控制方法
     // ==============================
 
-    public boolean isBound() {
-        return bound;
-    }
-
-    public boolean shouldBind(double targetAngleDeg) {
-        return !isWithinLimits(targetAngleDeg);
-    }
-
-    public boolean shouldUnbind(double targetAngleDeg) {
-        return bound && isWithinLimits(targetAngleDeg);
-    }
-
-    public void bind(double targetAngleDeg) {
-        double norm = normalizeAngle(targetAngleDeg);
-        if (norm > 0) {
-            setTargetAngle(PAN_MAX_ANGLE_DEG);
-        } else {
-            setTargetAngle(PAN_MIN_ANGLE_DEG);
-        }
-        bound = true;
-    }
-
-    public void unbind(double targetAngleDeg) {
-        setTargetAngle(targetAngleDeg);
-        bound = false;
-    }
-
-    // ==============================
-    // 电机控制接口（核心：使用 PAN_TICKS_PER_DEGREE 换算）
-    // ==============================
-
+    /**
+     * 设置云台目标角度（单位：度）
+     * 自动归一化到 [-180, 180)，并可选软限幅。
+     */
     public void setTargetAngle(double panAngleDegrees) {
-        double norm = normalizeAngle(panAngleDegrees);
-        norm = Math.max(PAN_MIN_ANGLE_DEG, Math.min(PAN_MAX_ANGLE_DEG, norm));
-        int targetTicks = (int) (norm * PAN_TICKS_PER_DEGREE);
+        // 归一化到 [-180, 180)
+        double normalized = normalizeAngle(panAngleDegrees);
+
+        normalized = Math.max(-MAX_ANGLE_DEG, Math.min(MAX_ANGLE_DEG, normalized));
+
+        int targetTicks = (int) Math.round(normalized * PAN_TICKS_PER_DEGREE);
         panMotor.setTargetPosition(targetTicks);
         panMotor.setPower(PAN_MAX_POWER);
     }
 
-    public double getCurrentAngle() {
-        return panMotor.getCurrentPosition() / PAN_TICKS_PER_DEGREE;
-    }
-
+    /**
+     * 停止云台（刹车）
+     */
     public void hold() {
-        panMotor.setPower(0);
+        panMotor.setPower(0.0);
     }
 
     // ==============================
     // 工具方法
     // ==============================
 
-    private double normalizeAngle(double angleDeg) {
-        while (angleDeg >= 180) angleDeg -= 360;
-        while (angleDeg < -180) angleDeg += 360;
+    /**
+     * 将任意角度归一化到 [-180, 180)
+     */
+    public static double normalizeAngle(double angleDeg) {
+        while (angleDeg >= 180.0) angleDeg -= 360.0;
+        while (angleDeg < -180.0) angleDeg += 360.0;
         return angleDeg;
     }
 
-    public boolean isWithinLimits(double angleDeg) {
-        double norm = normalizeAngle(angleDeg);
-        return norm >= PAN_MIN_ANGLE_DEG && norm <= PAN_MAX_ANGLE_DEG;
-    }
-
     // ==============================
-    // Command
+    // Command: 实时跟踪红方球门 (0, 0)
     // ==============================
 
     public static class AutoPanCommand extends CommandBase {
-        private final OdoData odometerDataSupplier;
+        private final GoBildaPinpointDriver pinpoint;
         private final AutoPan autoPan;
 
-        public AutoPanCommand(
-                AutoPan autoPan,
-                OdoData odometerDataSupplier) {
+        /**
+         * @param autoPan   云台子系统
+         * @param pinpoint  GoBILDA Pinpoint 驱动器（必须已初始化）
+         */
+        public AutoPanCommand(AutoPan autoPan, GoBildaPinpointDriver pinpoint) {
             this.autoPan = autoPan;
-            this.odometerDataSupplier = odometerDataSupplier;
+            this.pinpoint = pinpoint;
         }
 
         @Override
-        public void initialize() {}
-
-        @Override
         public void execute() {
-            OdoData odo = odometerDataSupplier;
-            if (odo == null) {
+            // 实时获取最新位置和航向
+            double x = pinpoint.getPosX(DistanceUnit.CM);      // 机器人 X 坐标（cm）
+            double y = pinpoint.getPosY(DistanceUnit.CM);      // 机器人 Y 坐标（cm）
+            double headingDeg = pinpoint.getHeading(AngleUnit.DEGREES);
+
+            // 计算到球门 (0,0) 的向量
+            double dx = -x;
+            double dy = -y;
+            double distance = Math.hypot(dx, dy);
+
+            if (distance < MIN_DISTANCE_CM) {
                 autoPan.hold();
                 return;
             }
 
-            // 计算 Odo 预瞄角度（球门 = (0,0)）
-            double robotX = odo.getRobotVx();
-            double robotY = odo.getRobotVy();
-            double dx = -robotX;
-            double dy = -robotY;
-            double angleToGoalRad = Math.atan2(dy, dx);
-            double robotHeadingRad = odo.getHeadingRadians();
-            double odoTargetAngleDeg = Math.toDegrees(angleToGoalRad - robotHeadingRad);
+            // 计算指向球门的世界坐标系角度
+            double angleToGoalDeg = Math.toDegrees(Math.atan2(dy, dx));
 
-            // 获取视觉
-            LLResult result = autoPan.limelight.getLatestResult();
-            boolean hasValidVision = (result != null && result.isValid());
+            // 转换为云台相对于机器人机身的目标角度（度）
+            double targetAngleDeg =(angleToGoalDeg - headingDeg);
 
-            double currentTargetAngleDeg;
-            if (hasValidVision) {
-                double tx = result.getTx();
-                double currentAngle = autoPan.getCurrentAngle();
-                currentTargetAngleDeg = currentAngle - tx * PAN_TX_KP;
-            } else {
-                currentTargetAngleDeg = odoTargetAngleDeg;
-            }
-
-            // 状态决策
-            if (!autoPan.isBound()) {
-                if (autoPan.shouldBind(currentTargetAngleDeg)) {
-                    autoPan.bind(currentTargetAngleDeg);
-                } else {
-                    autoPan.setTargetAngle(currentTargetAngleDeg);
-                }
-            } else {
-                if (autoPan.shouldUnbind(currentTargetAngleDeg)) {
-                    autoPan.unbind(currentTargetAngleDeg);
-                } else {
-                    double current = autoPan.getCurrentAngle();
-                    if (Math.abs(current - PAN_MAX_ANGLE_DEG) < PAN_LOCK_TOLERANCE_DEG) {
-                        autoPan.setTargetAngle(PAN_MAX_ANGLE_DEG);
-                    } else {
-                        autoPan.setTargetAngle(PAN_MIN_ANGLE_DEG);
-                    }
-                }
-            }
+            // 自动归一化并限制在 [-180, 180]
+            autoPan.setTargetAngle(targetAngleDeg);
         }
 
         @Override
@@ -197,7 +149,7 @@ public class AutoPan {
 
         @Override
         public boolean isFinished() {
-            return false;
+            return false; // 持续运行
         }
     }
 }
