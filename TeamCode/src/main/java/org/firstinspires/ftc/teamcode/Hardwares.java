@@ -27,10 +27,11 @@ public class Hardwares {
         public Limelight3A limelight;
 
         public Sensors(@NonNull HardwareMap hardwareMap){
-            odo = getHardware(hardwareMap, "odo", GoBildaPinpointDriver.class);
-            odo.setOffsets(100,-48, DistanceUnit.MM); // needs to be calibrated
+            odo = getHardware(hardwareMap, "pinpoint", GoBildaPinpointDriver.class);
+            odo.setOffsets(0, -16.8, DistanceUnit.CM); // needs to be calibrated
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
+            odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
             limelight = getHardware(hardwareMap, "limelight", Limelight3A.class);
             limelight.pipelineSwitch(7);
@@ -40,36 +41,36 @@ public class Hardwares {
     }
 
     public static class Motors{
-        public DcMotorEx mFrontLeft, mFrontRight, mBackLeft, mBackRight, preShooter, shooterFront, shooterBack, intake, pan;
+        public DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear, preShooter, shooterFront, shooterBack, intake, pan;
         public Motors(@NonNull HardwareMap hardwareMap){
-            mFrontLeft = getHardware(hardwareMap, "frontLeft", DcMotorEx.class);
-            mFrontRight = getHardware(hardwareMap, "frontRight", DcMotorEx.class);
-            mBackLeft = getHardware(hardwareMap, "backLeft", DcMotorEx.class);
-            mBackRight = getHardware(hardwareMap, "backRight", DcMotorEx.class);
-            mFrontLeft.setDirection(DcMotorEx.Direction.REVERSE);
-            mFrontRight.setDirection(DcMotorEx.Direction.FORWARD);
-            mBackLeft.setDirection(DcMotorEx.Direction.REVERSE);
-            mBackRight.setDirection(DcMotorEx.Direction.FORWARD);
-            mFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            mFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            mBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            mBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            mLeftFront = getHardware(hardwareMap, "leftFront", DcMotorEx.class);
+            mRightFront = getHardware(hardwareMap, "rightFront", DcMotorEx.class);
+            mLeftRear = getHardware(hardwareMap, "leftRear", DcMotorEx.class);
+            mRightRear = getHardware(hardwareMap, "rightRear", DcMotorEx.class);
+            mLeftFront.setDirection(DcMotorEx.Direction.REVERSE);
+            mRightFront.setDirection(DcMotorEx.Direction.FORWARD);
+            mLeftRear.setDirection(DcMotorEx.Direction.REVERSE);
+            mRightRear.setDirection(DcMotorEx.Direction.FORWARD);
+            mLeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            mRightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            mLeftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            mRightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            preShooter = getHardware(hardwareMap, "preShooter", DcMotorEx.class);
-            shooterFront = getHardware(hardwareMap, "shooterFront", DcMotorEx.class);
-            shooterBack = getHardware(hardwareMap, "shooterBack", DcMotorEx.class);
+//            preShooter = getHardware(hardwareMap, "preShooter", DcMotorEx.class);
+//            shooterFront = getHardware(hardwareMap, "shooterFront", DcMotorEx.class);
+//            shooterBack = getHardware(hardwareMap, "shooterBack", DcMotorEx.class);
             intake = getHardware(hardwareMap, "intake", DcMotorEx.class);
-            preShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//            preShooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//            shooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//            shooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            shooterFront.setDirection(DcMotorEx.Direction.REVERSE);
-            shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
-            preShooter.setDirection(DcMotorEx.Direction.REVERSE);
+//            shooterFront.setDirection(DcMotorEx.Direction.REVERSE);
+//            shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
+//            preShooter.setDirection(DcMotorEx.Direction.REVERSE);
             intake.setDirection(DcMotorEx.Direction.REVERSE);
-            shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            shooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            shooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             pan = getHardware(hardwareMap, "pan", DcMotorEx.class);
             pan.setTargetPosition(0);
