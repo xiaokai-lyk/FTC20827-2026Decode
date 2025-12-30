@@ -1,15 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -25,20 +19,15 @@ public class TeleopTest extends LinearOpMode {
     protected AutoPan.AutoPanCommand autoPanCommand;
     @Override
     public void runOpMode() throws InterruptedException {
+        hardwares = new Hardwares(hardwareMap);
+        OdoData odo = new OdoData(hardwares.sensors.odo);
+
         DcMotorEx pan = hardwares.motors.pan;
 
-        hardwares = new Hardwares(hardwareMap);
-        OdoData odo=new OdoData(hardwares.sensors.odo);
-
-        DcMotorEx frontLeftMotor = hardwareMap.get(DcMotorEx.class,"leftFront");
-        DcMotorEx backLeftMotor = hardwareMap.get(DcMotorEx.class,"leftRear");
-        DcMotorEx frontRightMotor = hardwareMap.get(DcMotorEx.class,"rightFront");
-        DcMotorEx backRightMotor = hardwareMap.get(DcMotorEx.class,"rightRear");
-
-
-        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-
+        DcMotorEx frontLeftMotor = hardwares.motors.mLeftFront;
+        DcMotorEx backLeftMotor = hardwares.motors.mLeftRear;
+        DcMotorEx frontRightMotor = hardwares.motors.mRightFront;
+        DcMotorEx backRightMotor = hardwares.motors.mRightRear;
 
         waitForStart();
         autoPan=new AutoPan(hardwares);
@@ -50,7 +39,7 @@ public class TeleopTest extends LinearOpMode {
         CommandScheduler.getInstance().schedule(autoPanCommand);
 
         while (opModeIsActive()){
-
+            CommandScheduler.getInstance().run();
             if(gamepad1.dpad_up){
                 hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM,0,-360.68, AngleUnit.DEGREES,0));
             }
