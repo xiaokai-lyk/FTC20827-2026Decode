@@ -3,70 +3,90 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
 import org.firstinspires.ftc.teamcode.Hardwares;
-import org.firstinspires.ftc.teamcode.legacy.Constants;
-import org.jetbrains.annotations.Contract;
 
 public class Shooter {
-    public static ShooterConfig shooter40cm = new ShooterConfig(1100, 500);
-    public static ShooterConfig shooter125cm = new ShooterConfig(500, 1200);
-    public static ShooterConfig shooter250cm = new ShooterConfig(860, 1660);
-    public static ShooterConfig shooterFar = new ShooterConfig(330, 2100);
-    private final DcMotorEx shooterFront, shooterBack;
+    public static ShooterConfig shooter40cm = new ShooterConfig(1100, 50);
+    public static ShooterConfig shooter125cm = new ShooterConfig(500, 50);
+    public static ShooterConfig shooter250cm = new ShooterConfig(860, 50);
+    public static ShooterConfig shooterFar = new ShooterConfig(330, 50);
+    private final DcMotorEx shooterLeft, shooterRight;
+    private final ServoEx pitch;
 
     public static class ShooterConfig {
-        public int frontVelocity;
-        public int backVelocity;
-        public ShooterConfig(int frontVelocity, int backVelocity) {
-            this.frontVelocity = frontVelocity;
-            this.backVelocity = backVelocity;
+        public double shooterVelocity, pitchAngle;
+        public ShooterConfig(double shooterVelocity, double pitchAngle) {
+            this.shooterVelocity = shooterVelocity;
+            this.pitchAngle = pitchAngle;
         }
     }
 
     public Shooter(@NonNull Hardwares hardwares) {
-        this.shooterFront = hardwares.motors.shooterFront;
-        this.shooterBack = hardwares.motors.shooterBack;
+        this.shooterLeft = hardwares.motors.shooterLeft;
+        this.shooterRight = hardwares.motors.shooterRight;
+        this.pitch = hardwares.servos.pitch;
     }
 
-    @NonNull
-    @Contract("_ -> new")
-    public InstantCommand setShooter(ShooterConfig config) {
-        return new InstantCommand(() -> {
-            shooterFront.setVelocity(config.frontVelocity);
-            shooterBack.setVelocity(config.backVelocity);
-        });
-    }
-
-    public InstantCommand stopShooter() {
+    public InstantCommand setShooterAndPitch(ShooterConfig config) {
         return new InstantCommand(
-                ()->{
-                    shooterFront.setPower(0);
-                    shooterBack.setPower(0);
+                () -> {
+                    shooterLeft.setVelocity(config.shooterVelocity);
+                    shooterRight.setVelocity(config.shooterVelocity);
+                    pitch.turnToAngle(config.pitchAngle);
                 }
         );
     }
 
+    public InstantCommand setShooter(double velocity) {
+        return new InstantCommand(
+                () -> {
+                    shooterLeft.setVelocity(velocity);
+                    shooterRight.setVelocity(velocity);
+                }
+        );
+    }
+
+    public InstantCommand stopShooter() {
+        return new InstantCommand(
+                () -> {
+                    shooterLeft.setPower(0);
+                    shooterRight.setPower(0);
+                }
+        );
+    }
+
+    public InstantCommand setPitch(double angle) {
+        return new InstantCommand(() -> pitch.turnToAngle(angle));
+    }
+
     public InstantCommand setShooterPIDF(double p, double i, double d, double f) {
         return new InstantCommand(()-> {
-            shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(p, i, d, f));
-            shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(p, i, d, f));
+            shooterLeft.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(p, i, d, f));
+            shooterRight.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(p, i, d, f));
         });
     }
 
     public InstantCommand resetShooterPIDF() {
         return new InstantCommand(()-> {
-            shooterFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            shooterBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            shooterLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            shooterRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         });
     }
 
-    public boolean shooterReady(Constants.ShooterConfig targetVelocity){
-        if (Math.abs(shooterFront.getVelocity()-targetVelocity.frontVelocity) > 100 && Math.abs(shooterBack.getVelocity()-targetVelocity.backVelocity) > 100) {
-            return false;
-        }
-        return true;
+    public double getShooterLeftVelocity() {
+        return shooterLeft.getVelocity();
+    }
+
+    public double getShooterRightVelocity() {
+        return shooterRight.getVelocity();
+    }
+
+    public double getPitchAngle() {
+        return pitch.getAngle();
     }
 }

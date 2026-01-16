@@ -25,4 +25,8 @@ public class Gate {
                 () -> gate.turnToAngle(90)
         );
     }
+
+    public double getAngleDeg(){
+        return gate.getAngle();
+    }
 }

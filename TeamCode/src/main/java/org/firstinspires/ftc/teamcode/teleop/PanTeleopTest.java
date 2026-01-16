@@ -9,19 +9,22 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardwares;
-import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
+import org.firstinspires.ftc.teamcode.subsystems.Pan;
 import org.firstinspires.ftc.teamcode.subsystems.OdoData;
 
-@TeleOp(name="Chassis")
-public class TeleopTest extends LinearOpMode {
-    private AutoPan autoPan;
+@TeleOp(name="PanTeleopTest")
+public class PanTeleopTest extends LinearOpMode {
+    private Pan pan;
+    private OdoData odoData;
     private Hardwares hardwares;
-    protected AutoPan.AutoPanCommand autoPanCommand;
+    protected Pan.AutoPanCommand autoPanCommand;
     @Override
     public void runOpMode() throws InterruptedException {
         hardwares = new Hardwares(hardwareMap);
 
         DcMotorEx pan = hardwares.motors.pan;
+
+        odoData = new OdoData(hardwares.sensors.odo);
 
         DcMotorEx frontLeftMotor = hardwares.motors.mLeftFront;
         DcMotorEx backLeftMotor = hardwares.motors.mLeftRear;
@@ -29,10 +32,10 @@ public class TeleopTest extends LinearOpMode {
         DcMotorEx backRightMotor = hardwares.motors.mRightRear;
 
         waitForStart();
-        autoPan=new AutoPan(hardwares);
-        autoPanCommand = new AutoPan.AutoPanCommand(
-                autoPan,
-                hardwares.sensors.odo
+        this.pan =new Pan(hardwares);
+        autoPanCommand = new Pan.AutoPanCommand(
+                this.pan,
+                () -> odoData
         );
 
         CommandScheduler.getInstance().schedule(autoPanCommand);

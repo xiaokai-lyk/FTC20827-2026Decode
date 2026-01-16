@@ -28,10 +28,10 @@ public class Hardwares {
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "pinpoint", GoBildaPinpointDriver.class);
-            odo.setOffsets(0, -16.8, DistanceUnit.CM); // needs to be calibrated
+            odo.setOffsets(-96, -72, DistanceUnit.MM); // needs to be calibrated
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
-            odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
             limelight = getHardware(hardwareMap, "limelight", Limelight3A.class);
             limelight.pipelineSwitch(7);
@@ -41,46 +41,48 @@ public class Hardwares {
     }
 
     public static class Motors{
-        public DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear, preShooter, shooterFront, shooterBack, intake, pan;
+        public DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear, preShooter, shooterLeft, shooterRight, intake, pan;
         public Motors(@NonNull HardwareMap hardwareMap){
             mLeftFront = getHardware(hardwareMap, "leftFront", DcMotorEx.class);
             mRightFront = getHardware(hardwareMap, "rightFront", DcMotorEx.class);
             mLeftRear = getHardware(hardwareMap, "leftRear", DcMotorEx.class);
             mRightRear = getHardware(hardwareMap, "rightRear", DcMotorEx.class);
+
             mLeftFront.setDirection(DcMotorEx.Direction.REVERSE);
             mRightFront.setDirection(DcMotorEx.Direction.REVERSE);
             mLeftRear.setDirection(DcMotorEx.Direction.REVERSE);
             mRightRear.setDirection(DcMotorEx.Direction.REVERSE);
+
             mLeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             mRightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             mLeftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             mRightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//            shooterFront = getHardware(hardwareMap, "shooterFront", DcMotorEx.class);
-//            shooterBack = getHardware(hardwareMap, "shooterBack", DcMotorEx.class);
             intake = getHardware(hardwareMap, "intake", DcMotorEx.class);
-//            shooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//            shooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-//            shooterFront.setDirection(DcMotorEx.Direction.REVERSE);
-//            shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
             intake.setDirection(DcMotorEx.Direction.REVERSE);
-//            shooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            shooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            shooterLeft = getHardware(hardwareMap, "shooterLeft", DcMotorEx.class);
+            shooterRight = getHardware(hardwareMap, "shooterRight", DcMotorEx.class);
+            shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            shooterLeft.setDirection(DcMotorEx.Direction.REVERSE);
+            shooterRight.setDirection(DcMotorEx.Direction.FORWARD);
+            shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             pan = getHardware(hardwareMap, "pan", DcMotorEx.class);
             pan.setTargetPosition(0);
             pan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             pan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         }
     }
 
     public static class Servos{
-        public ServoEx gate;
+        public ServoEx gate, pitch;
         public Servos(@NonNull HardwareMap hardwareMap){
 //            gate = getHardware(hardwareMap, "gate", ServoEx.class);
+//            pitch = getHardware(hardwareMap, "pitch", ServoEx.class);
         }
     }
 

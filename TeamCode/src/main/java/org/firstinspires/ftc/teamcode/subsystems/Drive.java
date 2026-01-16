@@ -53,6 +53,14 @@ public class Drive {
         return new double[]{frontLeftPower, frontRightPower, backLeftPower, backRightPower};
     }
 
+    public double[] getVelocities(){
+        return new double[]{
+                mLeftFront.getVelocity(),
+                mRightFront.getVelocity(),
+                mLeftRear.getVelocity(),
+                mRightRear.getVelocity()
+        };
+    }
 
     public static class DriveCommand extends CommandBase {
         private final DoubleSupplier xSupplier;
@@ -61,7 +69,7 @@ public class Drive {
         private final double speedCoefficient;
         private final Drive drive;
         private final Supplier<OdoData> odometerDataSupplier;
-        private final boolean useEncoders;
+        public final boolean useEncoders;
         private final boolean fieldCentric;
 
         public double dampedX, dampedY, dampedRotate;

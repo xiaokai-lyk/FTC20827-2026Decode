@@ -1,14 +1,21 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
+import com.pedropathing.paths.Path;
+import com.pedropathing.paths.PathChain;
 
+import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.OdoData;
@@ -16,18 +23,20 @@ import org.firstinspires.ftc.teamcode.subsystems.Pan;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@TeleOp(name = "DriveTeleOp", group = "teleop")
-public class DriveTeleOp extends XKCommandOpmode {
+public class PedroTeleOp extends XKCommandOpmode {
     private Hardwares hardwares;
 //    private Shooter shooter;
     private Intake intake;
-//    private Gate gate;
+    //    private Gate gate;
     private Pan pan;
     private Drive drive;
+    private Pan.AutoPanCommand autoPanCommand;
     private OdoData odoData;
     private GamepadEx gamepad1;
-    private Drive.DriveCommand driveCommand;
-    private Pan.AutoPanCommand autoPanCommand;
+    private Follower follower;
+    public static Pose startingPose = new Pose(7, 9, 90);
+    private boolean autoDrive;
+    private Supplier<PathChain> pathChainSupplier;
 
     @Override
     public void initialize() {
@@ -38,41 +47,32 @@ public class DriveTeleOp extends XKCommandOpmode {
 //        shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
 //        gate = new Gate(hardwares);
-        odoData = new OdoData(hardwares.sensors.odo);
-
         drive = new Drive(hardwares);
-
-        driveCommand = new Drive.DriveCommand(
-                drive,
-                () -> gamepad1.getLeftX(),
-                () -> gamepad1.getLeftY(),
-                () -> -gamepad1.getRightX(),
-                () -> odoData,
-                1,
-                true,
-                false
-        );
-
         pan = new Pan(hardwares);
 
-        autoPanCommand = new Pan.AutoPanCommand(
-                pan,
-                () -> odoData
-        );
+        autoPanCommand = new Pan.AutoPanCommand(pan, () -> odoData);
 
-        CommandScheduler.getInstance().schedule(new ParallelCommandGroup(
-                driveCommand,
-                autoPanCommand
-        ));
+        CommandScheduler.getInstance().schedule(autoPanCommand);
+
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
+        follower.update();
+        pathChainSupplier = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.8))
+                .build();
     }
 
     @Override
-    public void onStart() {}
+    public void onStart() {
+        follower.startTeleOpDrive();
+    }
 
     @Override
     public void run(){
         CommandScheduler.getInstance().run();
 
+        hardwares.sensors.odo.update();
         hardwares.sensors.odo.update();
         telemetry.addData("Heading (Rad)", odoData.getHeadingRadians());
         telemetry.addData("Heading (Deg)", odoData.getHeadingDegrees());
@@ -80,17 +80,12 @@ public class DriveTeleOp extends XKCommandOpmode {
         telemetry.addData("Y", odoData.getRobotY());
 
         telemetry.addLine("---");
+
         double[] velocities = drive.getVelocities();
-        telemetry.addData("use encoders", driveCommand.useEncoders);
         telemetry.addData("left front velocity", velocities[0]);
         telemetry.addData("right front velocity", velocities[1]);
         telemetry.addData("left rear velocity", velocities[2]);
         telemetry.addData("right rear velocity", velocities[3]);
-
-//        telemetry.addLine("---");
-//        telemetry.addData("X damping", driveCommand.dampedX - gamepad1.getLeftX());
-//        telemetry.addData("Y damping", driveCommand.dampedY - gamepad1.getLeftY());
-//        telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
 
         telemetry.addLine("---");
         telemetry.addData("pan angle (deg)", pan.getCurrentPanDeg());
@@ -98,8 +93,18 @@ public class DriveTeleOp extends XKCommandOpmode {
 //        telemetry.addData("pitch angle", shooter.getPitchAngle());
 
         telemetry.update();
-    }
 
+        follower.update();
+
+        if (!autoDrive) {
+            follower.setTeleOpDrive(
+                    -gamepad1.getLeftY(),
+                    -gamepad1.getLeftX(),
+                    -gamepad1.getRightX(),
+                    true
+            );
+        }
+    }
 
     @Override
     public void functionalButtons() {
@@ -115,40 +120,62 @@ public class DriveTeleOp extends XKCommandOpmode {
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
+                () -> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
 //                gate.open(),
                 intake.startIntake()
         ).whenReleased(enterRunningMode);
 
-//        new ButtonEx(
-//                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
-//        ).whenPressed(
-//                shooter.stopShooter()
-//        );
+        new ButtonEx(
+                () -> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
+        ).whenPressed(
+//                shooter.stopShooter(),
+                stopAutoDrive()
+        );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+                () -> gamepad1.getButton(GamepadKeys.Button.DPAD_UP)
         ).whenPressed(
-                ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
+//                shooter.stopShooter(),
+                stopAutoDrive()
+        );
+
+        new ButtonEx(
+                () -> gamepad1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+        ).whenPressed(
+                () -> hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
         );
 
 //        new ButtonEx(
-//                ()-> gamepad1.getButton(GamepadKeys.Button.Y)
+//                () -> gamepad1.getButton(GamepadKeys.Button.Y)
 //        ).whenPressed(
 //                shooter.setShooterAndPitch(Shooter.shooter40cm)
 //        );
 //
 //        new ButtonEx(
-//                ()->gamepad1.getButton(GamepadKeys.Button.A)
+//                () ->gamepad1.getButton(GamepadKeys.Button.A)
 //        ).whenPressed(
 //                shooter.setShooterAndPitch(Shooter.shooter125cm)
 //        );
 //
 //        new ButtonEx(
-//                ()->gamepad1.getButton(GamepadKeys.Button.B)
+//                () ->gamepad1.getButton(GamepadKeys.Button.B)
 //        ).whenPressed(
 //                shooter.setShooterAndPitch(Shooter.shooter250cm)
 //        );
+    }
+
+    private InstantCommand startAutoDrive() {
+        return new InstantCommand(() -> {
+            autoDrive = true;
+            follower.followPath(pathChainSupplier.get());
+        });
+    }
+
+    private InstantCommand stopAutoDrive() {
+        return new InstantCommand(() -> {
+            autoDrive = false;
+            follower.startTeleOpDrive();
+        });
     }
 }
