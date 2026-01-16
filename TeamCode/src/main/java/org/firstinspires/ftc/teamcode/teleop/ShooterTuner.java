@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 @Config
 @TeleOp(name = "Shooter Tuner", group = "test")
 public class ShooterTuner extends XKCommandOpmode {
-    public static double SHOOTER_TARGET_VEL = 1100;
+    public static double SHOOTER_TARGET_VEL = 2200;
     public static double PITCH_TARGET_ANGLE = 50;
     private Hardwares hardwares;
     private Shooter shooter;
@@ -52,8 +53,14 @@ public class ShooterTuner extends XKCommandOpmode {
 
         double leftVel = shooter.getShooterLeftVelocity();
         double rightVel = shooter.getShooterRightVelocity();
+        telemetry.addData("left shooter vel", leftVel);
+        telemetry.addData("right shooter vel", rightVel);
+        telemetry.addData("left shooter current", hardwares.motors.shooterLeft.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("right shooter current", hardwares.motors.shooterRight.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("target vel", SHOOTER_TARGET_VEL);
         dashboard.getTelemetry().addData("left shooter vel", leftVel);
         dashboard.getTelemetry().addData("right shooter vel", rightVel);
+        telemetry.update();
 
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("shooter/left_velocity", leftVel);
@@ -65,8 +72,10 @@ public class ShooterTuner extends XKCommandOpmode {
         dashboard.getTelemetry().update();
     }
 
+
     @Override
     public void functionalButtons() {
+
         ParallelCommandGroup enterRunningMode = new ParallelCommandGroup(
 //                gate.close(),
                 intake.stopIntake()
@@ -86,19 +95,31 @@ public class ShooterTuner extends XKCommandOpmode {
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
+                ()-> gamepad1.getButton(GamepadKeys.Button.A)
         ).whenPressed(
                 shooter.stopShooter()
         );
 
         new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_UP)
+        ).whenPressed(
+                new InstantCommand(()-> {
+                    SHOOTER_TARGET_VEL += 50;
+                })
+        );
+
+        new ButtonEx(
+                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
+        ).whenPressed(
+                new InstantCommand(()-> {
+                    SHOOTER_TARGET_VEL -= 50;
+                })
+        );
+
+        new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.Y)
         ).whenPressed(
-//                shooter.setShooter(SHOOTER_TARGET_VEL)
-                new InstantCommand(() -> {
-                    hardwares.motors.shooterLeft.setPower(0.5);
-                    hardwares.motors.shooterRight.setPower(0.5);
-                })
+                shooter.setShooter(SHOOTER_TARGET_VEL)//已知问题：改完速度必须重新初始化才能生效！
         );
     }
 }

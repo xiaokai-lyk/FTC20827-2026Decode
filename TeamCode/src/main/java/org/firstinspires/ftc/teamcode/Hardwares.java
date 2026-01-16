@@ -7,6 +7,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -66,8 +67,8 @@ public class Hardwares {
             shooterRight = getHardware(hardwareMap, "shooterRight", DcMotorEx.class);
             shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooterLeft.setDirection(DcMotorEx.Direction.REVERSE);
-            shooterRight.setDirection(DcMotorEx.Direction.FORWARD);
+            shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);
+            shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
             shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
