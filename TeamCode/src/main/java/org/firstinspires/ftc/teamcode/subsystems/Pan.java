@@ -71,11 +71,17 @@ public class Pan {
         // 归一化到 [-180, 180)
         double normalized = normalizeAngle(panAngleDegrees);
 
-        normalized = Math.max(-MAX_ANGLE_DEG, Math.min(MAX_ANGLE_DEG, normalized));
+        if (USE_SOFT_LIMIT) {
+            normalized = Math.max(-MAX_ANGLE_DEG, Math.min(MAX_ANGLE_DEG, normalized));
+        }
 
         int targetTicks = (int) Math.round(normalized * PAN_TICKS_PER_DEGREE);
-        panMotor.setTargetPosition(targetTicks);
-        panMotor.setPower(PAN_MAX_POWER);
+
+        // 优化：仅在目标位置改变时发送指令，减少 CAN 总线负载
+        if (panMotor.getTargetPosition() != targetTicks) {
+            panMotor.setTargetPosition(targetTicks);
+            panMotor.setPower(PAN_MAX_POWER);
+        }
     }
 
     /**

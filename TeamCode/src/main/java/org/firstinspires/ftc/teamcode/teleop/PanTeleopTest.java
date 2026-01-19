@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -12,6 +13,8 @@ import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Pan;
 import org.firstinspires.ftc.teamcode.subsystems.OdoData;
 
+
+@Disabled
 @TeleOp(name="PanTeleopTest")
 public class PanTeleopTest extends LinearOpMode {
     private Pan pan;
