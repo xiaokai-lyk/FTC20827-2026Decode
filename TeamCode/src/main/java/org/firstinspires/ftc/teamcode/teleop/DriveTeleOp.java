@@ -9,25 +9,26 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.OdoData;
-import org.firstinspires.ftc.teamcode.subsystems.Pan;
+import org.firstinspires.ftc.teamcode.legacy.PanLucas;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@TeleOp(name = "DriveTeleOp", group = "teleop")
+@TeleOp(name = "DriveTeleOp", group = "TeleOp")
 public class DriveTeleOp extends XKCommandOpmode {
     private Hardwares hardwares;
 //    private Shooter shooter;
     private Intake intake;
 //    private Gate gate;
-    private Pan pan;
+    private AutoPan autoPan;
     private Drive drive;
     private OdoData odoData;
     private GamepadEx gamepad1;
     private Drive.DriveCommand driveCommand;
-    private Pan.AutoPanCommand autoPanCommand;
+    private PanLucas.AutoPanCommand autoPanCommand;
 
     @Override
     public void initialize() {
@@ -39,6 +40,9 @@ public class DriveTeleOp extends XKCommandOpmode {
         intake = new Intake(hardwares);
 //        gate = new Gate(hardwares);
         odoData = new OdoData(hardwares.sensors.odo);
+
+        autoPan = new AutoPan(hardwares, 100.0, 0.0);
+        autoPan.init();
 
         drive = new Drive(hardwares);
 
@@ -53,25 +57,21 @@ public class DriveTeleOp extends XKCommandOpmode {
                 false
         );
 
-        pan = new Pan(hardwares);
-
-        autoPanCommand = new Pan.AutoPanCommand(
-                pan,
-                () -> odoData
-        );
-
-        CommandScheduler.getInstance().schedule(new ParallelCommandGroup(
-                driveCommand,
-                autoPanCommand
-        ));
+        CommandScheduler.getInstance().schedule(driveCommand);
     }
 
     @Override
-    public void onStart() {}
+    public void onStart() {
+        autoPan.setup();
+    }
 
     @Override
-    public void run(){
+    public void run() {
         CommandScheduler.getInstance().run();
+
+        OdoData odoDataPan = new OdoData(hardwares.sensors.odo);
+
+        autoPan.run(odoDataPan);
 
         hardwares.sensors.odo.update();
         telemetry.addData("Heading (Rad)", odoData.getHeadingRadians());
@@ -93,7 +93,8 @@ public class DriveTeleOp extends XKCommandOpmode {
 //        telemetry.addData("Rotate damping", driveCommand.dampedRotate - (-gamepad1.getRightX()));
 
         telemetry.addLine("---");
-        telemetry.addData("pan angle (deg)", pan.getCurrentPanDeg());
+        AutoPan.TelemetryState panTelemetry = autoPan.getTelemetryStatus();
+        telemetry.addData("pan angle (deg)", panTelemetry.currentAngle);
 //        telemetry.addData("gate angle (deg)", gate.getAngleDeg());
 //        telemetry.addData("pitch angle", shooter.getPitchAngle());
 
@@ -150,5 +151,11 @@ public class DriveTeleOp extends XKCommandOpmode {
 //        ).whenPressed(
 //                shooter.setShooterAndPitch(Shooter.shooter250cm)
 //        );
+
+        new ButtonEx(
+                () -> gamepad1.getButton(GamepadKeys.Button.DPAD_UP)
+        ).whenPressed(
+                () -> autoPan.setMode()
+        );
     }
 }

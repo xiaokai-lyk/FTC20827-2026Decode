@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.legacy;
 
 import androidx.annotation.NonNull;
 
@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.subsystems.OdoData;
 
 /**
  * AutoPan: 基于 GoBILDA Pinpoint 的有限旋转自动云台（±180°）
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Hardwares;
  * - 所有目标角度自动归一化并限制在此范围内
  * - 球门坐标系：红方球门位于 (0, 0)
  */
-public class Pan {
+public class PanLucas {
     private final DcMotorEx panMotor;
 
     // ==============================
@@ -50,7 +51,7 @@ public class Pan {
     // 构造函数
     // ==============================
 
-    public Pan(@NonNull Hardwares hardwares) {
+    public PanLucas(@NonNull Hardwares hardwares) {
         this.panMotor = hardwares.motors.pan;
 
         // 初始化编码器
@@ -114,14 +115,14 @@ public class Pan {
 
     public static class AutoPanCommand extends CommandBase {
         private Supplier<OdoData> odoDataSupplier;
-        private final Pan pan;
+        private final PanLucas panLucas;
 
         /**
-         * @param pan   云台子系统
+         * @param panLucas   云台子系统
          * @param odoDataSupplier  获取最新 OdoData
          */
-        public AutoPanCommand(Pan pan, Supplier<OdoData> odoDataSupplier) {
-            this.pan = pan;
+        public AutoPanCommand(PanLucas panLucas, Supplier<OdoData> odoDataSupplier) {
+            this.panLucas = panLucas;
             this.odoDataSupplier = odoDataSupplier;
         }
 
@@ -140,7 +141,7 @@ public class Pan {
             double distance = Math.hypot(dx, dy);
 
             if (distance < MIN_DISTANCE_CM) {
-                pan.hold();
+                panLucas.hold();
                 return;
             }
 
@@ -151,12 +152,12 @@ public class Pan {
             double targetAngleDeg =(angleToGoalDeg - headingDeg);
 
             // 自动归一化并限制在 [-180, 180]
-            pan.setTargetAngle(targetAngleDeg);
+            panLucas.setTargetAngle(targetAngleDeg);
         }
 
         @Override
         public void end(boolean interrupted) {
-            pan.hold();
+            panLucas.hold();
         }
 
         @Override

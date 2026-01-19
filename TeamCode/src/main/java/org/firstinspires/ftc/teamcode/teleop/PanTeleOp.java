@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -20,8 +21,14 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
  * - Gamepad 1 X/Y: 调整测试目标点 X 坐标 (+/- 10cm)
  * - Gamepad 1 Dpad Up/Down: 调整测试目标点 Y 坐标 (+/- 10cm)
  */
-@TeleOp(name = "AutoPan Test", group = "Test")
+@Config
+@TeleOp(name = "AutoPan Test", group = "Tests")
 public class PanTeleOp extends XKCommandOpmode {
+    public static double panMotorPPos = 1;
+    public static double panMotorPVel = 1;
+    public static double panMotorI = 0;
+    public static double panMotorD = 0;
+    public static double panMotorF = 0;
 
     private Hardwares hardwares;
     private AutoPan autoPan;
@@ -32,6 +39,7 @@ public class PanTeleOp extends XKCommandOpmode {
 
     private Drive drive;
     private Drive.DriveCommand driveCommand;
+    private FtcDashboard dashboard;
 
 
     @Override
@@ -49,13 +57,15 @@ public class PanTeleOp extends XKCommandOpmode {
         driveCommand = new Drive.DriveCommand(
                 drive,
                 () -> gamepad1.left_stick_x,
-                () -> gamepad1.left_stick_y,
+                () -> -gamepad1.left_stick_y,
                 () -> -gamepad1.right_stick_x,
                 () -> new OdoData(hardwares.sensors.odo),
                 1,
                 true,
                 false
         );
+
+        dashboard = FtcDashboard.getInstance();
 
         telemetry.addData("Status", "Initialized. Press START.");
     }
@@ -77,7 +87,7 @@ public class PanTeleOp extends XKCommandOpmode {
 
         // [A] 切换模式
         if (gamepad1.a && buttonTimer.seconds() > BUTTON_DELAY) {
-            autoPan.switchMode();
+            autoPan.setMode();
             buttonTimer.reset();
         }
 
@@ -109,5 +119,14 @@ public class PanTeleOp extends XKCommandOpmode {
         telemetry.addData("Heading", "%.1f deg", odoData.getHeadingDegrees());
 
         telemetry.update();
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("panMotor/currPos", hardwares.motors.pan.getCurrentPosition());
+        packet.put("panMotor/targetPos", hardwares.motors.pan.getTargetPosition());
+        dashboard.sendTelemetryPacket(packet);
+
+        autoPan.setPanMotorPIDF(panMotorPPos, panMotorPVel, panMotorI, panMotorD, panMotorF);
+
+        dashboard.getTelemetry().update();
     }
 }

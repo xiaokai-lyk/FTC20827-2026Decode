@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.legacy;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -10,17 +10,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardwares;
-import org.firstinspires.ftc.teamcode.subsystems.Pan;
 import org.firstinspires.ftc.teamcode.subsystems.OdoData;
 
 
 @Disabled
 @TeleOp(name="PanTeleopTest")
 public class PanTeleopTest extends LinearOpMode {
-    private Pan pan;
+    private PanLucas panLucas;
     private OdoData odoData;
     private Hardwares hardwares;
-    protected Pan.AutoPanCommand autoPanCommand;
+    protected PanLucas.AutoPanCommand autoPanCommand;
     @Override
     public void runOpMode() throws InterruptedException {
         hardwares = new Hardwares(hardwareMap);
@@ -35,9 +34,9 @@ public class PanTeleopTest extends LinearOpMode {
         DcMotorEx backRightMotor = hardwares.motors.mRightRear;
 
         waitForStart();
-        this.pan =new Pan(hardwares);
-        autoPanCommand = new Pan.AutoPanCommand(
-                this.pan,
+        this.panLucas =new PanLucas(hardwares);
+        autoPanCommand = new PanLucas.AutoPanCommand(
+                this.panLucas,
                 () -> odoData
         );
 

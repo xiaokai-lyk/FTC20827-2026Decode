@@ -11,6 +11,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,18 +20,19 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.OdoData;
-import org.firstinspires.ftc.teamcode.subsystems.Pan;
+import org.firstinspires.ftc.teamcode.legacy.PanLucas;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
+@TeleOp(name = "Pedro TeleOp", group = "TeleOp")
 public class PedroTeleOp extends XKCommandOpmode {
     private Hardwares hardwares;
 //    private Shooter shooter;
     private Intake intake;
     //    private Gate gate;
-    private Pan pan;
+    private PanLucas panLucas;
     private Drive drive;
-    private Pan.AutoPanCommand autoPanCommand;
+    private PanLucas.AutoPanCommand autoPanCommand;
     private OdoData odoData;
     private GamepadEx gamepad1;
     private Follower follower;
@@ -48,9 +50,9 @@ public class PedroTeleOp extends XKCommandOpmode {
         intake = new Intake(hardwares);
 //        gate = new Gate(hardwares);
         drive = new Drive(hardwares);
-        pan = new Pan(hardwares);
+        panLucas = new PanLucas(hardwares);
 
-        autoPanCommand = new Pan.AutoPanCommand(pan, () -> odoData);
+        autoPanCommand = new PanLucas.AutoPanCommand(panLucas, () -> odoData);
 
         CommandScheduler.getInstance().schedule(autoPanCommand);
 
@@ -88,7 +90,7 @@ public class PedroTeleOp extends XKCommandOpmode {
         telemetry.addData("right rear velocity", velocities[3]);
 
         telemetry.addLine("---");
-        telemetry.addData("pan angle (deg)", pan.getCurrentPanDeg());
+        telemetry.addData("pan angle (deg)", panLucas.getCurrentPanDeg());
 //        telemetry.addData("gate angle (deg)", gate.getAngleDeg());
 //        telemetry.addData("pitch angle", shooter.getPitchAngle());
 

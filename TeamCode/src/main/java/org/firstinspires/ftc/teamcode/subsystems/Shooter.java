@@ -8,7 +8,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
+
+import java.util.function.DoubleSupplier;
 
 public class Shooter {
     public static ShooterConfig shooter40cm = new ShooterConfig(1100, 50);
@@ -42,7 +45,8 @@ public class Shooter {
         );
     }
 
-    public InstantCommand setShooter(double velocity) {
+    public InstantCommand setShooter(DoubleSupplier velocitySupplier) {
+        double velocity = velocitySupplier.getAsDouble();
         return new InstantCommand(
                 () -> {
                     shooterLeft.setVelocity(velocity);
@@ -78,15 +82,40 @@ public class Shooter {
         });
     }
 
-    public double getShooterLeftVelocity() {
-        return shooterLeft.getVelocity();
+    public static class TelemetryState {
+        public final double leftVelocity;
+        public final double rightVelocity;
+        public final double pitchAngle;
+        public final double leftCurrent;
+        public final double rightCurrent;
+
+        public TelemetryState(double leftVelocity,
+                              double rightVelocity,
+                              double pitchAngle,
+                              double leftCurrent,
+                              double rightCurrent) {
+            this.leftVelocity = leftVelocity;
+            this.rightVelocity = rightVelocity;
+            this.pitchAngle = pitchAngle;
+            this.leftCurrent = leftCurrent;
+            this.rightCurrent = rightCurrent;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format(java.util.Locale.US, "Left Velocity: %.1f\nRight Velocity: %.1f\nPitch Angle: %.1f\nLeft Current: %.1f\nRight Current: %.1f",
+                    leftVelocity, rightVelocity, pitchAngle, leftCurrent, rightCurrent);
+        }
     }
 
-    public double getShooterRightVelocity() {
-        return shooterRight.getVelocity();
-    }
-
-    public double getPitchAngle() {
-        return pitch.getAngle();
+    public TelemetryState getTelemetryState() {
+        return new TelemetryState(
+                shooterLeft.getVelocity(),
+                shooterRight.getVelocity(),
+                pitch.getAngle(),
+                shooterLeft.getCurrent(CurrentUnit.MILLIAMPS),
+                shooterRight.getCurrent(CurrentUnit.MILLIAMPS)
+        );
     }
 }

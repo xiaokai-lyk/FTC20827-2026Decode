@@ -7,7 +7,6 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -29,7 +28,7 @@ public class Hardwares {
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "pinpoint", GoBildaPinpointDriver.class);
-            odo.setOffsets(-96, -72, DistanceUnit.MM); // needs to be calibrated
+            odo.setOffsets(-96, -72, DistanceUnit.MM);
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
@@ -73,9 +72,6 @@ public class Hardwares {
             shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             pan = getHardware(hardwareMap, "pan", DcMotorEx.class);
-            pan.setTargetPosition(0);
-            pan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            pan.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
     }
 

@@ -23,7 +23,7 @@ public class AutoPan {
     // ==========================================
     // 常量配置
     // ==========================================
-    public static final double MOTOR_TICKS_PER_REV = 103.6;
+    public static final double MOTOR_TICKS_PER_REV = 145.6; // 一圈 28 tick 28 × 5.2
     public static final double PAN_REV_PER_MOTOR_REVS = 100.0 / 20.0;
     public static final double PAN_TICKS_PER_DEGREE = (MOTOR_TICKS_PER_REV * PAN_REV_PER_MOTOR_REVS) / 360.0;
 
@@ -35,6 +35,7 @@ public class AutoPan {
     // 滤波系数 (0.0 - 1.0)，越小越平滑但延迟越高
     // 0.3 是一个经验值，既能滤除高频噪声，又不会造成明显滞后
     private static final double EMA_ALPHA = 0.3;
+    private static final double PAN_P_POS = 15, PAN_P_VEL = 30, PAN_I = 0.01, PAN_F = 0, PAN_D = 0;
 
     // ==========================================
     // 状态定义
@@ -92,6 +93,9 @@ public class AutoPan {
         // 设置刹车模式 (断电时抱死)
         panMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        panMotor.setPositionPIDFCoefficients(PAN_P_POS);
+        panMotor.setVelocityPIDFCoefficients(PAN_P_VEL, PAN_I, PAN_D, PAN_F);
+
         // 确保初始化时没有功率输出
         panMotor.setPower(0);
 
@@ -119,21 +123,14 @@ public class AutoPan {
         this.currentMode = Mode.HOLD;
     }
 
-    // ==========================================
-    // 4. State Switch: 模式切换与查询
-    // ==========================================
+    /**
+     * 切换模式 (在 HOLD 和 TRACK 之间轮转)
+     */
     public void setMode(Mode mode) {
         this.currentMode = mode;
     }
 
-    /**
-     * 切换模式 (在 HOLD 和 TRACK 之间轮转)
-     */
-    public void switchMode(Mode mode) {
-        this.currentMode = mode;
-    }
-
-    public void switchMode() {
+    public void setMode() {
         if (this.currentMode == Mode.HOLD) {
             this.currentMode = Mode.TRACK;
         } else {
@@ -301,6 +298,11 @@ public class AutoPan {
         while (angle > 180) angle -= 360;
         while (angle <= -180) angle += 360;
         return angle;
+    }
+
+    public void setPanMotorPIDF(double pPos, double pVel, double i, double d, double f) {
+        panMotor.setPositionPIDFCoefficients(pPos);
+        panMotor.setVelocityPIDFCoefficients(pVel, i, d, f);
     }
 }
 
