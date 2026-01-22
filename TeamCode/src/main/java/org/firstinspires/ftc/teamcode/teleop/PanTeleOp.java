@@ -50,7 +50,6 @@ public class PanTeleOp extends XKCommandOpmode {
         // 2. 初始化 AutoPan，设置初始目标为 (0,0)
         // 如果需要测试其他目标点，请在此处修改坐标，例如 (100, 100)
         autoPan = new AutoPan(hardwares, 100.0, 0.0);
-        autoPan.init();
 
         // 3. 初始化底盘
         drive = new Drive(hardwares);

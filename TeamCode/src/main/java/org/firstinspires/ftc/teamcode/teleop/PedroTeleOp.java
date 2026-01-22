@@ -59,7 +59,7 @@ public class PedroTeleOp extends XKCommandOpmode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
-        pathChainSupplier = () -> follower.pathBuilder() //Lazy Curve Generation
+        pathChainSupplier = () -> follower.pathBuilder() // Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.8))
                 .build();

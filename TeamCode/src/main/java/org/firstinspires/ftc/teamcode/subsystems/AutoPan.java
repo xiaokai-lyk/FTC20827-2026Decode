@@ -66,9 +66,6 @@ public class AutoPan {
     // 缓存上一次的目标 Ticks，避免重复写入
     private int lastTargetTicks = Integer.MIN_VALUE;
 
-    // ==========================================
-    // 1. Init: 准备软件资源 (不移动电机)
-    // ==========================================
     /**
      * @param hardwares 硬件映射
      * @param targetX 初始目标 X (cm)
@@ -79,6 +76,7 @@ public class AutoPan {
         this.odo = hardwares.sensors.odo;
         this.targetX = targetX;
         this.targetY = targetY;
+        this.init();
     }
 
     /**
@@ -107,9 +105,6 @@ public class AutoPan {
         odo.recalibrateIMU();
     }
 
-    // ==========================================
-    // 2. Setup: 设置电机到初始位置 (0) 并使能
-    // ==========================================
     /**
      * 启动云台。
      * 将模式设为 RUN_TO_POSITION 并锁定在 0 度。
@@ -191,9 +186,6 @@ public class AutoPan {
         );
     }
 
-    // ==========================================
-    // 3. Run: 主循环调用
-    // ==========================================
     /**
      * 在主循环中调用此方法以更新云台状态
      * @param odoData 最新的里程计数据
@@ -291,9 +283,6 @@ public class AutoPan {
         }
     }
 
-    // ==========================================
-    // 辅助方法
-    // ==========================================
     private double normalizeAngle(double angle) {
         while (angle > 180) angle -= 360;
         while (angle <= -180) angle += 360;

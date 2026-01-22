@@ -14,6 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
  * 所有量以机器人自身坐标系定义：x 向右为正，y 向前为正。
  */
 public class OdoData {
+    
+    // ==========================================
+    // 成员变量
+    // ==========================================
     // 当前航向（弧度，场地坐标系，右手系，通常来自 IMU / 外部融合）
     private final double headingRadians;
     private final double headingDegrees;
@@ -26,6 +30,17 @@ public class OdoData {
     private final double yawRate;
     private final Pose2D robotPosition;
 
+    /**
+     * 构造里程计数据实例
+     * @param headingRadians 当前航向（弧度）
+     * @param headingDegrees 当前航向（度）
+     * @param robotX 机器人X坐标
+     * @param robotY 机器人Y坐标
+     * @param robotVx 机器人X方向速度
+     * @param robotVy 机器人Y方向速度
+     * @param yawRate 航向角速度
+     * @param pos 机器人位置
+     */
     public OdoData(double headingRadians,
                    double headingDegrees,
                    double robotX,
@@ -44,6 +59,10 @@ public class OdoData {
         this.robotPosition = pos;
     }
 
+    /**
+     * 从GoBilda Pinpoint里程计构造里程计数据实例
+     * @param odo GoBilda Pinpoint里程计驱动
+     */
     public OdoData(@NonNull GoBildaPinpointDriver odo) {
         this.headingRadians = odo.getHeading(AngleUnit.RADIANS);
         this.headingDegrees = odo.getHeading(AngleUnit.DEGREES);
@@ -55,34 +74,66 @@ public class OdoData {
         this.robotPosition = odo.getPosition();
     }
 
+    /**
+     * 获取当前航向（弧度）
+     * @return 当前航向（弧度）
+     */
     public double getHeadingRadians() {
         return headingRadians;
     }
 
+    /**
+     * 获取当前航向（度）
+     * @return 当前航向（度）
+     */
     public double getHeadingDegrees() {
         return headingDegrees;
     }
 
+    /**
+     * 获取机器人X坐标
+     * @return 机器人X坐标
+     */
     public double getRobotX() {
         return robotX;
     }
 
+    /**
+     * 获取机器人Y坐标
+     * @return 机器人Y坐标
+     */
     public double getRobotY() {
         return robotY;
     }
 
+    /**
+     * 获取机器人X方向速度
+     * @return 机器人X方向速度
+     */
     public double getRobotVx() {
         return robotVx;
     }
 
+    /**
+     * 获取机器人Y方向速度
+     * @return 机器人Y方向速度
+     */
     public double getRobotVy() {
         return robotVy;
     }
 
+    /**
+     * 获取航向角速度
+     * @return 航向角速度
+     */
     public double getYawRate() {
         return yawRate;
     }
 
+    /**
+     * 获取机器人位置
+     * @return 机器人位置
+     */
     public Pose2D getRobotPosition() {
         return robotPosition;
     }

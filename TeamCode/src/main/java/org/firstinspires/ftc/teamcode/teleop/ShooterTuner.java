@@ -38,6 +38,8 @@ public class ShooterTuner extends XKCommandOpmode {
         hardwares = new Hardwares(hardwareMap);
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
+
+//        CommandScheduler.getInstance().schedule(shooter.setPitch(() -> PITCH_TARGET_ANGLE));
     }
 
     @Override
@@ -45,7 +47,6 @@ public class ShooterTuner extends XKCommandOpmode {
 
     @Override
     public void run() {
-//        CommandScheduler.getInstance().schedule(shooter.setPitch(PITCH_TARGET_ANGLE));
         CommandScheduler.getInstance().run();
 
 //        dashboard.getTelemetry().addData("pitch angle", shooter.getPitchAngle());

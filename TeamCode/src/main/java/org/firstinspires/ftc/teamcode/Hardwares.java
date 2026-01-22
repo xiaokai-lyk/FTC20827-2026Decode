@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -48,28 +47,10 @@ public class Hardwares {
             mLeftRear = getHardware(hardwareMap, "leftRear", DcMotorEx.class);
             mRightRear = getHardware(hardwareMap, "rightRear", DcMotorEx.class);
 
-            mLeftFront.setDirection(DcMotorEx.Direction.REVERSE);
-            mRightFront.setDirection(DcMotorEx.Direction.REVERSE);
-            mLeftRear.setDirection(DcMotorEx.Direction.REVERSE);
-            mRightRear.setDirection(DcMotorEx.Direction.REVERSE);
-
-            mLeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            mRightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            mLeftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            mRightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
             intake = getHardware(hardwareMap, "intake", DcMotorEx.class);
-            intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            intake.setDirection(DcMotorEx.Direction.REVERSE);
 
             shooterLeft = getHardware(hardwareMap, "shooterLeft", DcMotorEx.class);
             shooterRight = getHardware(hardwareMap, "shooterRight", DcMotorEx.class);
-            shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);
-            shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
-            shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             pan = getHardware(hardwareMap, "pan", DcMotorEx.class);
         }

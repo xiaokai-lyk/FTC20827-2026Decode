@@ -42,7 +42,6 @@ public class DriveTeleOp extends XKCommandOpmode {
         odoData = new OdoData(hardwares.sensors.odo);
 
         autoPan = new AutoPan(hardwares, 100.0, 0.0);
-        autoPan.init();
 
         drive = new Drive(hardwares);
 
