@@ -15,7 +15,7 @@ import java.util.function.DoubleSupplier;
 
 /**
  * 发射系统
- * 
+ *
  * 功能：
  * 1. 控制发射轮速度
  * 2. 控制俯仰角度
@@ -23,26 +23,23 @@ import java.util.function.DoubleSupplier;
  * 4. 获取发射系统遥测状态
  */
 public class Shooter {
-    
+
     // ==========================================
     // 常量配置
     // ==========================================
     public static ShooterConfig shooter40cm = new ShooterConfig(1100, 50);    // 40cm射击配置
     public static ShooterConfig shooter125cm = new ShooterConfig(500, 50);    // 125cm射击配置
     public static ShooterConfig shooter250cm = new ShooterConfig(860, 50);    // 250cm射击配置
-    
+
     // ==========================================
     // 成员变量
     // ==========================================
     private final DcMotorEx shooterLeft, shooterRight;
     private final ServoEx pitch;
 
-    // ==========================================
-    // 发射配置类
-    // ==========================================
     public static class ShooterConfig {
         public double shooterVelocity, pitchAngle;
-        
+
         /**
          * 构造发射配置
          * @param shooterVelocity 发射轮速度
@@ -127,6 +124,10 @@ public class Shooter {
         return new InstantCommand(() -> pitch.turnToAngle(angle));
     }
 
+    public double getPitchAngle(){
+        return pitch.getAngle();
+    }
+
     /**
      * 获取设置发射轮PIDF参数的命令
      * @param p P参数
@@ -142,10 +143,6 @@ public class Shooter {
         });
     }
 
-    /**
-     * 获取重置发射轮PIDF参数的命令
-     * @return 重置发射轮PIDF参数的InstantCommand
-     */
     public InstantCommand resetShooterPIDF() {
         return new InstantCommand(()-> {
             shooterLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -153,9 +150,6 @@ public class Shooter {
         });
     }
 
-    // ==========================================
-    // 遥测状态类
-    // ==========================================
     public static class TelemetryState {
         public final double leftVelocity;
         public final double rightVelocity;

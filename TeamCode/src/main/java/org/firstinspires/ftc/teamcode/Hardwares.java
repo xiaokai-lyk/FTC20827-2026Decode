@@ -3,14 +3,15 @@ package org.firstinspires.ftc.teamcode;
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.jetbrains.annotations.Contract;
 
 public class Hardwares {
     public Sensors sensors;
@@ -21,9 +22,14 @@ public class Hardwares {
         return hardwareMap.get(clazz, name);
     }
 
+    @NonNull
+    @Contract("_, _, _, _ -> new")
+    public static ServoEx getHardware(@NonNull HardwareMap hardwareMap, String name, double minAngleDegree, double maxAngleDegree){
+        return new SimpleServo(hardwareMap, name, minAngleDegree, maxAngleDegree);
+    }
+
     public static class Sensors{
         public GoBildaPinpointDriver odo;
-        public Limelight3A limelight;
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "pinpoint", GoBildaPinpointDriver.class);
@@ -31,11 +37,6 @@ public class Hardwares {
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-
-            limelight = getHardware(hardwareMap, "limelight", Limelight3A.class);
-            limelight.pipelineSwitch(7);
-            limelight.setPollRateHz(250);
-            limelight.start();
         }
     }
 
@@ -59,8 +60,8 @@ public class Hardwares {
     public static class Servos{
         public ServoEx gate, pitch;
         public Servos(@NonNull HardwareMap hardwareMap){
-//            gate = getHardware(hardwareMap, "gate", ServoEx.class);
-//            pitch = getHardware(hardwareMap, "pitch", ServoEx.class);
+            gate = getHardware(hardwareMap, "gate", 0, 360);
+            pitch = getHardware(hardwareMap, "pitch", 0, 300);
         }
     }
 

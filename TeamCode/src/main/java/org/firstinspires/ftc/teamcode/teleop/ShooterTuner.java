@@ -49,7 +49,7 @@ public class ShooterTuner extends XKCommandOpmode {
     public void run() {
         CommandScheduler.getInstance().run();
 
-//        dashboard.getTelemetry().addData("pitch angle", shooter.getPitchAngle());
+        dashboard.getTelemetry().addData("pitch angle", shooter.getPitchAngle());
 
         Shooter.TelemetryState shooterState = shooter.getTelemetryState();
         telemetry.addData("left shooter vel", shooterState.leftVelocity);
