@@ -18,8 +18,17 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
-@TeleOp(name = "teleop")
-public class teleOp20827 extends XKCommandOpmode {
+
+public class TeleOpBase extends XKCommandOpmode {
+    protected final double targetX;
+    protected final double targetY;
+
+
+    public TeleOpBase(double targetX, double targetY) {
+        this.targetX = targetX;
+        this.targetY = targetY;
+    }
+
     private Hardwares hardwares;
     private Shooter shooter;
     private Intake intake;
@@ -32,6 +41,8 @@ public class teleOp20827 extends XKCommandOpmode {
 
     @Override
     public void initialize() {
+        telemetry.addData("TargetX", targetX);
+        telemetry.addData("TargetY", targetY);
         this.gamepad1 = new GamepadEx(super.gamepad1);
         CommandScheduler.getInstance().cancelAll();
 
@@ -41,7 +52,7 @@ public class teleOp20827 extends XKCommandOpmode {
         gate = new Gate(hardwares);
         this.pinpointDriverData = new PinpointDriverData(hardwares.sensors.odo);
 
-        autoPan = new AutoPan(hardwares, 100.0, 0.0);
+        autoPan = new AutoPan(hardwares, targetX, targetY);
         autoPan.init();
 
         drive = new Drive(hardwares);

@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -29,8 +32,7 @@ public class Shooter {
     // ==========================================
     public static final ShooterConfig shooter40cm = new ShooterConfig(1000, 50);    // 40cm射击配置
     public static final ShooterConfig shooter125cm = new ShooterConfig(1500, 50);    // 125cm射击配置
-    public static final ShooterConfig shooter250cm = new ShooterConfig(2000, 50);    // 250cm射击配置
-    public static final ShooterConfig shooterIdle = new ShooterConfig(500, 50);        // 怠速配置
+    public static final ShooterConfig shooter250cm = new ShooterConfig(2300, 50);    // 250cm射击配置
 
     // ==========================================
     // 成员变量
@@ -92,7 +94,7 @@ public class Shooter {
      * @param velocitySupplier 速度提供者
      * @return 设置发射轮速度的InstantCommand
      */
-    public InstantCommand setShooter(DoubleSupplier velocitySupplier) {
+    public InstantCommand setShooter(@NonNull DoubleSupplier velocitySupplier) {
         double velocity = velocitySupplier.getAsDouble();
         return new InstantCommand(
                 () -> {
@@ -107,7 +109,12 @@ public class Shooter {
      * @return 发射轮怠速的InstantCommand
      */
     public InstantCommand shooterIdle() {
-        return setShooterAndPitch(shooterIdle);
+        return new InstantCommand(()->{
+            shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            shooterRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            shooterLeft.setPower(0.3);
+            shooterRight.setPower(0.3);
+        });
     }
     /**
     * 获取发射轮停止的命令
@@ -116,8 +123,8 @@ public class Shooter {
     public InstantCommand stopShooter() {
         return new InstantCommand(
                 () -> {
-                    shooterLeft.setPower(0);
-                    shooterRight.setPower(0);
+                    shooterLeft.setMotorDisable();
+                    shooterRight.setMotorDisable();
                 }
         );
     }
