@@ -27,9 +27,10 @@ public class Shooter {
     // ==========================================
     // 常量配置
     // ==========================================
-    public static ShooterConfig shooter40cm = new ShooterConfig(1100, 50);    // 40cm射击配置
-    public static ShooterConfig shooter125cm = new ShooterConfig(500, 50);    // 125cm射击配置
-    public static ShooterConfig shooter250cm = new ShooterConfig(860, 50);    // 250cm射击配置
+    public static final ShooterConfig shooter40cm = new ShooterConfig(1000, 50);    // 40cm射击配置
+    public static final ShooterConfig shooter125cm = new ShooterConfig(1500, 50);    // 125cm射击配置
+    public static final ShooterConfig shooter250cm = new ShooterConfig(2000, 50);    // 250cm射击配置
+    public static final ShooterConfig shooterIdle = new ShooterConfig(500, 50);        // 怠速配置
 
     // ==========================================
     // 成员变量
@@ -102,9 +103,16 @@ public class Shooter {
     }
 
     /**
-     * 获取停止发射轮的命令
-     * @return 停止发射轮的InstantCommand
+     * 获取发射轮怠速的命令
+     * @return 发射轮怠速的InstantCommand
      */
+    public InstantCommand shooterIdle() {
+        return setShooterAndPitch(shooterIdle);
+    }
+    /**
+    * 获取发射轮停止的命令
+    * @return 发射轮停止的InstantCommand
+    */
     public InstantCommand stopShooter() {
         return new InstantCommand(
                 () -> {
@@ -119,13 +127,9 @@ public class Shooter {
      * @param angleSupplier 俯仰角度提供者
      * @return 设置俯仰角度的InstantCommand
      */
-    public InstantCommand setPitch(DoubleSupplier angleSupplier) {
+    public InstantCommand setPitch(@NonNull DoubleSupplier angleSupplier) {
         double angle = angleSupplier.getAsDouble();
         return new InstantCommand(() -> pitch.turnToAngle(angle));
-    }
-
-    public double getPitchAngle(){
-        return pitch.getAngle();
     }
 
     /**

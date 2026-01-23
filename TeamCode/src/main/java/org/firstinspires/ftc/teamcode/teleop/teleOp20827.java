@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.OdoData;
+import org.firstinspires.ftc.teamcode.subsystems.PinpointDriverData;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
@@ -26,7 +26,7 @@ public class teleOp20827 extends XKCommandOpmode {
     private Gate gate;
     private AutoPan autoPan;
     private Drive drive;
-    private OdoData odoData;
+    private PinpointDriverData pinpointDriverData;
     private GamepadEx gamepad1;
     private Drive.DriveCommand driveCommand;
 
@@ -39,7 +39,7 @@ public class teleOp20827 extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         gate = new Gate(hardwares);
-        odoData = new OdoData(hardwares.sensors.odo);
+        this.pinpointDriverData = new PinpointDriverData(hardwares.sensors.odo);
 
         autoPan = new AutoPan(hardwares, 100.0, 0.0);
         autoPan.init();
@@ -51,7 +51,7 @@ public class teleOp20827 extends XKCommandOpmode {
                 () -> gamepad1.getLeftX(),
                 () -> gamepad1.getLeftY(),
                 () -> -gamepad1.getRightX(),
-                () -> odoData,
+                () -> pinpointDriverData,
                 1,
                 true,
                 false
@@ -69,15 +69,13 @@ public class teleOp20827 extends XKCommandOpmode {
     public void run() {
         CommandScheduler.getInstance().run();
 
-        OdoData odoDataPan = new OdoData(hardwares.sensors.odo);
+        this.pinpointDriverData.update();
+        autoPan.run(this.pinpointDriverData);
 
-        autoPan.run(odoDataPan);
-
-        hardwares.sensors.odo.update();
-        telemetry.addData("Heading (Rad)", odoData.getHeadingRadians());
-        telemetry.addData("Heading (Deg)", odoData.getHeadingDegrees());
-        telemetry.addData("X", odoData.getRobotX());
-        telemetry.addData("Y", odoData.getRobotY());
+        telemetry.addData("Heading (Rad)", pinpointDriverData.getHeadingRadians());
+        telemetry.addData("Heading (Deg)", pinpointDriverData.getHeadingDegrees());
+        telemetry.addData("X", pinpointDriverData.getRobotX());
+        telemetry.addData("Y", pinpointDriverData.getRobotY());
 
         telemetry.addLine("---");
         double[] velocities = drive.getVelocities();
@@ -90,9 +88,18 @@ public class teleOp20827 extends XKCommandOpmode {
 
         telemetry.addLine("---");
         AutoPan.TelemetryState panTelemetry = autoPan.getTelemetryStatus();
+        telemetry.addData("pan mode", panTelemetry.mode);
         telemetry.addData("pan angle (deg)", panTelemetry.currentAngle);
+        telemetry.addData("pan limit reached", panTelemetry.isLimitReached);
+
+        telemetry.addLine("---");
+        Shooter.TelemetryState shooterState = shooter.getTelemetryState();
+        telemetry.addData("shooter left current", shooterState.leftCurrent);
+        telemetry.addData("shooter right current", shooterState.rightCurrent);
+        telemetry.addData("shooter left vel", shooterState.leftVelocity);
+        telemetry.addData("shooter right vel", shooterState.rightVelocity);
+        telemetry.addData("shooter target vel", shooterState.pitchAngle);
         telemetry.addData("gate angle (deg)", gate.getAngleDeg());
-        telemetry.addData("pitch angle", shooter.getPitchAngle());
 
         telemetry.update();
     }
@@ -112,7 +119,7 @@ public class teleOp20827 extends XKCommandOpmode {
              * 释放：enterRunningMode（并行执行 gate.close() 和 intake.stopIntake()）
 
          - 十字键下（DPAD_DOWN）：
-             * 按下：停止 shooter
+             * 按下：shooter 怠速
 
          - 右摇杆按下（RIGHT_STICK_BUTTON）：
              * 按下：重置机器人当前方向为 0 度
@@ -151,11 +158,11 @@ public class teleOp20827 extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
         ).whenPressed(
-                shooter.stopShooter()
+                shooter.shooterIdle()
         );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+                ()-> gamepad1.gamepad.touchpadWasPressed()
         ).whenPressed(
                 ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
         );

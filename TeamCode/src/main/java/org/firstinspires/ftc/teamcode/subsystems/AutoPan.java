@@ -188,10 +188,10 @@ public class AutoPan {
 
     /**
      * 在主循环中调用此方法以更新云台状态
-     * @param odoData 最新的里程计数据
+     * @param pinpointDriverData 最新的里程计数据
      */
-    public void run(OdoData odoData) {
-        if (odoData == null) return;
+    public void run(PinpointDriverData pinpointDriverData) {
+        if (pinpointDriverData == null) return;
 
         double targetAngleRaw;
         boolean limitActive = false;
@@ -204,9 +204,9 @@ public class AutoPan {
             targetAngleRaw = 0.0;
         } else {
             // TRACK 模式：计算指向 (targetX, targetY) 的角度
-            double rX = odoData.getRobotX();
-            double rY = odoData.getRobotY();
-            double heading = odoData.getHeadingDegrees();
+            double rX = pinpointDriverData.getRobotX();
+            double rY = pinpointDriverData.getRobotY();
+            double heading = pinpointDriverData.getHeadingDegrees();
 
             // 计算位移向量 (目标 - 机器人)
             double dx = targetX - rX;

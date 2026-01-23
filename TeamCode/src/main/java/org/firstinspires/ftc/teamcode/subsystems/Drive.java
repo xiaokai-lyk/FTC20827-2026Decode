@@ -32,7 +32,7 @@ public class Drive {
     // ==========================================
     // 成员变量
     // ==========================================
-    private DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear;
+    private final DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear;
 
     /**
      * 构造驱动系统实例
@@ -52,9 +52,9 @@ public class Drive {
         mLeftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         mRightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        mLeftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        mLeftFront.setDirection(DcMotorEx.Direction.FORWARD);
         mRightFront.setDirection(DcMotorEx.Direction.REVERSE);
-        mLeftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        mLeftRear.setDirection(DcMotorEx.Direction.FORWARD);
         mRightRear.setDirection(DcMotorEx.Direction.REVERSE);
 
         mLeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -76,7 +76,7 @@ public class Drive {
 
     /**
      * 设置四个电机的速度
-     * @param potentials 包含四个电机速度值的数组 [左前, 右前, 左后, 右后]
+     * @param potentials 包含四个电机速度值百分比的数组 [左前, 右前, 左后, 右后] (每个值的范围：[-1.0, 1.0])
      */
     public void setVelocity(@NonNull double[] potentials){
         mLeftFront.setVelocity(potentials[0] * MAX_VELOCITY);
@@ -131,7 +131,7 @@ public class Drive {
         private final DoubleSupplier ySupplier;
         private final double speedCoefficient;
         private final Drive drive;
-        private final Supplier<OdoData> odometerDataSupplier;
+        private final Supplier<PinpointDriverData> odometerDataSupplier;
         public final boolean useEncoders;
         private final boolean fieldCentric;
 
@@ -153,7 +153,7 @@ public class Drive {
                 DoubleSupplier xSupplier,
                 DoubleSupplier ySupplier,
                 DoubleSupplier rotateSupplier,
-                Supplier<OdoData> odometerData,
+                Supplier<PinpointDriverData> odometerData,
                 double speedCoefficient,
                 boolean useEncoders,
                 boolean fieldCentric) {
@@ -172,7 +172,7 @@ public class Drive {
             double x = xSupplier.getAsDouble();
             double y = ySupplier.getAsDouble();
             double rotate = rotateSupplier.getAsDouble();
-            OdoData odometerData = odometerDataSupplier.get();
+            PinpointDriverData odometerData = odometerDataSupplier.get();
             
             double currentHeading;
             if(fieldCentric)
