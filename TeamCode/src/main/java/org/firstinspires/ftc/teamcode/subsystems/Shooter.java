@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
-import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -32,7 +29,7 @@ public class Shooter {
     // ==========================================
     public static final ShooterConfig shooter40cm = new ShooterConfig(1000, 50);    // 40cm射击配置
     public static final ShooterConfig shooter125cm = new ShooterConfig(1500, 50);    // 125cm射击配置
-    public static final ShooterConfig shooter250cm = new ShooterConfig(2300, 50);    // 250cm射击配置
+    public static final ShooterConfig shooterLong = new ShooterConfig(2200, 50);    // 250cm射击配置
 
     // ==========================================
     // 成员变量

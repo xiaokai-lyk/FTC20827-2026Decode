@@ -5,7 +5,6 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
@@ -193,7 +192,7 @@ public class TeleOpBase extends XKCommandOpmode {
         new ButtonEx(
                 ()->gamepad1.getButton(GamepadKeys.Button.B)
         ).whenPressed(
-                shooter.setShooterAndPitch(Shooter.shooter250cm)
+                shooter.setShooterAndPitch(Shooter.shooterLong)
         );
 
         new ButtonEx(
