@@ -60,7 +60,7 @@ public class Hardwares {
     public static class Servos{
         public ServoEx gate, pitch;
         public Servos(@NonNull HardwareMap hardwareMap){
-            gate = getHardware(hardwareMap, "gate", 0, 360);
+            gate = getHardware(hardwareMap, "gate", 0, 300);
             pitch = getHardware(hardwareMap, "pitch", 0, 300);
         }
     }

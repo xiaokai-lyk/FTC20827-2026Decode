@@ -20,8 +20,7 @@ public class Intake {
     // ==========================================
     // 常量配置
     // ==========================================
-    private static final double INTAKE_POWER_IN = 1;        // 吸球功率（向内）
-    private static final double INTAKE_POWER_OUT = -1;      // 反向吐球功率（向外）
+    private static double INTAKE_PWR = 1;        // 吸球功率（向内）
     
     // ==========================================
     // 成员变量
@@ -48,7 +47,7 @@ public class Intake {
      */
     public InstantCommand startIntake(){
         return new InstantCommand(
-                ()->intakeMotor.setPower(INTAKE_POWER_IN)
+                ()->intakeMotor.setPower(INTAKE_PWR)
         );
     }
 
@@ -68,7 +67,11 @@ public class Intake {
      */
     public InstantCommand startOutTake(){
         return new InstantCommand(
-                ()->intakeMotor.setPower(INTAKE_POWER_OUT)
+                ()->intakeMotor.setPower(-INTAKE_PWR)
         );
+    }
+
+    public void setIntakePower(double power) {
+        INTAKE_PWR = power;
     }
 }

@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
@@ -20,26 +21,27 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 @TeleOp(name = "Shooter Tuner", group = "Tests")
 public class ShooterTuner extends XKCommandOpmode {
     public static double SHOOTER_TARGET_VEL = 2200;
-    public static double PITCH_TARGET_ANGLE = 50;
+    public static double PITCH_TARGET_ANGLE = 0;
+    public static double INTAKE_PWR = 1;
     private Hardwares hardwares;
+    private GamepadEx gamepadEx;
     private Shooter shooter;
     private Intake intake;
-//    private Gate gate;
-    private GamepadEx gamepad1;
+    private Gate gate;
     private FtcDashboard dashboard;
 
     @Override
     public void initialize() {
         dashboard = FtcDashboard.getInstance();
 
-        this.gamepad1 = new GamepadEx(super.gamepad1);
         CommandScheduler.getInstance().cancelAll();
 
         hardwares = new Hardwares(hardwareMap);
+        gamepadEx = new GamepadEx(gamepad1);
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
+        gate = new Gate(hardwares);
 
-//        CommandScheduler.getInstance().schedule(shooter.setPitch(() -> PITCH_TARGET_ANGLE));
     }
 
     @Override
@@ -47,9 +49,12 @@ public class ShooterTuner extends XKCommandOpmode {
 
     @Override
     public void run() {
+        intake.setIntakePower(INTAKE_PWR);
+        if (gamepad1.yWasPressed()) {
+            shooter.setShooterConfig(new Shooter.ShooterConfig(SHOOTER_TARGET_VEL, PITCH_TARGET_ANGLE)).schedule();
+        }
+
         CommandScheduler.getInstance().run();
-
-
 
         Shooter.TelemetryState shooterState = shooter.getTelemetryState();
         telemetry.addData("left shooter vel", shooterState.leftVelocity);
@@ -77,31 +82,31 @@ public class ShooterTuner extends XKCommandOpmode {
     public void functionalButtons() {
 
         ParallelCommandGroup enterRunningMode = new ParallelCommandGroup(
-//                gate.close(),
+                gate.close(),
                 intake.stopIntake()
         );
         new ButtonEx(
-                () -> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
+                () -> gamepadEx.getButton(GamepadKeys.Button.LEFT_BUMPER)
         ).whenPressed(
-//                gate.close(),
+                gate.close(),
                 intake.startIntake()
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
+                ()-> gamepadEx.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5
         ).whenPressed(
-//                gate.open(),
+                gate.open(),
                 intake.startIntake()
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.A)
+                ()-> gamepadEx.getButton(GamepadKeys.Button.A)
         ).whenPressed(
                 shooter.stopShooter()
         );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_UP)
+                ()-> gamepadEx.getButton(GamepadKeys.Button.DPAD_UP)
         ).whenPressed(
                 new InstantCommand(()-> {
                     SHOOTER_TARGET_VEL += 50;
@@ -109,17 +114,11 @@ public class ShooterTuner extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
+                ()-> gamepadEx.getButton(GamepadKeys.Button.DPAD_DOWN)
         ).whenPressed(
                 new InstantCommand(()-> {
                     SHOOTER_TARGET_VEL -= 50;
                 })
-        );
-
-        new ButtonEx(
-                ()-> gamepad1.getButton(GamepadKeys.Button.Y)
-        ).whenPressed(
-                shooter.setShooter(() -> SHOOTER_TARGET_VEL)
         );
     }
 }

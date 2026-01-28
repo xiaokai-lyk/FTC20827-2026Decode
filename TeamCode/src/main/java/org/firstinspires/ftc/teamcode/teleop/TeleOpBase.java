@@ -180,19 +180,19 @@ public class TeleOpBase extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad1.getButton(GamepadKeys.Button.Y)
         ).whenPressed(
-                shooter.setShooterAndPitch(Shooter.shooter40cm)
+                shooter.setShooterConfig(Shooter.shooter40cm)
         );
 
         new ButtonEx(
                 ()->gamepad1.getButton(GamepadKeys.Button.A)
         ).whenPressed(
-                shooter.setShooterAndPitch(Shooter.shooter125cm)
+                shooter.setShooterConfig(Shooter.shooter125cm)
         );
 
         new ButtonEx(
                 ()->gamepad1.getButton(GamepadKeys.Button.B)
         ).whenPressed(
-                shooter.setShooterAndPitch(Shooter.shooterLong)
+                shooter.setShooterConfig(Shooter.shooterLong)
         );
 
         new ButtonEx(

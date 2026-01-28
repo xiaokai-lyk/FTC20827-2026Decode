@@ -11,8 +11,6 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
 
-import java.util.function.DoubleSupplier;
-
 /**
  * 发射系统
  *
@@ -65,8 +63,8 @@ public class Shooter {
     private void init() {
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);
-        shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
+        shooterLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        shooterRight.setDirection(DcMotorEx.Direction.FORWARD);
         shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
@@ -76,7 +74,7 @@ public class Shooter {
      * @param config 发射配置
      * @return 设置发射轮速度和俯仰角度的InstantCommand
      */
-    public InstantCommand setShooterAndPitch(ShooterConfig config) {
+    public InstantCommand setShooterConfig(ShooterConfig config) {
         return new InstantCommand(
                 () -> {
                     shooterLeft.setVelocity(config.shooterVelocity);
@@ -88,11 +86,10 @@ public class Shooter {
 
     /**
      * 获取设置发射轮速度的命令
-     * @param velocitySupplier 速度提供者
+     * @param velocity 速度
      * @return 设置发射轮速度的InstantCommand
      */
-    public InstantCommand setShooter(@NonNull DoubleSupplier velocitySupplier) {
-        double velocity = velocitySupplier.getAsDouble();
+    public InstantCommand setShooter(double velocity) {
         return new InstantCommand(
                 () -> {
                     shooterLeft.setVelocity(velocity);
@@ -128,11 +125,10 @@ public class Shooter {
 
     /**
      * 获取设置俯仰角度的命令
-     * @param angleSupplier 俯仰角度提供者
+     * @param angle 俯仰角度
      * @return 设置俯仰角度的InstantCommand
      */
-    public InstantCommand setPitch(@NonNull DoubleSupplier angleSupplier) {
-        double angle = angleSupplier.getAsDouble();
+    public InstantCommand setPitch(double angle) {
         return new InstantCommand(() -> pitch.turnToAngle(angle));
     }
 
