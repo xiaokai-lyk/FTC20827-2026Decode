@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Gate;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.PinpointDriverData;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.utils.ButtonEx;
 import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
@@ -23,11 +24,14 @@ public class ShooterTuner extends XKCommandOpmode {
     public static double SHOOTER_TARGET_VEL = 2200;
     public static double PITCH_TARGET_ANGLE = 0;
     public static double INTAKE_PWR = 1;
+    public static double targetX = 320;
+    public static double targetY = 122;
     private Hardwares hardwares;
     private GamepadEx gamepadEx;
     private Shooter shooter;
     private Intake intake;
     private Gate gate;
+    private PinpointDriverData pinpointDriverData;
     private FtcDashboard dashboard;
 
     @Override
@@ -41,7 +45,7 @@ public class ShooterTuner extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         gate = new Gate(hardwares);
-
+        pinpointDriverData = new PinpointDriverData(hardwares.sensors.odo);
     }
 
     @Override
@@ -56,15 +60,21 @@ public class ShooterTuner extends XKCommandOpmode {
 
         CommandScheduler.getInstance().run();
 
+        pinpointDriverData.update();
+
+        double dX = targetX - pinpointDriverData.getRobotX();
+        double dY = targetY - pinpointDriverData.getRobotY();
+        double goalDistance = Math.hypot(dX, dY);
+
+        telemetry.addData("goal distance", goalDistance);
+
         Shooter.TelemetryState shooterState = shooter.getTelemetryState();
         telemetry.addData("left shooter vel", shooterState.leftVelocity);
         telemetry.addData("right shooter vel", shooterState.rightVelocity);
+        telemetry.addData("target vel", SHOOTER_TARGET_VEL);
         telemetry.addData("left shooter current", shooterState.leftCurrent);
         telemetry.addData("right shooter current", shooterState.rightCurrent);
         telemetry.addData("pitch angle", shooterState.pitchAngle);
-        telemetry.addData("target vel", SHOOTER_TARGET_VEL);
-        dashboard.getTelemetry().addData("left shooter vel", shooterState.leftVelocity);
-        dashboard.getTelemetry().addData("right shooter vel", shooterState.rightVelocity);
         telemetry.update();
 
         TelemetryPacket packet = new TelemetryPacket();
@@ -108,17 +118,13 @@ public class ShooterTuner extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepadEx.getButton(GamepadKeys.Button.DPAD_UP)
         ).whenPressed(
-                new InstantCommand(()-> {
-                    SHOOTER_TARGET_VEL += 50;
-                })
+                new InstantCommand(()-> SHOOTER_TARGET_VEL += 50)
         );
 
         new ButtonEx(
                 ()-> gamepadEx.getButton(GamepadKeys.Button.DPAD_DOWN)
         ).whenPressed(
-                new InstantCommand(()-> {
-                    SHOOTER_TARGET_VEL -= 50;
-                })
+                new InstantCommand(()-> SHOOTER_TARGET_VEL -= 50)
         );
     }
 }

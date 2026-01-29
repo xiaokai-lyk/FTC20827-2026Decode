@@ -63,8 +63,8 @@ public class Shooter {
     private void init() {
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        shooterRight.setDirection(DcMotorEx.Direction.FORWARD);
+        shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
         shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
