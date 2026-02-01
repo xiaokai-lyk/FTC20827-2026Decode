@@ -31,6 +31,8 @@ public class AutoPan {
     public static final double MIN_DISTANCE_CM = 5.0;       // 距离原点太近时不跟踪
     public static final boolean USE_SOFT_LIMIT = true;      // 启用软限位
     public static final double MAX_ANGLE_DEG = 175.0;       // 软限位角度 (留有 5 度余量)
+    public static final double ALLOW_WRAP_THRESHOLD_DEG = 30.0; // 可穿透角度
+
 
     // 滤波系数 (0.0 - 1.0)，越小越平滑但延迟越高
     // 0.3 是一个经验值，既能滤除高频噪声，又不会造成明显滞后
@@ -224,31 +226,52 @@ public class AutoPan {
                 // 如果目标在背面 (例如 179 -> -179)，这就构成了穿越 ±180 边界的最短路径。
                 // 物理上如果不允许穿越 (墙)，我们希望停留在边界，而不是绕远路 (350度)。
 
-                // 1. 获取当前实际角度
+                // 1. 当前真实角度（编码器）
                 double currentDeg = panMotor.getCurrentPosition() / PAN_TICKS_PER_DEGREE;
-
-                // 2. 计算从当前角度到目标角度的最短“几何”增量 (可能跨越 180 边界)
+                // 2. 最短几何角度增量（可能跨 ±180）
                 double delta = normalizeAngle(relativeAngle - currentDeg);
-
-                // 3. 计算如果不考虑物理墙，我们会去哪里
+                // 3. 理想下一角度（不考虑物理墙）
                 double idealNextAngle = currentDeg + delta;
-
-                // 4. 应用软限位 clamp
-                // 如果 idealNextAngle 超过了 175，说明要穿墙，被截断在 175。
-                // 如果 idealNextAngle 小于 -175，被截断在 -175。
-                // 这样就实现了“停在限位处”，而不是尝试用 RUN_TO_POSITION 绕一圈。
                 if (USE_SOFT_LIMIT) {
-                   if (idealNextAngle > MAX_ANGLE_DEG) {
-                       targetAngleRaw = MAX_ANGLE_DEG;
-                       limitActive = true;
-                   } else if (idealNextAngle < -MAX_ANGLE_DEG) {
-                       targetAngleRaw = -MAX_ANGLE_DEG;
-                       limitActive = true;
-                   } else {
-                       targetAngleRaw = idealNextAngle;
-                   }
+                    boolean hitsLimit =
+                            idealNextAngle > MAX_ANGLE_DEG || idealNextAngle < -MAX_ANGLE_DEG;
+                    if (hitsLimit) {
+                        // --- 计算“绕远路”的两种可能 ---
+                        double wrappedPlus  = idealNextAngle + 360.0;
+                        double wrappedMinus = idealNextAngle - 360.0;
+                        // 不绕的代价（会被 clamp）
+                        double directCost = Math.abs(idealNextAngle - currentDeg);
+                        // 绕远路的代价
+                        double wrapCost = Math.min(
+                                Math.abs(wrappedPlus - currentDeg),
+                                Math.abs(wrappedMinus - currentDeg)
+                        );
+                        // 如果绕远路“额外代价”在容忍范围内 → 允许绕
+                        if (wrapCost - directCost <= ALLOW_WRAP_THRESHOLD_DEG) {
+                            // 选择代价更小的绕行方向
+                            targetAngleRaw =
+                                    (Math.abs(wrappedPlus - currentDeg)
+                                            < Math.abs(wrappedMinus - currentDeg))
+                                            ? wrappedPlus
+                                            : wrappedMinus;
+                            limitActive = false;
+                        } else {
+                            // 代价太大 → 老老实实贴墙
+                            targetAngleRaw = Math.max(
+                                    -MAX_ANGLE_DEG,
+                                    Math.min(MAX_ANGLE_DEG, idealNextAngle)
+                            );
+                            limitActive = true;
+                        }
+                    } else {
+                        // 没有撞限位，正常走
+                        targetAngleRaw = idealNextAngle;
+                        limitActive = false;
+                    }
                 } else {
-                    targetAngleRaw = relativeAngle;
+                    // 未启用软限位
+                    targetAngleRaw = idealNextAngle;
+                    limitActive = false;
                 }
             }
         }

@@ -7,6 +7,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -66,7 +68,9 @@ public class TeleOpBase extends XKCommandOpmode {
                 true,
                 false
         );
-
+        /* you fucking forgot to init the odo computer
+         choose blue or red when initing
+         */
         CommandScheduler.getInstance().schedule(driveCommand);
     }
 
