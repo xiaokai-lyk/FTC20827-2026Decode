@@ -5,13 +5,16 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.utils.XKPIDFController;
@@ -48,6 +51,10 @@ public class XKPIDFTuner extends LinearOpMode {
     public static boolean ENABLE_BANG_BANG = true;
     public static double BANG_BAND_ABS = 30.0; // 绝对误差带宽 (ticks/s)
     public static double ASSIST_POWER = 1.0;   // 助力功率
+    public static double PITCH_ANGLE_DEG = 0.0; // 俯仰角度
+    public static double GATE_OPEN_ANGLE_DEG = 50; // 挡板打开角度
+    public static double GATE_CLOSE_ANGLE_DEG = 107; // 挡板关闭角度
+    public static boolean GATE_OPEN = false; // 挡板状态
     public static boolean ENABLE_INTAKE = false; // 是否启用吸球电机
     public static boolean ENABLE_SHOOTER = false;
 
@@ -56,10 +63,11 @@ public class XKPIDFTuner extends LinearOpMode {
     private XKPIDFController controller;
     private DcMotorEx shooterLeft, shooterRight;
     private Intake intake;
+    private ServoEx pitch, gate;
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         // 1. 初始化 Dashboard 遥测，这样 telemetery.addData 的内容会自动发给网页端画图
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -67,6 +75,11 @@ public class XKPIDFTuner extends LinearOpMode {
         // 也可以使用 new Hardwares(hardwareMap) 如果你习惯那样
         shooterLeft = hardwareMap.get(DcMotorEx.class, "shooterLeft");
         shooterRight = hardwareMap.get(DcMotorEx.class, "shooterRight");
+
+        pitch = new SimpleServo(hardwareMap, "pitch", 0, 300);
+        pitch.turnToAngle(PITCH_ANGLE_DEG, AngleUnit.DEGREES);
+
+        gate = new SimpleServo(hardwareMap, "gate", 0, 300);
 
         // 电机配置
         shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);  // 根据 Shooter.java 的配置
@@ -99,6 +112,7 @@ public class XKPIDFTuner extends LinearOpMode {
             // 4. 实时更新参数 (从 Dashboard 读取)
             updateControllerParams(controller);
 
+
             // 5. 获取状态并计算
             double velLeft = shooterLeft.getVelocity();
             double velRight = shooterRight.getVelocity();
@@ -126,6 +140,14 @@ public class XKPIDFTuner extends LinearOpMode {
                 intake.stopIntake().schedule();
             }
 
+            if(GATE_OPEN){
+                gate.turnToAngle(GATE_OPEN_ANGLE_DEG, AngleUnit.DEGREES);
+            }else {
+                gate.turnToAngle(GATE_CLOSE_ANGLE_DEG, AngleUnit.DEGREES);
+            }
+
+            pitch.turnToAngle(PITCH_ANGLE_DEG, AngleUnit.DEGREES);
+
             // 7. 发送遥测数据用于绘图
             // 电压显示
             telemetry.addData("Battery Voltage", voltageSensor.getVoltage());
@@ -136,6 +158,8 @@ public class XKPIDFTuner extends LinearOpMode {
             telemetry.addData("Vel Left", velLeft);
             telemetry.addData("Vel Right", velRight);
             telemetry.addData("Vel Avg", avgVel);
+
+            telemetry.addData("pitch angle(deg)", pitch.getAngle(AngleUnit.DEGREES));
 
             // 功率曲线 (方便观察是否饱和或震荡)
             telemetry.addData("Power Out", output.power);

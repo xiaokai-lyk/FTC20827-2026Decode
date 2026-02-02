@@ -6,10 +6,10 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
+import org.firstinspires.ftc.teamcode.utils.XKPIDFController;
 
 /**
  * 发射系统
@@ -25,15 +25,29 @@ public class Shooter {
     // ==========================================
     // 常量配置
     // ==========================================
-    public static final ShooterConfig shooter40cm = new ShooterConfig(1000, 50);    // 40cm射击配置
-    public static final ShooterConfig shooter125cm = new ShooterConfig(1500, 50);    // 125cm射击配置
-    public static final ShooterConfig shooterLong = new ShooterConfig(2200, 50);    // 250cm射击配置
+    public static final ShooterConfig shooter40cm = new ShooterConfig(1300, 0);    // 40cm射击配置
+    public static final ShooterConfig shooterNearTop = new ShooterConfig(1500, 120);    // 125cm射击配置
+    public static final ShooterConfig shooterFar = new ShooterConfig(1950, 180);    // 250cm射击配置
+
+    // Default PIDF constants (tuned values)
+    public static double kP = 0.0;
+    public static double kI = 0.0;
+    public static double kD = 0.0;
+    public static double kF = 0.00037;
+
+    // Bang-Bang params
+    public static boolean ENABLE_BANG_BANG = true;
+    public static double BANG_BAND_ABS = 30.0;
+    public static double ASSIST_POWER = 1.0;
 
     // ==========================================
     // 成员变量
     // ==========================================
     private final DcMotorEx shooterLeft, shooterRight;
     private final ServoEx pitch;
+    private final XKPIDFController controller;
+    private boolean isClosedLoop = false;
+    private XKPIDFController.Output controllerOutput;
 
     public static class ShooterConfig {
         public double shooterVelocity, pitchAngle;
@@ -57,6 +71,7 @@ public class Shooter {
         this.shooterLeft = hardwares.motors.shooterLeft;
         this.shooterRight = hardwares.motors.shooterRight;
         this.pitch = hardwares.servos.pitch;
+        this.controller = new XKPIDFController(hardwares.voltageSensor);
         this.init();
     }
 
@@ -65,8 +80,25 @@ public class Shooter {
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);
         shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
-        shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        controller.setPIDF(kP, kI, kD, kF)
+                .setBangBang(ENABLE_BANG_BANG, BANG_BAND_ABS, ASSIST_POWER);
+    }
+
+
+    public void run() {
+        if (isClosedLoop) {
+            double velLeft = shooterLeft.getVelocity();
+            double velRight = shooterRight.getVelocity();
+            // Average velocity for coaxial motors
+            double avgVel = (velLeft + velRight) / 2.0;
+
+            this.controllerOutput = controller.update(avgVel);
+            shooterLeft.setPower(this.controllerOutput.power);
+            shooterRight.setPower(this.controllerOutput.power);
+        }
     }
 
     /**
@@ -77,26 +109,13 @@ public class Shooter {
     public InstantCommand setShooterConfig(ShooterConfig config) {
         return new InstantCommand(
                 () -> {
-                    shooterLeft.setVelocity(config.shooterVelocity);
-                    shooterRight.setVelocity(config.shooterVelocity);
+                    isClosedLoop = true;
+                    controller.setTargetVelocity(config.shooterVelocity);
                     pitch.turnToAngle(config.pitchAngle);
                 }
         );
     }
 
-    /**
-     * 获取设置发射轮速度的命令
-     * @param velocity 速度
-     * @return 设置发射轮速度的InstantCommand
-     */
-    public InstantCommand setShooter(double velocity) {
-        return new InstantCommand(
-                () -> {
-                    shooterLeft.setVelocity(velocity);
-                    shooterRight.setVelocity(velocity);
-                }
-        );
-    }
 
     /**
      * 获取发射轮怠速的命令
@@ -104,8 +123,7 @@ public class Shooter {
      */
     public InstantCommand shooterIdle() {
         return new InstantCommand(()->{
-            shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            shooterRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            isClosedLoop = false;
             shooterLeft.setPower(0.3);
             shooterRight.setPower(0.3);
         });
@@ -117,8 +135,10 @@ public class Shooter {
     public InstantCommand stopShooter() {
         return new InstantCommand(
                 () -> {
-                    shooterLeft.setMotorDisable();
-                    shooterRight.setMotorDisable();
+                    isClosedLoop = false;
+                    controller.reset();
+                    shooterLeft.setPower(0);
+                    shooterRight.setPower(0);
                 }
         );
     }
@@ -142,15 +162,7 @@ public class Shooter {
      */
     public InstantCommand setShooterPIDF(double p, double i, double d, double f) {
         return new InstantCommand(()-> {
-            shooterLeft.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(p, i, d, f));
-            shooterRight.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(p, i, d, f));
-        });
-    }
-
-    public InstantCommand resetShooterPIDF() {
-        return new InstantCommand(()-> {
-            shooterLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            shooterRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            controller.setPIDF(p, i, d, f);
         });
     }
 
@@ -160,24 +172,27 @@ public class Shooter {
         public final double pitchAngle;
         public final double leftCurrent;
         public final double rightCurrent;
+        public final String controllerOutput;
 
         public TelemetryState(double leftVelocity,
                               double rightVelocity,
                               double pitchAngle,
                               double leftCurrent,
-                              double rightCurrent) {
+                              double rightCurrent,
+                              String controllerOutput) {
             this.leftVelocity = leftVelocity;
             this.rightVelocity = rightVelocity;
             this.pitchAngle = pitchAngle;
             this.leftCurrent = leftCurrent;
             this.rightCurrent = rightCurrent;
+            this.controllerOutput = controllerOutput;
         }
 
         @NonNull
         @Override
         public String toString() {
-            return String.format(java.util.Locale.US, "Left Velocity: %.1f\nRight Velocity: %.1f\nPitch Angle: %.1f\nLeft Current: %.1f\nRight Current: %.1f",
-                    leftVelocity, rightVelocity, pitchAngle, leftCurrent, rightCurrent);
+            return String.format(java.util.Locale.US, "Left Velocity: %.1f\nRight Velocity: %.1f\nPitch Angle: %.1f\nLeft Current: %.1f\nRight Current: %.1f\nController Output: %s",
+                    leftVelocity, rightVelocity, pitchAngle, leftCurrent, rightCurrent, controllerOutput);
         }
     }
 
@@ -191,7 +206,8 @@ public class Shooter {
                 shooterRight.getVelocity(),
                 pitch.getAngle(),
                 shooterLeft.getCurrent(CurrentUnit.MILLIAMPS),
-                shooterRight.getCurrent(CurrentUnit.MILLIAMPS)
+                shooterRight.getCurrent(CurrentUnit.MILLIAMPS),
+                controllerOutput != null ? controllerOutput.toString() : "N/A"
         );
     }
 }

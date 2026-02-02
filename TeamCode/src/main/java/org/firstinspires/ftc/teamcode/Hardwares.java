@@ -17,6 +17,7 @@ public class Hardwares {
     public Sensors sensors;
     public Motors motors;
     public Servos servos;
+    public com.qualcomm.robotcore.hardware.VoltageSensor voltageSensor;
 
     public static <T> T getHardware(@NonNull HardwareMap hardwareMap, String name, Class<T> clazz){
         return hardwareMap.get(clazz, name);
@@ -69,5 +70,6 @@ public class Hardwares {
         sensors = new Sensors(hardwareMap);
         motors = new Motors(hardwareMap);
         servos = new Servos(hardwareMap);
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 }

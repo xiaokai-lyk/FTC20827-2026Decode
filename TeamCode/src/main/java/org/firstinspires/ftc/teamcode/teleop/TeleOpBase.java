@@ -7,8 +7,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -45,7 +43,7 @@ public class TeleOpBase extends XKCommandOpmode {
         telemetry.addData("TargetX", targetX);
         telemetry.addData("TargetY", targetY);
         this.gamepad1 = new GamepadEx(super.gamepad1);
-        CommandScheduler.getInstance().cancelAll();
+        CommandScheduler.getInstance().reset();
 
         hardwares = new Hardwares(hardwareMap);
         shooter = new Shooter(hardwares);
@@ -57,6 +55,8 @@ public class TeleOpBase extends XKCommandOpmode {
         autoPan.init();
 
         drive = new Drive(hardwares);
+
+
 
         driveCommand = new Drive.DriveCommand(
                 drive,
@@ -85,6 +85,7 @@ public class TeleOpBase extends XKCommandOpmode {
 
         this.pinpointDriverData.update();
         autoPan.run(this.pinpointDriverData);
+        shooter.run();
 
         telemetry.addData("Heading (Rad)", pinpointDriverData.getHeadingRadians());
         telemetry.addData("Heading (Deg)", pinpointDriverData.getHeadingDegrees());
@@ -113,6 +114,7 @@ public class TeleOpBase extends XKCommandOpmode {
         telemetry.addData("shooter left vel", shooterState.leftVelocity);
         telemetry.addData("shooter right vel", shooterState.rightVelocity);
         telemetry.addData("shooter target vel", shooterState.pitchAngle);
+        telemetry.addData("shooter controller output", shooterState.controllerOutput);
         telemetry.addData("gate angle (deg)", gate.getAngleDeg());
 
         telemetry.update();
@@ -190,13 +192,13 @@ public class TeleOpBase extends XKCommandOpmode {
         new ButtonEx(
                 ()->gamepad1.getButton(GamepadKeys.Button.A)
         ).whenPressed(
-                shooter.setShooterConfig(Shooter.shooter125cm)
+                shooter.setShooterConfig(Shooter.shooterNearTop)
         );
 
         new ButtonEx(
                 ()->gamepad1.getButton(GamepadKeys.Button.B)
         ).whenPressed(
-                shooter.setShooterConfig(Shooter.shooterLong)
+                shooter.setShooterConfig(Shooter.shooterFar)
         );
 
         new ButtonEx(

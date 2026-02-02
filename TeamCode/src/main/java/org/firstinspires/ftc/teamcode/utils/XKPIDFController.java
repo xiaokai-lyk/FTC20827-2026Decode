@@ -67,6 +67,12 @@ public class XKPIDFController  {
             this.power = power;
             this.isAssistActive = isAssistActive;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format("Output{power=%.3f, isAssistActive=%s}", power, isAssistActive);
+        }
     }
 
     private final VoltageSensor voltageSensor;
@@ -189,7 +195,6 @@ public class XKPIDFController  {
         integral = 0;
         lastError = 0;
         isFirstRun = true;
-        // timer.reset(); // 不再使用 ElapsedTime
         lastNanoTime = System.nanoTime();
     }
 }
