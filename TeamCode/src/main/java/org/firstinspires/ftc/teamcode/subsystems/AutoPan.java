@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Hardwares;
 /**
  * AutoPan Refactored
  * 自动云台控制系统
- *
  * 功能：
  * 1. HOLD 模式：锁定朝前 (0度)
  * 2. TRACK 模式：自动跟踪场地坐标 (0,0)
@@ -39,11 +38,14 @@ public class AutoPan {
     private static final double EMA_ALPHA = 0.3;
     private static final double PAN_P_POS = 15, PAN_P_VEL = 30, PAN_I = 0.01, PAN_F = 0, PAN_D = 0;
 
+    private double HOLD_ANGLE = 0.0;
+
+
     // ==========================================
     // 状态定义
     // ==========================================
     public enum Mode {
-        HOLD,   // 锁定模式：强制回中 (0度)
+        HOLD,   // 锁定模式
         TRACK   // 跟踪模式：指向 (0,0)
     }
 
@@ -203,7 +205,7 @@ public class AutoPan {
         // -----------------------------
         if (currentMode == Mode.HOLD) {
             // HOLD 模式：目标永远是 0 度
-            targetAngleRaw = 0.0;
+            targetAngleRaw = HOLD_ANGLE;
         } else {
             // TRACK 模式：计算指向 (targetX, targetY) 的角度
             double rX = pinpointDriverData.getRobotX();
@@ -315,6 +317,14 @@ public class AutoPan {
     public void setPanMotorPIDF(double pPos, double pVel, double i, double d, double f) {
         panMotor.setPositionPIDFCoefficients(pPos);
         panMotor.setVelocityPIDFCoefficients(pVel, i, d, f);
+    }
+
+    public void setHoldAngle(double holdAngle) {
+        HOLD_ANGLE = holdAngle;
+    }
+
+    public boolean isPanBusy() {
+        return panMotor.isBusy();
     }
 }
 

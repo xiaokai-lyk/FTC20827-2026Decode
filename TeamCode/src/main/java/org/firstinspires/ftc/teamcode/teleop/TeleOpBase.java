@@ -68,9 +68,7 @@ public class TeleOpBase extends XKCommandOpmode {
                 true,
                 false
         );
-        /* you fucking forgot to init the odo computer
-         choose blue or red when initing
-         */
+
         CommandScheduler.getInstance().schedule(driveCommand);
     }
 

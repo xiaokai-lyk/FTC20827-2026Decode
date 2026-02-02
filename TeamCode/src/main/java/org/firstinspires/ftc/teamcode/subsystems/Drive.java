@@ -52,10 +52,10 @@ public class Drive {
         mLeftRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         mRightRear.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        mLeftFront.setDirection(DcMotorEx.Direction.FORWARD);
-        mRightFront.setDirection(DcMotorEx.Direction.REVERSE);
-        mLeftRear.setDirection(DcMotorEx.Direction.FORWARD);
-        mRightRear.setDirection(DcMotorEx.Direction.REVERSE);
+        mLeftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        mRightFront.setDirection(DcMotorEx.Direction.FORWARD);
+        mLeftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        mRightRear.setDirection(DcMotorEx.Direction.FORWARD);
 
         mLeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         mRightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
