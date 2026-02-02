@@ -26,10 +26,9 @@ public class AutoPan {
     public static final double PAN_REV_PER_MOTOR_REVS = 100.0 / 20.0;
     public static final double PAN_TICKS_PER_DEGREE = (MOTOR_TICKS_PER_REV * PAN_REV_PER_MOTOR_REVS) / 360.0;
 
-    public static final double PAN_MAX_POWER = 0.85;        // 运动最大功率
-    public static final double MIN_DISTANCE_CM = 5.0;       // 距离原点太近时不跟踪
+    public static final double PAN_POWER = 0.85;        // 运动最大功率
     public static final boolean USE_SOFT_LIMIT = true;      // 启用软限位
-    public static final double MAX_ANGLE_DEG = 175.0;       // 软限位角度 (留有 5 度余量)
+    public static final double MAX_ANGLE_DEG = 70.0;       // 软限位角度
     public static final double ALLOW_WRAP_THRESHOLD_DEG = 30.0; // 可穿透角度
 
 
@@ -116,7 +115,7 @@ public class AutoPan {
     public void setup() {
         panMotor.setTargetPosition(0);
         panMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        panMotor.setPower(PAN_MAX_POWER);
+        panMotor.setPower(PAN_POWER);
 
         // 初始状态默认为 HOLD
         this.currentMode = Mode.HOLD;
@@ -204,7 +203,7 @@ public class AutoPan {
         // A. 计算原始目标角度
         // -----------------------------
         if (currentMode == Mode.HOLD) {
-            // HOLD 模式：目标永远是 0 度
+            // HOLD 模式：目标永远固定
             targetAngleRaw = HOLD_ANGLE;
         } else {
             // TRACK 模式：计算指向 (targetX, targetY) 的角度
@@ -216,65 +215,60 @@ public class AutoPan {
             double dx = targetX - rX;
             double dy = targetY - rY;
 
-            // 如果距离太近，可能导致角度计算剧变，保持 0 度或上一个角度
-            if (Math.hypot(dx, dy) < MIN_DISTANCE_CM) {
-                targetAngleRaw = 0.0; // 或者保持 currentFilteredAngle
-            } else {
-                // atan2 返回世界坐标系角度，减去机器人朝向得到相对云台角度
-                double angleToGoal = Math.toDegrees(Math.atan2(dy, dx));
-                double relativeAngle = normalizeAngle(angleToGoal - heading);
+            // atan2 返回世界坐标系角度，减去机器人朝向得到相对云台角度
+            double angleToGoal = Math.toDegrees(Math.atan2(dy, dx));
+            double relativeAngle = normalizeAngle(angleToGoal - heading);
 
-                // 智能限位逻辑：
-                // 如果目标在背面 (例如 179 -> -179)，这就构成了穿越 ±180 边界的最短路径。
-                // 物理上如果不允许穿越 (墙)，我们希望停留在边界，而不是绕远路 (350度)。
+            // 智能限位逻辑：
+            // 如果目标在背面 (例如 179 -> -179)，这就构成了穿越 ±180 边界的最短路径。
+            // 物理上如果不允许穿越 (墙)，我们希望停留在边界，而不是绕远路 (350度)。
 
-                // 1. 当前真实角度（编码器）
-                double currentDeg = panMotor.getCurrentPosition() / PAN_TICKS_PER_DEGREE;
-                // 2. 最短几何角度增量（可能跨 ±180）
-                double delta = normalizeAngle(relativeAngle - currentDeg);
-                // 3. 理想下一角度（不考虑物理墙）
-                double idealNextAngle = currentDeg + delta;
-                if (USE_SOFT_LIMIT) {
-                    boolean hitsLimit =
-                            idealNextAngle > MAX_ANGLE_DEG || idealNextAngle < -MAX_ANGLE_DEG;
-                    if (hitsLimit) {
-                        // --- 计算“绕远路”的两种可能 ---
-                        double wrappedPlus  = idealNextAngle + 360.0;
-                        double wrappedMinus = idealNextAngle - 360.0;
-                        // 不绕的代价（会被 clamp）
-                        double directCost = Math.abs(idealNextAngle - currentDeg);
-                        // 绕远路的代价
-                        double wrapCost = Math.min(
-                                Math.abs(wrappedPlus - currentDeg),
-                                Math.abs(wrappedMinus - currentDeg)
-                        );
-                        // 如果绕远路“额外代价”在容忍范围内 → 允许绕
-                        if (wrapCost - directCost <= ALLOW_WRAP_THRESHOLD_DEG) {
-                            // 选择代价更小的绕行方向
-                            targetAngleRaw =
-                                    (Math.abs(wrappedPlus - currentDeg)
-                                            < Math.abs(wrappedMinus - currentDeg))
-                                            ? wrappedPlus
-                                            : wrappedMinus;
-                            limitActive = false;
-                        } else {
-                            // 代价太大 → 老老实实贴墙
-                            targetAngleRaw = Math.max(
-                                    -MAX_ANGLE_DEG,
-                                    Math.min(MAX_ANGLE_DEG, idealNextAngle)
-                            );
-                            limitActive = true;
-                        }
-                    } else {
-                        // 没有撞限位，正常走
-                        targetAngleRaw = idealNextAngle;
+            // 1. 当前真实角度（编码器）
+            double currentDeg = panMotor.getCurrentPosition() / PAN_TICKS_PER_DEGREE;
+            // 2. 最短几何角度增量（可能跨 ±180）
+            double delta = normalizeAngle(relativeAngle - currentDeg);
+            // 3. 理想下一角度（不考虑物理墙）
+            double idealNextAngle = currentDeg + delta;
+            if (USE_SOFT_LIMIT) {
+                boolean hitsLimit =
+                        idealNextAngle > MAX_ANGLE_DEG || idealNextAngle < -MAX_ANGLE_DEG;
+                if (hitsLimit) {
+                    // --- 计算“绕远路”的两种可能 ---
+                    double wrappedPlus = idealNextAngle + 360.0;
+                    double wrappedMinus = idealNextAngle - 360.0;
+                    // 不绕的代价（会被 clamp）
+                    double directCost = Math.abs(idealNextAngle - currentDeg);
+                    // 绕远路的代价
+                    double wrapCost = Math.min(
+                            Math.abs(wrappedPlus - currentDeg),
+                            Math.abs(wrappedMinus - currentDeg)
+                    );
+                    // 如果绕远路“额外代价”在容忍范围内 → 允许绕
+                    if (wrapCost - directCost <= ALLOW_WRAP_THRESHOLD_DEG) {
+                        // 选择代价更小的绕行方向
+                        targetAngleRaw =
+                                (Math.abs(wrappedPlus - currentDeg)
+                                        < Math.abs(wrappedMinus - currentDeg))
+                                        ? wrappedPlus
+                                        : wrappedMinus;
                         limitActive = false;
+                    } else {
+                        // 代价太大 → 老老实实贴墙
+                        targetAngleRaw = Math.max(
+                                -MAX_ANGLE_DEG,
+                                Math.min(MAX_ANGLE_DEG, idealNextAngle)
+                        );
+                        limitActive = true;
                     }
                 } else {
-                    // 未启用软限位
+                    // 没有撞限位，正常走
                     targetAngleRaw = idealNextAngle;
                     limitActive = false;
                 }
+            } else {
+                // 未启用软限位
+                targetAngleRaw = idealNextAngle;
+                limitActive = false;
             }
         }
 
@@ -301,7 +295,7 @@ public class AutoPan {
             // 确保电机处于运行模式 (双重保险)
             if (panMotor.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
                 panMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                panMotor.setPower(PAN_MAX_POWER);
+                panMotor.setPower(PAN_POWER);
             }
 
             lastTargetTicks = targetTicks;
