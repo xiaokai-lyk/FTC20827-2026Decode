@@ -28,7 +28,7 @@ public class AutoPan {
 
     public static final double PAN_POWER = 0.85;        // 运动最大功率
     public static final boolean USE_SOFT_LIMIT = true;      // 启用软限位
-    public static final double MAX_ANGLE_DEG = 70.0;       // 软限位角度
+    public static final double MAX_ANGLE_DEG = 80.0;       // 软限位角度
     public static final double ALLOW_WRAP_THRESHOLD_DEG = 30.0; // 可穿透角度
 
 

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -37,11 +39,13 @@ public class TeleOpBase extends XKCommandOpmode {
     private PinpointDriverData pinpointDriverData;
     private GamepadEx gamepad1;
     private Drive.DriveCommand driveCommand;
+    private MultipleTelemetry multipleTelemetry;
 
     @Override
     public void initialize() {
-        telemetry.addData("TargetX", targetX);
-        telemetry.addData("TargetY", targetY);
+        this.multipleTelemetry =  new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        this.multipleTelemetry.addData("TargetX", targetX);
+        this.multipleTelemetry.addData("TargetY", targetY);
         this.gamepad1 = new GamepadEx(super.gamepad1);
         CommandScheduler.getInstance().reset();
 
@@ -74,6 +78,7 @@ public class TeleOpBase extends XKCommandOpmode {
 
     @Override
     public void onStart() {
+        gate.close().schedule();
         autoPan.setup();
     }
 
@@ -85,37 +90,37 @@ public class TeleOpBase extends XKCommandOpmode {
         autoPan.run(this.pinpointDriverData);
         shooter.run();
 
-        telemetry.addData("Heading (Rad)", pinpointDriverData.getHeadingRadians());
-        telemetry.addData("Heading (Deg)", pinpointDriverData.getHeadingDegrees());
-        telemetry.addData("X", pinpointDriverData.getRobotX());
-        telemetry.addData("Y", pinpointDriverData.getRobotY());
+        this.multipleTelemetry.addData("Heading (Rad)", pinpointDriverData.getHeadingRadians());
+        this.multipleTelemetry.addData("Heading (Deg)", pinpointDriverData.getHeadingDegrees());
+        this.multipleTelemetry.addData("X", pinpointDriverData.getRobotX());
+        this.multipleTelemetry.addData("Y", pinpointDriverData.getRobotY());
 
-        telemetry.addLine("---");
+        this.multipleTelemetry.addLine("---");
         double[] velocities = drive.getVelocities();
-        telemetry.addData("use encoders", driveCommand.useEncoders);
-        telemetry.addData("left front velocity", velocities[0]);
-        telemetry.addData("right front velocity", velocities[1]);
-        telemetry.addData("left rear velocity", velocities[2]);
-        telemetry.addData("right rear velocity", velocities[3]);
+        this.multipleTelemetry.addData("use encoders", driveCommand.useEncoders);
+        this.multipleTelemetry.addData("left front velocity", velocities[0]);
+        this.multipleTelemetry.addData("right front velocity", velocities[1]);
+        this.multipleTelemetry.addData("left rear velocity", velocities[2]);
+        this.multipleTelemetry.addData("right rear velocity", velocities[3]);
 
 
-        telemetry.addLine("---");
+        this.multipleTelemetry.addLine("---");
         AutoPan.TelemetryState panTelemetry = autoPan.getTelemetryStatus();
-        telemetry.addData("pan mode", panTelemetry.mode);
-        telemetry.addData("pan angle (deg)", panTelemetry.currentAngle);
-        telemetry.addData("pan limit reached", panTelemetry.isLimitReached);
+        this.multipleTelemetry.addData("pan mode", panTelemetry.mode);
+        this.multipleTelemetry.addData("pan angle (deg)", panTelemetry.currentAngle);
+        this.multipleTelemetry.addData("pan limit reached", panTelemetry.isLimitReached);
 
-        telemetry.addLine("---");
+        this.multipleTelemetry.addLine("---");
         Shooter.TelemetryState shooterState = shooter.getTelemetryState();
-        telemetry.addData("shooter left current", shooterState.leftCurrent);
-        telemetry.addData("shooter right current", shooterState.rightCurrent);
-        telemetry.addData("shooter left vel", shooterState.leftVelocity);
-        telemetry.addData("shooter right vel", shooterState.rightVelocity);
-        telemetry.addData("shooter target vel", shooterState.pitchAngle);
-        telemetry.addData("shooter controller output", shooterState.controllerOutput);
-        telemetry.addData("gate angle (deg)", gate.getAngleDeg());
+        this.multipleTelemetry.addData("shooter left current", shooterState.leftCurrent);
+        this.multipleTelemetry.addData("shooter right current", shooterState.rightCurrent);
+        this.multipleTelemetry.addData("shooter left vel", shooterState.leftVelocity);
+        this.multipleTelemetry.addData("shooter right vel", shooterState.rightVelocity);
+        this.multipleTelemetry.addData("shooter target vel", shooterState.pitchAngle);
+        this.multipleTelemetry.addData("shooter controller output", shooterState.controllerOutput);
+        this.multipleTelemetry.addData("gate angle (deg)", gate.getAngleDeg());
 
-        telemetry.update();
+        this.multipleTelemetry.update();
     }
 
 

@@ -19,8 +19,8 @@ public class Gate {
     // ==========================================
     // 常量配置
     // ==========================================
-    private static final double GATE_OPEN_ANGLE = 50;    // 闸门开启角度
-    private static final double GATE_CLOSE_ANGLE = 107;  // 闸门关闭角度
+    private static final double GATE_OPEN_ANGLE = 70;    // 闸门开启角度
+    private static final double GATE_CLOSE_ANGLE = 113;  // 闸门关闭角度
     
     // ==========================================
     // 成员变量

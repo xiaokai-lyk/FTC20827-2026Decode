@@ -71,7 +71,7 @@ public class Shooter {
         this.shooterLeft = hardwares.motors.shooterLeft;
         this.shooterRight = hardwares.motors.shooterRight;
         this.pitch = hardwares.servos.pitch;
-        this.controller = new XKPIDFController(hardwares.voltageSensor);
+        this.controller = new XKPIDFController(hardwares.sensors.voltageSensor);
         this.init();
     }
 

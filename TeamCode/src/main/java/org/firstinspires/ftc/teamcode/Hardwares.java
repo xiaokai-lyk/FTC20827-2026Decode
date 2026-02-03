@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -17,7 +18,6 @@ public class Hardwares {
     public Sensors sensors;
     public Motors motors;
     public Servos servos;
-    public com.qualcomm.robotcore.hardware.VoltageSensor voltageSensor;
 
     public static <T> T getHardware(@NonNull HardwareMap hardwareMap, String name, Class<T> clazz){
         return hardwareMap.get(clazz, name);
@@ -31,18 +31,21 @@ public class Hardwares {
 
     public static class Sensors{
         public GoBildaPinpointDriver odo;
+        public VoltageSensor voltageSensor;
 
         public Sensors(@NonNull HardwareMap hardwareMap){
             odo = getHardware(hardwareMap, "pinpoint", GoBildaPinpointDriver.class);
-            odo.setOffsets(-9.6, 8, DistanceUnit.CM);
+            odo.setOffsets(9.6, 6.8, DistanceUnit.CM);
             odo.recalibrateIMU();
             odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
             odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+            voltageSensor = hardwareMap.voltageSensor.iterator().next();
         }
     }
 
     public static class Motors{
-        public DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear, preShooter, shooterLeft, shooterRight, intake, pan;
+        public DcMotorEx mLeftFront, mRightFront, mLeftRear, mRightRear, shooterLeft, shooterRight, intake, pan;
         public Motors(@NonNull HardwareMap hardwareMap){
             mLeftFront = getHardware(hardwareMap, "leftFront", DcMotorEx.class);
             mRightFront = getHardware(hardwareMap, "rightFront", DcMotorEx.class);
@@ -70,6 +73,5 @@ public class Hardwares {
         sensors = new Sensors(hardwareMap);
         motors = new Motors(hardwareMap);
         servos = new Servos(hardwareMap);
-        voltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 }
