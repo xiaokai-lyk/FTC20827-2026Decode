@@ -5,6 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name = "TeleOp Red", group = "TeleOp")
 public class TeleOpRed extends TeleOpBase {
     public TeleOpRed() {
-        super(320, -122);
+        super(353.39, -107.5, -90);
     }
 }

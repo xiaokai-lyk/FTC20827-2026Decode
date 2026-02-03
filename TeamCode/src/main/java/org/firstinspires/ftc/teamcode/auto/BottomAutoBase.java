@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
@@ -24,12 +25,21 @@ public class BottomAutoBase extends XKCommandOpmode {
     protected final double autoPanTargetY;
     protected final double pedroTargetX;
     protected final double pedroTargetY;
+    protected final double startDeg;
 
-    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double pedroTargetX, double pedroTargetY) {
+    protected final Pose startPose;
+    protected final Pose cornerPose;
+    protected final Pose endPose;
+
+    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double pedroTargetX, double pedroTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
         this.pedroTargetX = pedroTargetX;
         this.pedroTargetY = pedroTargetY;
+        this.startDeg = startDeg;
+        this.startPose = startPose;
+        this.cornerPose = cornerPose;
+        this.endPose = endPose;
     }
 
     private Hardwares hardwares;
@@ -44,9 +54,6 @@ public class BottomAutoBase extends XKCommandOpmode {
     private int pathState;
     private boolean leaveLine = false;
 
-    private final Pose startPose = new Pose(89, 7, 0);
-    private final Pose cornerPose = new Pose(135, 7, 0);
-    private final Pose endPose = new Pose(100, 20, 0);
 
     private Path grabCorner, returnToStart;
     private Supplier<PathChain> pathChainSupplier;
@@ -59,14 +66,17 @@ public class BottomAutoBase extends XKCommandOpmode {
         returnToStart.setLinearHeadingInterpolation(cornerPose.getHeading(), startPose.getHeading());
 
         pathChainSupplier = () -> follower.pathBuilder()
-                .addPath(new Path(new BezierLine(follower.getPose(), endPose)))
-                .setLinearHeadingInterpolation(follower.getHeading(), endPose.getHeading())
+                .addPath(new Path(new BezierLine(follower::getPose, endPose)))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, endPose.getHeading(), 0.8))
                 .build();
     }
 
     public void autoPathUpdate() {
         if (opmodeTimer.getElapsedTimeSeconds() > 27 && !leaveLine) {
-            gate.close();
+            intake.stopIntake().schedule();
+            gate.close().schedule();
+            shooter.stopShooter().schedule();
+            autoPan.setHoldAngle(0);
             follower.followPath(pathChainSupplier.get());
             leaveLine = true;
             setPathState(-1);
@@ -74,14 +84,14 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         switch (pathState) {
             case 0:
-                if (!follower.isBusy() && !autoPan.isPanBusy()) {
-                    gate.open();
+                if (!follower.isBusy() && !autoPan.isPanBusy() && pathTimer.getElapsedTimeSeconds() > 2) {
+                    gate.open().schedule();
                     setPathState(1);
                 }
                 break;
             case 1:
                 if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                    gate.close();
+                    gate.close().schedule();
                     follower.followPath(grabCorner, true);
                     setPathState(2);
                 }
@@ -113,7 +123,7 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         autoPan.init();
 
-        double holdAngle = Math.toDegrees(Math.atan2(pedroTargetX - startPose.getX(), pedroTargetY - startPose.getY()));
+        double holdAngle = Math.toDegrees(Math.atan2(autoPanTargetY, autoPanTargetX)) - startDeg;
         autoPan.setHoldAngle(holdAngle);
 
         pathTimer = new Timer();
@@ -126,10 +136,10 @@ public class BottomAutoBase extends XKCommandOpmode {
 
     @Override
     public void onStart() {
-        shooter.setShooterConfig(Shooter.shooterFar);
+        shooter.setShooterConfig(Shooter.shooterFar).schedule();
         autoPan.setup();
-        intake.startIntake();
-        gate.close();
+        gate.close().schedule();
+        intake.startIntake().schedule();
 
         opmodeTimer.resetTimer();
         setPathState(0);
@@ -138,6 +148,8 @@ public class BottomAutoBase extends XKCommandOpmode {
     @Override
     public void run() {
         pinpointDriverData.update();
+
+        CommandScheduler.getInstance().run();
         shooter.run();
         autoPan.run(pinpointDriverData);
 

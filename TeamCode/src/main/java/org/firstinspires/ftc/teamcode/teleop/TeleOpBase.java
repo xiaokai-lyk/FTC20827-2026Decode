@@ -9,6 +9,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -23,11 +25,13 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 public class TeleOpBase extends XKCommandOpmode {
     protected final double targetX;
     protected final double targetY;
+    protected final double startDeg;
 
 
-    public TeleOpBase(double targetX, double targetY) {
+    public TeleOpBase(double targetX, double targetY, double startDeg) {
         this.targetX = targetX;
         this.targetY = targetY;
+        this.startDeg = startDeg;
     }
 
     private Hardwares hardwares;
@@ -53,6 +57,8 @@ public class TeleOpBase extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         gate = new Gate(hardwares);
+
+        hardwares.sensors.odo.setHeading(startDeg, AngleUnit.DEGREES);
         this.pinpointDriverData = new PinpointDriverData(hardwares.sensors.odo);
 
         autoPan = new AutoPan(hardwares, targetX, targetY);
@@ -183,7 +189,7 @@ public class TeleOpBase extends XKCommandOpmode {
         new ButtonEx(
                 ()-> gamepad1.gamepad.touchpadWasPressed()
         ).whenPressed(
-                ()->hardwares.sensors.odo.setHeading(0,AngleUnit.DEGREES)
+                ()-> hardwares.sensors.odo.setPosition(new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0))
         );
 
         new ButtonEx(
