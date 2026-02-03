@@ -56,8 +56,8 @@ public class AutoPan {
     private Mode currentMode = Mode.HOLD;
 
     // 目标坐标 (场地坐标系)
-    private double targetX = 0.0;
-    private double targetY = 0.0;
+    private final double targetX;
+    private final double targetY;
 
     // 遥测状态
     private boolean isLimitReached = false;
@@ -128,7 +128,7 @@ public class AutoPan {
         this.currentMode = mode;
     }
 
-    public void setMode() {
+    public void switchMode() {
         if (this.currentMode == Mode.HOLD) {
             this.currentMode = Mode.TRACK;
         } else {

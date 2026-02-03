@@ -19,8 +19,8 @@ public class Gate {
     // ==========================================
     // 常量配置
     // ==========================================
-    private static final double GATE_OPEN_ANGLE = 60;    // 闸门开启角度
-    private static final double GATE_CLOSE_ANGLE = 115;  // 闸门关闭角度
+    private static final double GATE_OPEN_ANGLE = 145;    // 闸门开启角度
+    private static final double GATE_CLOSE_ANGLE = 67;  // 闸门关闭角度
     
     // ==========================================
     // 成员变量
@@ -44,6 +44,7 @@ public class Gate {
                 () -> gate.turnToAngle(GATE_OPEN_ANGLE)
         );
     }
+    
 
     /**
      * 获取关闭闸门的命令
