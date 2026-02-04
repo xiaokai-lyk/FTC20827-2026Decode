@@ -126,7 +126,9 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         double holdAngle = Math.toDegrees(Math.atan2(autoPanTargetY, autoPanTargetX)) - startDeg;
         autoPan.setHoldAngle(holdAngle);
+
         gate.close().schedule();
+        CommandScheduler.getInstance().run();
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
