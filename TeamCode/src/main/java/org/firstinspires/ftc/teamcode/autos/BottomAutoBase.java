@@ -84,7 +84,7 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         switch (pathState) {
             case 0:
-                if (!follower.isBusy() && !autoPan.isPanBusy() && pathTimer.getElapsedTimeSeconds() > 2) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 3) {
                     gate.open().schedule();
                     setPathState(1);
                 }
@@ -126,6 +126,7 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         double holdAngle = Math.toDegrees(Math.atan2(autoPanTargetY, autoPanTargetX)) - startDeg;
         autoPan.setHoldAngle(holdAngle);
+        gate.close().schedule();
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -139,7 +140,6 @@ public class BottomAutoBase extends XKCommandOpmode {
     public void onStart() {
         shooter.setShooterConfig(Shooter.shooterFar).schedule();
         autoPan.setup();
-        gate.close().schedule();
         intake.startIntake().schedule();
 
         opmodeTimer.resetTimer();
