@@ -97,7 +97,8 @@ public class BottomAutoBase extends XKCommandOpmode {
                 }
                 break;
             case 2:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 5
+                ) {
                     follower.followPath(returnToStart, true);
                     setPathState(0);
                 }
