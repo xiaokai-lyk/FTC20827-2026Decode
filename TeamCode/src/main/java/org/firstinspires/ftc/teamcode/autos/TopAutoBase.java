@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -9,6 +10,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
@@ -23,8 +25,10 @@ import java.util.function.Supplier;
 public class TopAutoBase extends XKCommandOpmode {
     protected final double autoPanTargetX;
     protected final double autoPanTargetY;
+    protected final double startDeg;
     protected final Pose startPose;
-    protected final Pose shootPose;
+    protected final Pose shootPose1;
+    protected final Pose shootPose2;
     protected final Pose intake1Pose;
     protected final Pose intake2Pose;
     protected final Pose endPose;
@@ -33,14 +37,20 @@ public class TopAutoBase extends XKCommandOpmode {
     protected final Pose opengatePrep;
     protected final Pose opengatePos;
 
+    protected final Pose repeatOpenPos;
+    protected final Pose repeatOpenControlPoint;
 
-    public TopAutoBase(double autoPanTargetX, double autoPanTargetY,
+
+    public TopAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg,
                        Pose startPose, Pose intake1Pose,Pose intake1PoseFin, Pose intake2Pose, Pose intake2PoseFin,
-                       Pose shootPose, Pose opengatePrep, Pose opengatePos, Pose endPose) {
+                       Pose shootPose1,Pose shootPose2, Pose opengatePrep, Pose opengatePos, Pose endPose,
+                       Pose repeatOpenPos, Pose repeatOpenControlPoint) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
+        this.startDeg=startDeg;
         this.startPose=startPose;
-        this.shootPose=shootPose;
+        this.shootPose1 =shootPose1;
+        this.shootPose2= shootPose2;
         this.intake1Pose=intake1Pose;
         this.intake2Pose=intake2Pose;
         this.intake1PoseFin=intake1PoseFin;
@@ -48,6 +58,8 @@ public class TopAutoBase extends XKCommandOpmode {
         this.opengatePrep=opengatePrep;
         this.opengatePos=opengatePos;
         this.endPose=endPose;
+        this.repeatOpenPos=repeatOpenPos;
+        this.repeatOpenControlPoint=repeatOpenControlPoint;
     }
 
     private Hardwares hardwares;
@@ -63,15 +75,15 @@ public class TopAutoBase extends XKCommandOpmode {
     private boolean leaveLine = false;
 
 
-    private Path shootfirstballs, movetoball1, grabball1, movetoshoot1, movetoGate, openGate, movetoball2, grabball2, movetoshoot2;
+    private Path shootfirstballs, movetoball1, grabball1, movetoshoot1, movetoGate, openGate, movetoball2, grabball2, movetoshoot2, gatecontrol, repeatShoot;
     private Supplier<PathChain> pathChainSupplier;
 
     public void buildPaths() {
-        shootfirstballs = new Path(new BezierLine(startPose, shootPose));
-        shootfirstballs.setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading());
+        shootfirstballs = new Path(new BezierLine(startPose, shootPose1));
+        shootfirstballs.setLinearHeadingInterpolation(startPose.getHeading(), shootPose1.getHeading());
 
-        movetoball1 = new Path(new BezierLine(shootPose, intake1Pose));
-        movetoball1.setLinearHeadingInterpolation(shootPose.getHeading(), intake1Pose.getHeading());
+        movetoball1 = new Path(new BezierLine(shootPose1, intake1Pose));
+        movetoball1.setLinearHeadingInterpolation(shootPose1.getHeading(), intake1Pose.getHeading());
 
         grabball1 = new Path(new BezierLine(intake1Pose,intake1PoseFin));
         grabball1.setLinearHeadingInterpolation(intake1Pose.getHeading(), intake1PoseFin.getHeading());
@@ -82,17 +94,24 @@ public class TopAutoBase extends XKCommandOpmode {
         openGate = new Path(new BezierLine(opengatePrep,opengatePos));
         openGate.setLinearHeadingInterpolation(opengatePrep.getHeading(),opengatePos.getHeading());
 
-        movetoshoot1 = new Path(new BezierLine(opengatePos,shootPose));
-        movetoshoot1.setLinearHeadingInterpolation(opengatePos.getHeading(),shootPose.getHeading());
+        movetoshoot1 = new Path(new BezierLine(opengatePos, shootPose1));
+        movetoshoot1.setLinearHeadingInterpolation(opengatePos.getHeading(), shootPose2.getHeading());
 
-        movetoball2 = new Path(new BezierLine(shootPose,intake2Pose));
-        movetoball2.setLinearHeadingInterpolation(shootPose.getHeading(),intake2Pose.getHeading());
+        movetoball2 = new Path(new BezierLine(shootPose1,intake2Pose));
+        movetoball2.setLinearHeadingInterpolation(shootPose2.getHeading(),intake2Pose.getHeading());
 
         grabball2 = new Path(new BezierLine(intake2Pose,intake2PoseFin));
         grabball2.setLinearHeadingInterpolation(intake2Pose.getHeading(),intake2PoseFin.getHeading());
 
-        movetoshoot2 = new Path(new BezierLine(intake2PoseFin,shootPose));
-        movetoball2.setLinearHeadingInterpolation(intake2PoseFin.getHeading(),shootPose.getHeading());
+        movetoshoot2 = new Path(new BezierLine(intake2PoseFin, shootPose1));
+        movetoshoot2.setLinearHeadingInterpolation(intake2PoseFin.getHeading(), shootPose2.getHeading());
+
+        gatecontrol = new Path(new BezierCurve(shootPose1,repeatOpenControlPoint,repeatOpenPos));
+        gatecontrol.setLinearHeadingInterpolation(shootPose2.getHeading(),repeatOpenPos.getHeading());
+
+        repeatShoot = new Path(new BezierCurve(repeatOpenPos,repeatOpenControlPoint,shootPose1));
+        repeatShoot.setLinearHeadingInterpolation(repeatOpenPos.getHeading(),shootPose2.getHeading());
+
 
         pathChainSupplier = () -> follower.pathBuilder()
             .addPath(new Path(new BezierLine(follower::getPose, endPose)))
@@ -102,7 +121,7 @@ public class TopAutoBase extends XKCommandOpmode {
 
     public void autoPathUpdate() {
         if (opmodeTimer.getElapsedTimeSeconds() > 27 && !leaveLine) {
-            gate.close();
+            gate.close().schedule();
             follower.followPath(pathChainSupplier.get());
             leaveLine = true;
             setPathState(-1);
@@ -110,21 +129,22 @@ public class TopAutoBase extends XKCommandOpmode {
 
         switch (pathState) {
             case 0:
-                gate.close();
+                gate.close().schedule();
                 if (!follower.isBusy()) {
                     follower.followPath(shootfirstballs, true);
                     setPathState(1);
                 }
                 break;
             case 1:
-                if (!follower.isBusy() && !autoPan.isPanBusy()) {
-                    gate.open();
+                if (!follower.isBusy() && !autoPan.isPanBusy() && pathTimer.getElapsedTimeSeconds() > 2) {
+                    gate.open().schedule();
                     setPathState(2);
                 }
                 break;
             case 2:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>2){
-                    gate.close();
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.5){
+                    gate.close().schedule();
+                    shooter.setShooterConfig(Shooter.shooter40cm).schedule();
                     follower.followPath(movetoball1, true);
                     setPathState(3);
                 }
@@ -155,13 +175,13 @@ public class TopAutoBase extends XKCommandOpmode {
                 break;
             case 7:
                 if (!follower.isBusy() && !autoPan.isPanBusy()){
-                    gate.open();
+                    gate.open().schedule();
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >2) {
-                    gate.close();
+                    gate.close().schedule();
                     follower.followPath(movetoball2, true);
                     setPathState(9);
                 }
@@ -180,8 +200,32 @@ public class TopAutoBase extends XKCommandOpmode {
                 break;
             case 11:
                 if(!follower.isBusy() && !autoPan.isPanBusy()){
-                    gate.open();
-                    setPathState(-1);
+                    gate.open().schedule();
+                    setPathState(12);
+                }
+                break;
+            case 12:
+                if(!follower.isBusy() && !autoPan.isPanBusy()&&pathTimer.getElapsedTimeSeconds()>1.5){
+                    gate.close().schedule();
+                    follower.followPath(gatecontrol,true);
+                    setPathState(13);
+                }
+                break;
+            case 13:
+                if(pathTimer.getElapsedTimeSeconds()>5){
+                    setPathState(14);
+                }
+                break;
+            case 14:
+                if(!follower.isBusy() && !autoPan.isPanBusy()){
+                    follower.followPath(repeatShoot,true);
+                    setPathState(15);
+                }
+                break;
+            case 15:
+                if(!follower.isBusy() && !autoPan.isPanBusy()&& pathTimer.getElapsedTimeSeconds()>1.5){
+                    gate.open().schedule();
+                    setPathState(12);
                 }
                 break;
         }
@@ -200,10 +244,15 @@ public class TopAutoBase extends XKCommandOpmode {
         shooter = new Shooter(hardwares);
         intake = new Intake(hardwares);
         gate = new Gate(hardwares);
+
+        hardwares.sensors.odo.setHeading(startDeg, AngleUnit.DEGREES);
+
         pinpointDriverData = new PinpointDriverData(hardwares.sensors.odo);
         autoPan = new AutoPan(hardwares, autoPanTargetX, autoPanTargetY);
 
         autoPan.init();
+
+        gate.close().schedule();
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -211,21 +260,31 @@ public class TopAutoBase extends XKCommandOpmode {
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setStartingPose(startPose);
+
+        CommandScheduler.getInstance().run();
     }
 
     @Override
     public void onStart() {
-        shooter.setShooterConfig(Shooter.shooter40cm);
+        shooter.setShooterConfig(Shooter.shooter40cm).schedule();
         autoPan.setup();
-        intake.startIntake();
-        gate.close();
+        autoPan.setMode(AutoPan.Mode.HOLD);
+        intake.startIntake().schedule();
+        gate.close().schedule();
 
         opmodeTimer.resetTimer();
         setPathState(0);
+
+
     }
 
     @Override
     public void run() {
+
+
+        intake.startIntake().schedule();
+
+        CommandScheduler.getInstance().run();
         pinpointDriverData.update();
         shooter.run();
         autoPan.run(pinpointDriverData);
@@ -237,6 +296,8 @@ public class TopAutoBase extends XKCommandOpmode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("headingPan",autoPan.getTelemetryStatus().rawTargetAngle);
+
         telemetry.update();
     }
 }
