@@ -30,8 +30,8 @@ public class Shooter {
     public static final ShooterConfig shooterFar = new ShooterConfig(1850, 300);    // 250cm射击配置
 
     // Default PIDF constants (tuned values)
-    public static double kP = 0.0;
-    public static double kI = 0.0;
+    public static double kP = 0.0003;
+    public static double kI = 0.0001;
     public static double kD = 0.0;
     public static double kF = 0.00037;
 

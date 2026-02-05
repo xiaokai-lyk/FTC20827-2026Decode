@@ -9,6 +9,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.AutoPan;
@@ -23,19 +24,15 @@ import java.util.function.Supplier;
 public class BottomAutoBase extends XKCommandOpmode {
     protected final double autoPanTargetX;
     protected final double autoPanTargetY;
-    protected final double pedroTargetX;
-    protected final double pedroTargetY;
     protected final double startDeg;
 
     protected final Pose startPose;
     protected final Pose cornerPose;
     protected final Pose endPose;
 
-    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double pedroTargetX, double pedroTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose endPose) {
+    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
-        this.pedroTargetX = pedroTargetX;
-        this.pedroTargetY = pedroTargetY;
         this.startDeg = startDeg;
         this.startPose = startPose;
         this.cornerPose = cornerPose;
@@ -52,6 +49,7 @@ public class BottomAutoBase extends XKCommandOpmode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
     private int pathState;
+    private boolean shooterAccelerating = true;
     private boolean leaveLine = false;
 
 
@@ -72,11 +70,12 @@ public class BottomAutoBase extends XKCommandOpmode {
     }
 
     public void autoPathUpdate() {
-        if (opmodeTimer.getElapsedTimeSeconds() > 27 && !leaveLine) {
+        if (opmodeTimer.getElapsedTimeSeconds() > 26.5 && !leaveLine) {
             intake.stopIntake().schedule();
             gate.close().schedule();
             shooter.stopShooter().schedule();
             autoPan.setHoldAngle(0);
+
             follower.followPath(pathChainSupplier.get());
             leaveLine = true;
             setPathState(-1);
@@ -84,21 +83,37 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         switch (pathState) {
             case 0:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 3) {
-                    gate.open().schedule();
-                    setPathState(1);
+                if (shooterAccelerating) {
+                    if (pathTimer.getElapsedTimeSeconds() > 2) {
+                        shooterAccelerating = false;
+                        setPathState(1);
+                    }
+                } else {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.4) {
+                        intake.stopIntake().schedule();
+                    } else {
+                        intake.startIntake().schedule();
+                    }
+
+                    if (!follower.isBusy()) {
+                        setPathState(1);
+                    }
                 }
                 break;
             case 1:
-                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                    gate.close().schedule();
-                    follower.followPath(grabCorner, true);
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    gate.open().schedule();
                     setPathState(2);
                 }
-                break;
             case 2:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 5
-                ) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
+                    gate.close().schedule();
+                    follower.followPath(grabCorner, true);
+                    setPathState(3);
+                }
+                break;
+            case 3:
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
                     follower.followPath(returnToStart, true);
                     setPathState(0);
                 }
@@ -121,6 +136,8 @@ public class BottomAutoBase extends XKCommandOpmode {
         gate = new Gate(hardwares);
         pinpointDriverData = new PinpointDriverData(hardwares.sensors.odo);
         autoPan = new AutoPan(hardwares, autoPanTargetX, autoPanTargetY);
+
+        hardwares.sensors.odo.setHeading(startDeg, AngleUnit.DEGREES);
 
         autoPan.init();
 
@@ -163,6 +180,7 @@ public class BottomAutoBase extends XKCommandOpmode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("path timer", pathTimer.getElapsedTimeSeconds());
         telemetry.update();
     }
 }

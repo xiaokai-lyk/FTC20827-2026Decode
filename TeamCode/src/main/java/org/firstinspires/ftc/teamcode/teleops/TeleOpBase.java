@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -131,6 +132,11 @@ public class TeleOpBase extends XKCommandOpmode {
         this.multipleTelemetry.addLine("---");
         this.multipleTelemetry.addData("gamepad 1 touch pad finger 1", gamepad1.gamepad.touchpad_finger_1);
         this.multipleTelemetry.addData("gamepad 1 touch pad finger 2", gamepad1.gamepad.touchpad_finger_2);
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("pan curr pos", hardwares.motors.pan.getCurrentPosition());
+        packet.put("pan target pos", hardwares.motors.pan.getTargetPosition());
+        FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
         this.multipleTelemetry.update();
     }

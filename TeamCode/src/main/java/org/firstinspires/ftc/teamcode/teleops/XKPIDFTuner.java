@@ -34,8 +34,8 @@ public class XKPIDFTuner extends LinearOpMode {
     public static double TARGET_VELOCITY = 0; // 目标速度
 
     // PIDF 参数
-    public static double kP = 0.0;
-    public static double kI = 0.0;
+    public static double kP = 0.0003;
+    public static double kI = 0.0001;
     public static double kD = 0.0;
     public static double kF = 0.00037; // 核心：前馈系数
 
