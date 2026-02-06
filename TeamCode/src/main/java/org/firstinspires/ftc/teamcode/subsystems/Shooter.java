@@ -92,9 +92,12 @@ public class Shooter {
         if (isClosedLoop) {
             double velLeft = shooterLeft.getVelocity();
             double velRight = shooterRight.getVelocity();
-            // Average velocity for coaxial motors
-            double avgVel = (velLeft + velRight) / 2.0;
-
+            double avgVel;
+            if (Math.max(velLeft, velRight) - Math.min(velLeft, velRight) > 200){
+                avgVel = Math.max(velLeft, velRight);
+            }else{
+                avgVel = (velLeft + velRight) / 2.0;
+            }
             this.controllerOutput = controller.update(avgVel);
             shooterLeft.setPower(this.controllerOutput.power);
             shooterRight.setPower(this.controllerOutput.power);
