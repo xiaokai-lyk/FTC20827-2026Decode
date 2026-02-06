@@ -259,6 +259,8 @@ public class TopAutoBase extends XKCommandOpmode {
         buildPaths();
         follower.setStartingPose(startPose);
 
+        gate.close().schedule();
+
         CommandScheduler.getInstance().run();
     }
 
@@ -269,7 +271,6 @@ public class TopAutoBase extends XKCommandOpmode {
         autoPan.setup();
         autoPan.setMode(AutoPan.Mode.HOLD);
         intake.startIntake().schedule();
-        gate.close().schedule();
 
         opmodeTimer.resetTimer();
         setPathState(0);

@@ -144,6 +144,8 @@ public class BottomAutoBase extends XKCommandOpmode {
         double holdAngle = Math.toDegrees(Math.atan2(autoPanTargetY, autoPanTargetX)) - startDeg;
         autoPan.setHoldAngle(holdAngle);
 
+        gate.close().schedule();
+
         CommandScheduler.getInstance().run();
 
         pathTimer = new Timer();
@@ -156,7 +158,6 @@ public class BottomAutoBase extends XKCommandOpmode {
 
     @Override
     public void onStart() {
-        gate.close().schedule();
         shooter.setShooterConfig(Shooter.shooterFar).schedule();
         autoPan.setup();
         intake.startIntake().schedule();
