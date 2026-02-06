@@ -6,9 +6,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-@TeleOp(name = "TeleOp Blue", group = "TeleOp")
-public class TeleOpBlue extends TeleOpBase {
-    public TeleOpBlue() {
-        super(293.39, 107.5, 90, new Pose2D(DistanceUnit.CM, 60, 230, AngleUnit.DEGREES, -90));
+@TeleOp(name = "TeleOp Red Bottom", group = "TeleOp")
+public class TeleOpRedBottom extends TeleOpBase {
+    public TeleOpRedBottom() {
+        super(293.39, -107.5, -90, new Pose2D(DistanceUnit.CM, -55, 230, AngleUnit.DEGREES, 90));
     }
 }

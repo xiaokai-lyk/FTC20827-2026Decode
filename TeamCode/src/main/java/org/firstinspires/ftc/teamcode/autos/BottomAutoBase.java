@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -28,14 +29,18 @@ public class BottomAutoBase extends XKCommandOpmode {
 
     protected final Pose startPose;
     protected final Pose cornerPose;
+    protected final Pose thirdRowPose;
+    protected final Pose thirdRowCtrl;
     protected final Pose endPose;
 
-    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose endPose) {
+    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose thirdRowPose, Pose thirdRowCtrl, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
         this.startDeg = startDeg;
         this.startPose = startPose;
         this.cornerPose = cornerPose;
+        this.thirdRowPose = thirdRowPose;
+        this.thirdRowCtrl = thirdRowCtrl;
         this.endPose = endPose;
     }
 
@@ -53,24 +58,32 @@ public class BottomAutoBase extends XKCommandOpmode {
     private boolean leaveLine = false;
 
 
-    private Path grabCorner, returnToStart;
+    private Path grabCorner, cornerReturnToStart, grabThirdRow, thirdRowReturnToStart;
     private Supplier<PathChain> pathChainSupplier;
 
     public void buildPaths() {
         grabCorner = new Path(new BezierLine(startPose, cornerPose));
         grabCorner.setLinearHeadingInterpolation(startPose.getHeading(), cornerPose.getHeading());
 
-        returnToStart = new Path(new BezierLine(cornerPose, startPose));
-        returnToStart.setLinearHeadingInterpolation(cornerPose.getHeading(), startPose.getHeading());
+        cornerReturnToStart = new Path(new BezierLine(cornerPose, startPose));
+        cornerReturnToStart.setLinearHeadingInterpolation(cornerPose.getHeading(), startPose.getHeading());
+
+        grabThirdRow = new Path(new BezierCurve(startPose, thirdRowCtrl, thirdRowPose));
+        grabThirdRow.setLinearHeadingInterpolation(startPose.getHeading(), thirdRowPose.getHeading());
+
+        thirdRowReturnToStart = new Path(new BezierLine(thirdRowPose, startPose));
+        thirdRowReturnToStart.setLinearHeadingInterpolation(thirdRowPose.getHeading(), startPose.getHeading());
+        thirdRowReturnToStart.setBrakingStrength(0.7);
 
         pathChainSupplier = () -> follower.pathBuilder()
                 .addPath(new Path(new BezierLine(follower::getPose, endPose)))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, endPose.getHeading(), 0.8))
+                .setBrakingStrength(0.9)
                 .build();
     }
 
     public void autoPathUpdate() {
-        if (opmodeTimer.getElapsedTimeSeconds() > 26.5 && !leaveLine) {
+        if (opmodeTimer.getElapsedTimeSeconds() > 27 && !leaveLine) {
             intake.stopIntake().schedule();
             gate.close().schedule();
             shooter.stopShooter().schedule();
@@ -84,7 +97,7 @@ public class BottomAutoBase extends XKCommandOpmode {
         switch (pathState) {
             case 0:
                 if (shooterAccelerating) {
-                    if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                         shooterAccelerating = false;
                         setPathState(1);
                     }
@@ -114,7 +127,37 @@ public class BottomAutoBase extends XKCommandOpmode {
                 break;
             case 3:
                 if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
-                    follower.followPath(returnToStart, true);
+                    follower.followPath(cornerReturnToStart, true);
+                    setPathState(4);
+                }
+                break;
+
+            case 4:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.4) {
+                    intake.stopIntake().schedule();
+                } else {
+                    intake.startIntake().schedule();
+                }
+
+                if (!follower.isBusy()) {
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    gate.open().schedule();
+                    setPathState(6);
+                }
+            case 6:
+                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
+                    gate.close().schedule();
+                    follower.followPath(grabThirdRow, true);
+                    setPathState(7);
+                }
+                break;
+            case 7:
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
+                    follower.followPath(thirdRowReturnToStart, true);
                     setPathState(0);
                 }
                 break;
