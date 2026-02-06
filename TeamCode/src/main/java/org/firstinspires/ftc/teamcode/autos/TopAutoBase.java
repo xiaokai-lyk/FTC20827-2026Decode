@@ -252,8 +252,6 @@ public class TopAutoBase extends XKCommandOpmode {
 
         autoPan.init();
 
-        gate.close().schedule();
-
         pathTimer = new Timer();
         opmodeTimer = new Timer();
 
@@ -266,6 +264,7 @@ public class TopAutoBase extends XKCommandOpmode {
 
     @Override
     public void onStart() {
+        gate.close().schedule();
         shooter.setShooterConfig(Shooter.shooter40cm).schedule();
         autoPan.setup();
         autoPan.setMode(AutoPan.Mode.HOLD);

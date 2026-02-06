@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
 
 /**
  * 数据容器：从外置里程计 / 定位计算机获取的机器人运动状态。
- * 所有量以机器人自身坐标系定义：x 向右为正，y 向前为正。
+ * 所有量以机器人自身坐标系定义：x 向左为正，y 向前为正。
  */
 public class PinpointDriverData {
     
@@ -87,7 +87,7 @@ public class PinpointDriverData {
     }
 
     /**
-     * 获取机器人X坐标
+     * 获取机器人X坐标 (向左为正, cm)
      * @return 机器人X坐标
      */
     public double getRobotX() {
@@ -95,7 +95,7 @@ public class PinpointDriverData {
     }
 
     /**
-     * 获取机器人Y坐标
+     * 获取机器人Y坐标 (向前为正, cm)
      * @return 机器人Y坐标
      */
     public double getRobotY() {
