@@ -34,7 +34,7 @@ public class AutoPan {
 
     // 滤波系数 (0.0 - 1.0)，越小越平滑但延迟越高
     // 0.3 是一个经验值，既能滤除高频噪声，又不会造成明显滞后
-    private static final double EMA_ALPHA = 0.3;
+    private static final double EMA_ALPHA = 1;
     private static final double PAN_P_POS = 15, PAN_P_VEL = 30, PAN_I = 0.01, PAN_F = 0, PAN_D = 0;
 
     private double HOLD_ANGLE = 0.0;
