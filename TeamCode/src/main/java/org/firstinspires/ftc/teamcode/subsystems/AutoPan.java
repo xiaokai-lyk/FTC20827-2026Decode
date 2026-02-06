@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,7 +17,6 @@ import org.firstinspires.ftc.teamcode.Hardwares;
  * 3. 低通滤波平滑运动，防止抖动
  * 4. 优化的 CAN 总线通信
  */
-@Config
 public class AutoPan {
 
     // ==========================================
@@ -31,12 +29,14 @@ public class AutoPan {
     public static final double PAN_POWER = 0.85;        // 运动最大功率
     public static final boolean USE_SOFT_LIMIT = true;      // 启用软限位
     public static final double MAX_ANGLE_DEG = 80.0;       // 软限位角度
+    public static final double ALLOW_WRAP_THRESHOLD_DEG = 30.0; // 可穿透角度
 
 
     // 滤波系数 (0.0 - 1.0)，越小越平滑但延迟越高
     // 0.3 是一个经验值，既能滤除高频噪声，又不会造成明显滞后
     private static final double EMA_ALPHA = 0.3;
-    public static double PAN_P_POS = 18, PAN_P_VEL = 18, PAN_I = 2.5, PAN_F = 0, PAN_D = 0;
+    private static final double PAN_P_POS = 15, PAN_P_VEL = 30, PAN_I = 0.01, PAN_F = 0, PAN_D = 0;
+
     private double HOLD_ANGLE = 0.0;
 
 
@@ -94,6 +94,8 @@ public class AutoPan {
         // 设置刹车模式 (断电时抱死)
         panMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        panMotor.setPositionPIDFCoefficients(PAN_P_POS);
+        panMotor.setVelocityPIDFCoefficients(PAN_P_VEL, PAN_I, PAN_D, PAN_F);
 
         // 确保初始化时没有功率输出
         panMotor.setPower(0);
@@ -114,6 +116,9 @@ public class AutoPan {
         panMotor.setTargetPosition(0);
         panMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         panMotor.setPower(PAN_POWER);
+
+        // 初始状态默认为 HOLD
+        this.currentMode = Mode.HOLD;
     }
 
     /**
@@ -189,9 +194,6 @@ public class AutoPan {
      * @param pinpointDriverData 最新的里程计数据
      */
     public void run(PinpointDriverData pinpointDriverData) {
-        panMotor.setPositionPIDFCoefficients(PAN_P_POS);
-        panMotor.setVelocityPIDFCoefficients(PAN_P_VEL, PAN_I, PAN_D, PAN_F);
-
         if (pinpointDriverData == null) return;
 
         double targetAngleRaw;
@@ -214,7 +216,7 @@ public class AutoPan {
             double dy = targetY - rY;
 
             // atan2 返回世界坐标系角度，减去机器人朝向得到相对云台角度
-            double angleToGoal = Math.toDegrees(Math.atan2(dx, -dy));
+            double angleToGoal = Math.toDegrees(Math.atan2(dy, dx));
             double relativeAngle = normalizeAngle(angleToGoal - heading);
 
             // 智能限位逻辑：
@@ -227,22 +229,46 @@ public class AutoPan {
             double delta = normalizeAngle(relativeAngle - currentDeg);
             // 3. 理想下一角度（不考虑物理墙）
             double idealNextAngle = currentDeg + delta;
-            // 4. 应用软限位 clamp
-            // 如果 idealNextAngle 超过了 175，说明要穿墙，被截断在 175。
-            // 如果 idealNextAngle 小于 -175，被截断在 -175。
-            // 这样就实现了“停在限位处”，而不是尝试用 RUN_TO_POSITION 绕一圈。
             if (USE_SOFT_LIMIT) {
-                if (idealNextAngle > MAX_ANGLE_DEG) {
-                    targetAngleRaw = MAX_ANGLE_DEG;
-                    limitActive = true;
-                } else if (idealNextAngle < -MAX_ANGLE_DEG) {
-                    targetAngleRaw = -MAX_ANGLE_DEG;
-                    limitActive = true;
+                boolean hitsLimit =
+                        idealNextAngle > MAX_ANGLE_DEG || idealNextAngle < -MAX_ANGLE_DEG;
+                if (hitsLimit) {
+                    // --- 计算“绕远路”的两种可能 ---
+                    double wrappedPlus = idealNextAngle + 360.0;
+                    double wrappedMinus = idealNextAngle - 360.0;
+                    // 不绕的代价（会被 clamp）
+                    double directCost = Math.abs(idealNextAngle - currentDeg);
+                    // 绕远路的代价
+                    double wrapCost = Math.min(
+                            Math.abs(wrappedPlus - currentDeg),
+                            Math.abs(wrappedMinus - currentDeg)
+                    );
+                    // 如果绕远路“额外代价”在容忍范围内 → 允许绕
+                    if (wrapCost - directCost <= ALLOW_WRAP_THRESHOLD_DEG) {
+                        // 选择代价更小的绕行方向
+                        targetAngleRaw =
+                                (Math.abs(wrappedPlus - currentDeg)
+                                        < Math.abs(wrappedMinus - currentDeg))
+                                        ? wrappedPlus
+                                        : wrappedMinus;
+                        limitActive = false;
+                    } else {
+                        // 代价太大 → 老老实实贴墙
+                        targetAngleRaw = Math.max(
+                                -MAX_ANGLE_DEG,
+                                Math.min(MAX_ANGLE_DEG, idealNextAngle)
+                        );
+                        limitActive = true;
+                    }
                 } else {
+                    // 没有撞限位，正常走
                     targetAngleRaw = idealNextAngle;
+                    limitActive = false;
                 }
             } else {
-                targetAngleRaw = relativeAngle;
+                // 未启用软限位
+                targetAngleRaw = idealNextAngle;
+                limitActive = false;
             }
         }
 
