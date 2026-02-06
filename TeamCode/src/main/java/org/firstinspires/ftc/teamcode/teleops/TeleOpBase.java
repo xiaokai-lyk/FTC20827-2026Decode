@@ -79,7 +79,7 @@ public class TeleOpBase extends XKCommandOpmode {
                 () -> pinpointDriverData,
                 1,
                 true,
-                false
+                true
         );
 
         CommandScheduler.getInstance().schedule(driveCommand);

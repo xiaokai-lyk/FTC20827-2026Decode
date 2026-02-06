@@ -25,9 +25,9 @@ public class Shooter {
     // ==========================================
     // 常量配置
     // ==========================================
-    public static final ShooterConfig shooter40cm = new ShooterConfig(1300, 0);    // 40cm射击配置
-    public static final ShooterConfig shooterNearTop = new ShooterConfig(1500, 120);    // 125cm射击配置
-    public static final ShooterConfig shooterFar = new ShooterConfig(1850, 300);    // 250cm射击配置
+    public static final ShooterConfig shooter40cm = new ShooterConfig(1300, 0);
+    public static final ShooterConfig shooterNearTop = new ShooterConfig(1500, 120);
+    public static final ShooterConfig shooterFar = new ShooterConfig(1850, 300);
 
     // Default PIDF constants (tuned values)
     public static double kP = 0.0003;
