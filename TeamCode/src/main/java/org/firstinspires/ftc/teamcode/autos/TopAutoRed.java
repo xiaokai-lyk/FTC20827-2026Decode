@@ -27,12 +27,7 @@ public class TopAutoRed extends TopAutoBase {
             new Pose(126, 73, Math.toRadians(0)),
 
             // end pos
-            new Pose(96, 73, Math.toRadians(0)),
-
-            new Pose(134.2, 58, Math.toRadians(50)),
-
-            // last pose (no heading)
-            new Pose(112.2, 40.9)
+            new Pose(96, 73, Math.toRadians(0))
         );
     }
 }

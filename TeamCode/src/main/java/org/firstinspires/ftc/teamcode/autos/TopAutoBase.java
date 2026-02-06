@@ -34,17 +34,13 @@ public class TopAutoBase extends XKCommandOpmode {
     protected final Pose endPose;
     protected final Pose intake1PoseFin;
     protected final Pose intake2PoseFin;
-    protected final Pose opengatePrep;
     protected final Pose opengatePos;
-
-    protected final Pose repeatOpenPos;
-    protected final Pose repeatOpenControlPoint;
+    protected final Pose openGateControl;
 
 
     public TopAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg,
                        Pose startPose, Pose intake1Pose,Pose intake1PoseFin, Pose intake2Pose, Pose intake2PoseFin,
-                       Pose shootPose1,Pose shootPose2, Pose opengatePrep, Pose opengatePos, Pose endPose,
-                       Pose repeatOpenPos, Pose repeatOpenControlPoint) {
+                       Pose shootPose1,Pose shootPose2, Pose opengatePos, Pose openGateControl, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
         this.startDeg=startDeg;
@@ -55,11 +51,9 @@ public class TopAutoBase extends XKCommandOpmode {
         this.intake2Pose=intake2Pose;
         this.intake1PoseFin=intake1PoseFin;
         this.intake2PoseFin=intake2PoseFin;
-        this.opengatePrep=opengatePrep;
         this.opengatePos=opengatePos;
         this.endPose=endPose;
-        this.repeatOpenPos=repeatOpenPos;
-        this.repeatOpenControlPoint=repeatOpenControlPoint;
+        this.openGateControl=openGateControl;
     }
 
     private Hardwares hardwares;
@@ -75,7 +69,7 @@ public class TopAutoBase extends XKCommandOpmode {
     private boolean leaveLine = false;
 
 
-    private Path shootfirstballs, movetoball1, grabball1, movetoshoot1, movetoGate, openGate, movetoball2, grabball2, movetoshoot2, gatecontrol, repeatShoot;
+    private Path shootfirstballs, movetoball1, grabball1, movetoshoot1, openGate, movetoball2, grabball2, movetoshoot2, repeatOpenGate;
     private Supplier<PathChain> pathChainSupplier;
 
     public void buildPaths() {
@@ -87,30 +81,27 @@ public class TopAutoBase extends XKCommandOpmode {
 
         grabball1 = new Path(new BezierLine(intake1Pose,intake1PoseFin));
         grabball1.setLinearHeadingInterpolation(intake1Pose.getHeading(), intake1PoseFin.getHeading());
+//
+//        movetoGate = new Path(new BezierLine(intake1PoseFin,opengatePrep));
+//        movetoGate.setLinearHeadingInterpolation(intake1PoseFin.getHeading(),opengatePrep.getHeading());
 
-        movetoGate = new Path(new BezierLine(intake1PoseFin,opengatePrep));
-        movetoGate.setLinearHeadingInterpolation(intake1PoseFin.getHeading(),opengatePrep.getHeading());
+        openGate = new Path(new BezierCurve(intake1PoseFin,openGateControl,opengatePos));
+        openGate.setLinearHeadingInterpolation(intake1PoseFin.getHeading(),opengatePos.getHeading());
 
-        openGate = new Path(new BezierLine(opengatePrep,opengatePos));
-        openGate.setLinearHeadingInterpolation(opengatePrep.getHeading(),opengatePos.getHeading());
-
-        movetoshoot1 = new Path(new BezierLine(opengatePos, shootPose1));
+        movetoshoot1 = new Path(new BezierLine(opengatePos, shootPose2));
         movetoshoot1.setLinearHeadingInterpolation(opengatePos.getHeading(), shootPose2.getHeading());
 
-        movetoball2 = new Path(new BezierLine(shootPose1,intake2Pose));
+        movetoball2 = new Path(new BezierLine(shootPose2,intake2Pose));
         movetoball2.setLinearHeadingInterpolation(shootPose2.getHeading(),intake2Pose.getHeading());
 
         grabball2 = new Path(new BezierLine(intake2Pose,intake2PoseFin));
         grabball2.setLinearHeadingInterpolation(intake2Pose.getHeading(),intake2PoseFin.getHeading());
 
-        movetoshoot2 = new Path(new BezierLine(intake2PoseFin, shootPose1));
+        movetoshoot2 = new Path(new BezierLine(intake2PoseFin, shootPose2));
         movetoshoot2.setLinearHeadingInterpolation(intake2PoseFin.getHeading(), shootPose2.getHeading());
 
-        gatecontrol = new Path(new BezierCurve(shootPose1,repeatOpenControlPoint,repeatOpenPos));
-        gatecontrol.setLinearHeadingInterpolation(shootPose2.getHeading(),repeatOpenPos.getHeading());
-
-        repeatShoot = new Path(new BezierCurve(repeatOpenPos,repeatOpenControlPoint,shootPose1));
-        repeatShoot.setLinearHeadingInterpolation(repeatOpenPos.getHeading(),shootPose2.getHeading());
+        repeatOpenGate = new Path(new BezierLine(shootPose2,opengatePos));
+        repeatOpenGate.setLinearHeadingInterpolation(shootPose2.getHeading(),opengatePos.getHeading());
 
 
         pathChainSupplier = () -> follower.pathBuilder()
@@ -120,7 +111,7 @@ public class TopAutoBase extends XKCommandOpmode {
     }
 
     public void autoPathUpdate() {
-        if (opmodeTimer.getElapsedTimeSeconds() > 27 && !leaveLine) {
+        if (opmodeTimer.getElapsedTimeSeconds() > 28 && !leaveLine) {
             gate.close().schedule();
             follower.followPath(pathChainSupplier.get());
             leaveLine = true;
@@ -144,7 +135,7 @@ public class TopAutoBase extends XKCommandOpmode {
             case 2:
                 if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.5){
                     gate.close().schedule();
-                    shooter.setShooterConfig(Shooter.shooter40cm).schedule();
+                    shooter.setShooterConfig(Shooter.shooterNearTop).schedule();
                     follower.followPath(movetoball1, true);
                     setPathState(3);
                 }
@@ -152,12 +143,6 @@ public class TopAutoBase extends XKCommandOpmode {
             case 3:
                 if (!follower.isBusy()) {
                     follower.followPath(grabball1, true);
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                if (!follower.isBusy()) {
-                    follower.followPath(movetoGate, true);
                     setPathState(5);
                 }
                 break;
@@ -168,7 +153,7 @@ public class TopAutoBase extends XKCommandOpmode {
                 }
                 break;
             case 6:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds()>3) {
                     follower.followPath(movetoshoot1, true);
                     setPathState(7);
                 }
@@ -205,29 +190,16 @@ public class TopAutoBase extends XKCommandOpmode {
                 }
                 break;
             case 12:
-                if(!follower.isBusy() && !autoPan.isPanBusy()&&pathTimer.getElapsedTimeSeconds()>1.5){
+                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>4){
                     gate.close().schedule();
-                    follower.followPath(gatecontrol,true);
+                    follower.followPath(repeatOpenGate);
                     setPathState(13);
                 }
-                break;
             case 13:
-                if(pathTimer.getElapsedTimeSeconds()>5){
-                    setPathState(14);
+                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>4){
+                    follower.followPath(pathChainSupplier.get());
+                    setPathState(-1);
                 }
-                break;
-            case 14:
-                if(!follower.isBusy() && !autoPan.isPanBusy()){
-                    follower.followPath(repeatShoot,true);
-                    setPathState(15);
-                }
-                break;
-            case 15:
-                if(!follower.isBusy() && !autoPan.isPanBusy()&& pathTimer.getElapsedTimeSeconds()>1.5){
-                    gate.open().schedule();
-                    setPathState(12);
-                }
-                break;
         }
     }
 
