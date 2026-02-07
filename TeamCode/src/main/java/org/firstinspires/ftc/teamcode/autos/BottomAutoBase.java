@@ -56,6 +56,7 @@ public class BottomAutoBase extends XKCommandOpmode {
     private int pathState;
     private boolean shooterAccelerating = true;
     private boolean leaveLine = false;
+    private boolean firstThree = true;
 
 
     private Path grabCorner, cornerReturnToStart, grabThirdRow, thirdRowReturnToStart;
@@ -97,7 +98,7 @@ public class BottomAutoBase extends XKCommandOpmode {
         switch (pathState) {
             case 0:
                 if (shooterAccelerating) {
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.3) {
                         shooterAccelerating = false;
                         setPathState(1);
                     }
@@ -114,25 +115,36 @@ public class BottomAutoBase extends XKCommandOpmode {
                 }
                 break;
             case 1:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     gate.open().schedule();
                     setPathState(2);
                 }
+                break;
             case 2:
-                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     gate.close().schedule();
                     follower.followPath(grabCorner, true);
                     setPathState(3);
                 }
                 break;
             case 3:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
-                    follower.followPath(cornerReturnToStart, true);
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 2.5) {
                     setPathState(4);
                 }
                 break;
-
             case 4:
+                if (firstThree) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        firstThree = false;
+                        follower.followPath(cornerReturnToStart, true);
+                        setPathState(5);
+                    }
+                } else {
+                    follower.followPath(cornerReturnToStart, true);
+                    setPathState(5);
+                }
+                break;
+            case 5:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.4) {
                     intake.stopIntake().schedule();
                 } else {
@@ -140,22 +152,22 @@ public class BottomAutoBase extends XKCommandOpmode {
                 }
 
                 if (!follower.isBusy()) {
-                    setPathState(5);
-                }
-                break;
-            case 5:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    gate.open().schedule();
                     setPathState(6);
                 }
+                break;
             case 6:
-                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
-                    gate.close().schedule();
-                    follower.followPath(grabThirdRow, true);
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                    gate.open().schedule();
                     setPathState(7);
                 }
-                break;
             case 7:
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    gate.close().schedule();
+                    follower.followPath(grabThirdRow, true);
+                    setPathState(8);
+                }
+                break;
+            case 8:
                 if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
                     follower.followPath(thirdRowReturnToStart, true);
                     setPathState(0);
