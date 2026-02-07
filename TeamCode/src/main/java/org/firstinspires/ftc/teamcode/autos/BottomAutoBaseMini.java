@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -22,25 +21,21 @@ import org.firstinspires.ftc.teamcode.utils.XKCommandOpmode;
 
 import java.util.function.Supplier;
 
-public class BottomAutoBase extends XKCommandOpmode {
+public class BottomAutoBaseMini extends XKCommandOpmode {
     protected final double autoPanTargetX;
     protected final double autoPanTargetY;
     protected final double startDeg;
 
     protected final Pose startPose;
     protected final Pose cornerPose;
-    protected final Pose thirdRowPose;
-    protected final Pose thirdRowCtrl;
     protected final Pose endPose;
 
-    public BottomAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose thirdRowPose, Pose thirdRowCtrl, Pose endPose) {
+    public BottomAutoBaseMini(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
         this.startDeg = startDeg;
         this.startPose = startPose;
         this.cornerPose = cornerPose;
-        this.thirdRowPose = thirdRowPose;
-        this.thirdRowCtrl = thirdRowCtrl;
         this.endPose = endPose;
     }
 
@@ -58,7 +53,7 @@ public class BottomAutoBase extends XKCommandOpmode {
     private boolean leaveLine = false;
 
 
-    private Path grabCorner, cornerReturnToStart, grabThirdRow, thirdRowReturnToStart;
+    private Path grabCorner, cornerReturnToStart;
     private Supplier<PathChain> pathChainSupplier;
 
     public void buildPaths() {
@@ -67,13 +62,6 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         cornerReturnToStart = new Path(new BezierLine(cornerPose, startPose));
         cornerReturnToStart.setLinearHeadingInterpolation(cornerPose.getHeading(), startPose.getHeading());
-
-        grabThirdRow = new Path(new BezierCurve(startPose, thirdRowCtrl, thirdRowPose));
-        grabThirdRow.setLinearHeadingInterpolation(startPose.getHeading(), thirdRowPose.getHeading());
-
-        thirdRowReturnToStart = new Path(new BezierLine(thirdRowPose, startPose));
-        thirdRowReturnToStart.setLinearHeadingInterpolation(thirdRowPose.getHeading(), startPose.getHeading());
-        thirdRowReturnToStart.setBrakingStrength(0.7);
 
         pathChainSupplier = () -> follower.pathBuilder()
                 .addPath(new Path(new BezierLine(follower::getPose, endPose)))
@@ -128,36 +116,6 @@ public class BottomAutoBase extends XKCommandOpmode {
             case 3:
                 if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
                     follower.followPath(cornerReturnToStart, true);
-                    setPathState(4);
-                }
-                break;
-
-            case 4:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.4) {
-                    intake.stopIntake().schedule();
-                } else {
-                    intake.startIntake().schedule();
-                }
-
-                if (!follower.isBusy()) {
-                    setPathState(5);
-                }
-                break;
-            case 5:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    gate.open().schedule();
-                    setPathState(6);
-                }
-            case 6:
-                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
-                    gate.close().schedule();
-                    follower.followPath(grabThirdRow, true);
-                    setPathState(7);
-                }
-                break;
-            case 7:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
-                    follower.followPath(thirdRowReturnToStart, true);
                     setPathState(0);
                 }
                 break;
