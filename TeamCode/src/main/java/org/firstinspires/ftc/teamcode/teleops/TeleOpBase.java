@@ -29,11 +29,12 @@ public class TeleOpBase extends XKCommandOpmode {
     protected final Pose2D hpZonePose;
 
 
-    public TeleOpBase(double targetX, double targetY, double startDeg, Pose2D hpZonePose) {
+    public TeleOpBase(double targetX, double targetY, double startDeg, Pose2D hpZonePose, double headingOffset) {
         this.targetX = targetX;
         this.targetY = targetY;
         this.startDeg = startDeg;
         this.hpZonePose = hpZonePose;
+        this.headingOffset = headingOffset;
     }
 
     private Hardwares hardwares;
@@ -47,6 +48,7 @@ public class TeleOpBase extends XKCommandOpmode {
     private Drive.DriveCommand driveCommand;
     private MultipleTelemetry multipleTelemetry;
     private double panOffset = 0;
+    private final double headingOffset;
 
     @Override
     public void initialize() {
@@ -80,7 +82,8 @@ public class TeleOpBase extends XKCommandOpmode {
                 () -> pinpointDriverData,
                 1,
                 true,
-                false
+                true,
+                headingOffset
         );
 
         CommandScheduler.getInstance().schedule(driveCommand);

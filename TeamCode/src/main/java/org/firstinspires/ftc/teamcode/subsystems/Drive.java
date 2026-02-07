@@ -134,6 +134,7 @@ public class Drive {
         private final Supplier<PinpointDriverData> odometerDataSupplier;
         public final boolean useEncoders;
         private final boolean fieldCentric;
+        private final double headingOffset;
 
         public double dampedX, dampedY, dampedRotate;
 
@@ -165,6 +166,28 @@ public class Drive {
             this.speedCoefficient = speedCoefficient;
             this.useEncoders = useEncoders;
             this.fieldCentric = fieldCentric;
+            this.headingOffset = 0.0;
+        }
+
+        public DriveCommand(
+                Drive drive,
+                DoubleSupplier xSupplier,
+                DoubleSupplier ySupplier,
+                DoubleSupplier rotateSupplier,
+                Supplier<PinpointDriverData> odometerData,
+                double speedCoefficient,
+                boolean useEncoders,
+                boolean fieldCentric,
+                double headingOffset) {
+            this.drive = drive;
+            this.xSupplier = xSupplier;
+            this.ySupplier = ySupplier;
+            this.rotateSupplier = rotateSupplier;
+            this.odometerDataSupplier = odometerData;
+            this.speedCoefficient = speedCoefficient;
+            this.useEncoders = useEncoders;
+            this.fieldCentric = fieldCentric;
+            this.headingOffset = headingOffset;
         }
 
         @Override
@@ -177,7 +200,7 @@ public class Drive {
             double currentHeading;
             if(fieldCentric)
             {
-                currentHeading = odometerData.getHeadingRadians();
+                currentHeading = odometerData.getHeadingRadians() + Math.toDegrees(headingOffset);
             }else{
                 currentHeading = 0.0;
             }
