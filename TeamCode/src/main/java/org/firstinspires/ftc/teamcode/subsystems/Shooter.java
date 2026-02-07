@@ -27,7 +27,7 @@ public class Shooter {
     // ==========================================
     public static final ShooterConfig shooter40cm = new ShooterConfig(1300, 0);
     public static final ShooterConfig shooterNearTop = new ShooterConfig(1500, 120);
-    public static final ShooterConfig shooterFar = new ShooterConfig(1850, 300);
+    public static final ShooterConfig shooterFar = new ShooterConfig(1850, 290);
 
     // Default PIDF constants (tuned values)
     public static double kP = 0.0003;

@@ -230,5 +230,19 @@ public class TeleOpBase extends XKCommandOpmode {
         ).whenPressed(
                 () -> autoPan.switchMode()
         );
+
+        new ButtonEx(
+                () -> gamepad2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+        ).whenPressed(
+                intake.startOutTake()
+        ).whenReleased(
+                enterRunningMode
+        );
+
+        new ButtonEx(
+                () -> autoPan.getTelemetryStatus().isLimitReached
+        ).whenPressed(
+
+        );
     }
 }
