@@ -80,7 +80,7 @@ public class TeleOpBase extends XKCommandOpmode {
                 () -> gamepad1.getLeftY(),
                 () -> -gamepad1.getRightX(),
                 () -> pinpointDriverData,
-                1,
+                0.8,
                 true,
                 true,
                 headingOffset

@@ -28,14 +28,16 @@ public class BottomAutoBaseMini extends XKCommandOpmode {
 
     protected final Pose startPose;
     protected final Pose cornerPose;
+    protected final Pose cornerUpper;
     protected final Pose endPose;
 
-    public BottomAutoBaseMini(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose endPose) {
+    public BottomAutoBaseMini(double autoPanTargetX, double autoPanTargetY, double startDeg, Pose startPose, Pose cornerPose, Pose cornerUpper, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
         this.startDeg = startDeg;
         this.startPose = startPose;
         this.cornerPose = cornerPose;
+        this.cornerUpper = cornerUpper;
         this.endPose = endPose;
     }
 
@@ -51,9 +53,10 @@ public class BottomAutoBaseMini extends XKCommandOpmode {
     private int pathState;
     private boolean shooterAccelerating = true;
     private boolean leaveLine = false;
+    private boolean firstThree = true;
 
 
-    private Path grabCorner, cornerReturnToStart;
+    private Path grabCorner, cornerReturnToStart, grabCornerUpper, cornerUpperReturnToStart;
     private Supplier<PathChain> pathChainSupplier;
 
     public void buildPaths() {
@@ -63,10 +66,15 @@ public class BottomAutoBaseMini extends XKCommandOpmode {
         cornerReturnToStart = new Path(new BezierLine(cornerPose, startPose));
         cornerReturnToStart.setLinearHeadingInterpolation(cornerPose.getHeading(), startPose.getHeading());
 
+        grabCornerUpper = new Path(new BezierLine(startPose, cornerUpper));
+        grabCornerUpper.setLinearHeadingInterpolation(startPose.getHeading(), cornerUpper.getHeading());
+
+        cornerUpperReturnToStart = new Path(new BezierLine(cornerUpper, startPose));
+        cornerUpperReturnToStart.setLinearHeadingInterpolation(cornerUpper.getHeading(), startPose.getHeading());
+
         pathChainSupplier = () -> follower.pathBuilder()
                 .addPath(new Path(new BezierLine(follower::getPose, endPose)))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, endPose.getHeading(), 0.8))
-                .setBrakingStrength(0.95)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, endPose.getHeading(), 1))
                 .build();
     }
 
@@ -85,7 +93,7 @@ public class BottomAutoBaseMini extends XKCommandOpmode {
         switch (pathState) {
             case 0:
                 if (shooterAccelerating) {
-                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.3) {
                         shooterAccelerating = false;
                         setPathState(1);
                     }
@@ -102,21 +110,61 @@ public class BottomAutoBaseMini extends XKCommandOpmode {
                 }
                 break;
             case 1:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     gate.open().schedule();
                     setPathState(2);
                 }
                 break;
             case 2:
-                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     gate.close().schedule();
                     follower.followPath(grabCorner, true);
                     setPathState(3);
                 }
                 break;
             case 3:
-                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    setPathState(4);
+                }
+                break;
+            case 4:
+                if (firstThree) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        firstThree = false;
+                        follower.followPath(cornerReturnToStart, true);
+                        setPathState(5);
+                    }
+                } else {
                     follower.followPath(cornerReturnToStart, true);
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2 && pathTimer.getElapsedTimeSeconds() < 0.4) {
+                    intake.stopIntake().schedule();
+                } else {
+                    intake.startIntake().schedule();
+                }
+
+                if (!follower.isBusy()) {
+                    setPathState(6);
+                }
+                break;
+            case 6:
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                    gate.open().schedule();
+                    setPathState(7);
+                }
+            case 7:
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    gate.close().schedule();
+                    follower.followPath(grabCornerUpper, true);
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3) {
+                    follower.followPath(cornerUpperReturnToStart, true);
                     setPathState(0);
                 }
                 break;

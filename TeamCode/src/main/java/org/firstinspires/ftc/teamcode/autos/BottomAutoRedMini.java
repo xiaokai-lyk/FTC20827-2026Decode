@@ -9,7 +9,8 @@ public class BottomAutoRedMini extends BottomAutoBaseMini{
         super(
                 310,-120, -90,
                 new Pose(85, 10, 0),
-                new Pose(133, 10, 0),
+                new Pose(130, 10, 0),
+                new Pose(130, 20, 0),
                 new Pose(102.6, 32, 0)
         );
     }

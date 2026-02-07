@@ -10,6 +10,7 @@ public class BottomAutoBlueMini extends BottomAutoBaseMini {
                 310, 120, 90,
                 new Pose(59, 10, Math.toRadians(180)),
                 new Pose(15, 10, Math.toRadians(180)),
+                new Pose(15, 20, Math.toRadians(180)),
                 new Pose(40.4, 31.4, Math.toRadians(180))
         );
     }

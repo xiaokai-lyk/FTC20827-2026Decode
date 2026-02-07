@@ -9,6 +9,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 @TeleOp(name = "TeleOp Red Bottom", group = "TeleOp")
 public class TeleOpRedBottom extends TeleOpBase {
     public TeleOpRedBottom() {
-        super(266.98, -97.83, -90, new Pose2D(DistanceUnit.CM, -57, 230, AngleUnit.DEGREES, -90), 90);
+        super(266.98, -97.83, -90, new Pose2D(DistanceUnit.CM, -57, 230, AngleUnit.DEGREES, 90), -90);
     }
 }

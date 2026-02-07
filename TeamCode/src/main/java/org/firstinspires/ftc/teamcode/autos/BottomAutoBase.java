@@ -74,12 +74,10 @@ public class BottomAutoBase extends XKCommandOpmode {
 
         thirdRowReturnToStart = new Path(new BezierLine(thirdRowPose, startPose));
         thirdRowReturnToStart.setLinearHeadingInterpolation(thirdRowPose.getHeading(), startPose.getHeading());
-        thirdRowReturnToStart.setBrakingStrength(0.7);
 
         pathChainSupplier = () -> follower.pathBuilder()
                 .addPath(new Path(new BezierLine(follower::getPose, endPose)))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, endPose.getHeading(), 0.8))
-                .setBrakingStrength(0.95)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, endPose.getHeading(), 1))
                 .build();
     }
 
