@@ -193,7 +193,11 @@ public class AutoPan {
      * 在主循环中调用此方法以更新云台状态
      * @param pinpointDriverData 最新的里程计数据
      */
-    public void run(PinpointDriverData pinpointDriverData) {
+    public void run(PinpointDriverData pinpointDriverData){
+        run(pinpointDriverData, 0);
+    }
+
+    public void run(PinpointDriverData pinpointDriverData, double offsetDegree) {
         if (pinpointDriverData == null) return;
 
         double targetAngleRaw;
@@ -224,7 +228,7 @@ public class AutoPan {
             // 物理上如果不允许穿越 (墙)，我们希望停留在边界，而不是绕远路 (350度)。
 
             // 1. 当前真实角度（编码器）
-            double currentDeg = panMotor.getCurrentPosition() / PAN_TICKS_PER_DEGREE;
+            double currentDeg = panMotor.getCurrentPosition() / PAN_TICKS_PER_DEGREE ;
             // 2. 最短几何角度增量（可能跨 ±180）
             double delta = normalizeAngle(relativeAngle - currentDeg);
             // 3. 理想下一角度（不考虑物理墙）
@@ -286,7 +290,7 @@ public class AutoPan {
         // -----------------------------
         // C. 硬件执行与优化
         // -----------------------------
-        int targetTicks = (int) Math.round(currentFilteredAngle * PAN_TICKS_PER_DEGREE);
+        int targetTicks = (int) Math.round((currentFilteredAngle + offsetDegree) * PAN_TICKS_PER_DEGREE);
 
         // 7. 优化：仅在目标值发生变化时发送指令，节省 CAN 带宽
         if (targetTicks != lastTargetTicks) {

@@ -46,6 +46,7 @@ public class TeleOpBase extends XKCommandOpmode {
     private GamepadEx gamepad1, gamepad2;
     private Drive.DriveCommand driveCommand;
     private MultipleTelemetry multipleTelemetry;
+    private double panOffset = 0;
 
     @Override
     public void initialize() {
@@ -96,7 +97,7 @@ public class TeleOpBase extends XKCommandOpmode {
         CommandScheduler.getInstance().run();
 
         this.pinpointDriverData.update();
-        autoPan.run(this.pinpointDriverData);
+        autoPan.run(this.pinpointDriverData, panOffset);
         shooter.run();
 
         this.multipleTelemetry.addData("Heading (Rad)", pinpointDriverData.getHeadingRadians());
@@ -226,6 +227,12 @@ public class TeleOpBase extends XKCommandOpmode {
         );
 
         new ButtonEx(
+                ()->gamepad2.getButton(GamepadKeys.Button.X)
+        ).whenPressed(
+                shooter.setShooterConfig(Shooter.shooterUltraFar)
+        );
+
+        new ButtonEx(
                 () -> gamepad1.getButton(GamepadKeys.Button.DPAD_UP)
         ).whenPressed(
                 () -> autoPan.switchMode()
@@ -240,9 +247,15 @@ public class TeleOpBase extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                () -> autoPan.getTelemetryStatus().isLimitReached
+                () -> gamepad2.getButton(GamepadKeys.Button.DPAD_LEFT)
         ).whenPressed(
+                () -> panOffset += 1
+        );
 
+        new ButtonEx(
+                () -> gamepad2.getButton(GamepadKeys.Button.DPAD_RIGHT)
+        ).whenPressed(
+                () -> panOffset -= 1
         );
     }
 }

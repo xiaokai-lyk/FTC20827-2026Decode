@@ -27,31 +27,29 @@ public class TopAutoBase extends XKCommandOpmode {
     protected final double autoPanTargetY;
     protected final double startDeg;
     protected final Pose startPose;
-    protected final Pose shootPose1;
-    protected final Pose shootPose2;
+    protected final Pose shootPoseClose;
     protected final Pose intake1Pose;
-    protected final Pose intake2Pose;
-    protected final Pose endPose;
     protected final Pose intake1PoseFin;
+    protected final Pose intake2Pose;
     protected final Pose intake2PoseFin;
-    protected final Pose opengatePos;
+    protected final Pose openGatePos;
     protected final Pose openGateControl;
+    protected final Pose endPose;
 
 
     public TopAutoBase(double autoPanTargetX, double autoPanTargetY, double startDeg,
-                       Pose startPose, Pose intake1Pose,Pose intake1PoseFin, Pose intake2Pose, Pose intake2PoseFin,
-                       Pose shootPose1,Pose shootPose2, Pose opengatePos, Pose openGateControl, Pose endPose) {
+                       Pose startPose, Pose shootPoseClose, Pose intake1Pose, Pose intake1PoseFin, Pose intake2Pose, Pose intake2PoseFin,
+                       Pose openGatePos, Pose openGateControl, Pose endPose) {
         this.autoPanTargetX = autoPanTargetX;
         this.autoPanTargetY = autoPanTargetY;
         this.startDeg=startDeg;
         this.startPose=startPose;
-        this.shootPose1 =shootPose1;
-        this.shootPose2= shootPose2;
+        this.shootPoseClose = shootPoseClose;
         this.intake1Pose=intake1Pose;
         this.intake2Pose=intake2Pose;
         this.intake1PoseFin=intake1PoseFin;
         this.intake2PoseFin=intake2PoseFin;
-        this.opengatePos=opengatePos;
+        this.openGatePos = openGatePos;
         this.endPose=endPose;
         this.openGateControl=openGateControl;
     }
@@ -69,39 +67,35 @@ public class TopAutoBase extends XKCommandOpmode {
     private boolean leaveLine = false;
 
 
-    private Path shootfirstballs, movetoball1, grabball1, movetoshoot1, openGate, movetoball2, grabball2, movetoshoot2, repeatOpenGate;
-    private Supplier<PathChain> pathChainSupplier;
+    private Path shootLoaded, moveToRow1, grabRow1, openGate, moveToRow2, grabRow2, repeatOpenGate;
+    private Supplier<PathChain> pathChainSupplier, moveToClose;
 
     public void buildPaths() {
-        shootfirstballs = new Path(new BezierLine(startPose, shootPose1));
-        shootfirstballs.setLinearHeadingInterpolation(startPose.getHeading(), shootPose1.getHeading());
+        shootLoaded = new Path(new BezierLine(startPose, shootPoseClose));
+        shootLoaded.setLinearHeadingInterpolation(startPose.getHeading(), shootPoseClose.getHeading());
 
-        movetoball1 = new Path(new BezierLine(shootPose1, intake1Pose));
-        movetoball1.setLinearHeadingInterpolation(shootPose1.getHeading(), intake1Pose.getHeading());
+        moveToRow1 = new Path(new BezierLine(shootPoseClose, intake1Pose));
+        moveToRow1.setLinearHeadingInterpolation(shootPoseClose.getHeading(), intake1Pose.getHeading());
 
-        grabball1 = new Path(new BezierLine(intake1Pose,intake1PoseFin));
-        grabball1.setLinearHeadingInterpolation(intake1Pose.getHeading(), intake1PoseFin.getHeading());
-//
-//        movetoGate = new Path(new BezierLine(intake1PoseFin,opengatePrep));
-//        movetoGate.setLinearHeadingInterpolation(intake1PoseFin.getHeading(),opengatePrep.getHeading());
+        grabRow1 = new Path(new BezierLine(intake1Pose,intake1PoseFin));
+        grabRow1.setLinearHeadingInterpolation(intake1Pose.getHeading(), intake1PoseFin.getHeading());
 
-        openGate = new Path(new BezierCurve(intake1PoseFin,openGateControl,opengatePos));
-        openGate.setLinearHeadingInterpolation(intake1PoseFin.getHeading(),opengatePos.getHeading());
+        openGate = new Path(new BezierCurve(intake1PoseFin,openGateControl, openGatePos));
+        openGate.setLinearHeadingInterpolation(intake1PoseFin.getHeading(), openGatePos.getHeading());
 
-        movetoshoot1 = new Path(new BezierLine(opengatePos, shootPose2));
-        movetoshoot1.setLinearHeadingInterpolation(opengatePos.getHeading(), shootPose2.getHeading());
+        moveToClose = () -> follower.pathBuilder()
+                .addPath(new Path(new BezierLine(follower::getPose, shootPoseClose)))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, shootPoseClose.getHeading(), 0.8))
+                .build();
 
-        movetoball2 = new Path(new BezierLine(shootPose2,intake2Pose));
-        movetoball2.setLinearHeadingInterpolation(shootPose2.getHeading(),intake2Pose.getHeading());
+        moveToRow2 = new Path(new BezierLine(shootPoseClose,intake2Pose));
+        moveToRow2.setLinearHeadingInterpolation(shootPoseClose.getHeading(),intake2Pose.getHeading());
 
-        grabball2 = new Path(new BezierLine(intake2Pose,intake2PoseFin));
-        grabball2.setLinearHeadingInterpolation(intake2Pose.getHeading(),intake2PoseFin.getHeading());
+        grabRow2 = new Path(new BezierLine(intake2Pose,intake2PoseFin));
+        grabRow2.setLinearHeadingInterpolation(intake2Pose.getHeading(),intake2PoseFin.getHeading());
 
-        movetoshoot2 = new Path(new BezierLine(intake2PoseFin, shootPose2));
-        movetoshoot2.setLinearHeadingInterpolation(intake2PoseFin.getHeading(), shootPose2.getHeading());
-
-        repeatOpenGate = new Path(new BezierLine(shootPose2,opengatePos));
-        repeatOpenGate.setLinearHeadingInterpolation(shootPose2.getHeading(),opengatePos.getHeading());
+        repeatOpenGate = new Path(new BezierLine(shootPoseClose, openGatePos));
+        repeatOpenGate.setLinearHeadingInterpolation(shootPoseClose.getHeading(), openGatePos.getHeading());
 
 
         pathChainSupplier = () -> follower.pathBuilder()
@@ -112,94 +106,97 @@ public class TopAutoBase extends XKCommandOpmode {
 
     public void autoPathUpdate() {
         if (opmodeTimer.getElapsedTimeSeconds() > 28 && !leaveLine) {
+            intake.stopIntake().schedule();
             gate.close().schedule();
-            follower.followPath(pathChainSupplier.get());
+            shooter.stopShooter().schedule();
+
             leaveLine = true;
-            setPathState(-1);
+            setPathState(-2);
         }
 
         switch (pathState) {
             case 0:
-                gate.close().schedule();
-                if (!follower.isBusy()) {
-                    follower.followPath(shootfirstballs, true);
-                    setPathState(1);
-                }
+                follower.followPath(shootLoaded, true);
+                setPathState(1);
+
                 break;
             case 1:
-                if (!follower.isBusy() && !autoPan.isPanBusy() && pathTimer.getElapsedTimeSeconds() > 2) {
-                    gate.open().schedule();
+                if (!follower.isBusy()) {
                     setPathState(2);
                 }
                 break;
             case 2:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.5){
-                    gate.close().schedule();
-                    shooter.setShooterConfig(Shooter.shooterNearTop).schedule();
-                    follower.followPath(movetoball1, true);
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    gate.open().schedule();
                     setPathState(3);
                 }
                 break;
             case 3:
+                if (pathTimer.getElapsedTimeSeconds() > 1.2){
+                    gate.close().schedule();
+                    follower.followPath(moveToRow1, true);
+                    setPathState(4);
+                }
+                break;
+            case 4:
                 if (!follower.isBusy()) {
-                    follower.followPath(grabball1, true);
+                    follower.followPath(grabRow1, true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
-                    follower.followPath(openGate, true);
+                    follower.followPath(moveToClose.get(), true);
                     setPathState(6);
                 }
                 break;
             case 6:
-                if (!follower.isBusy()&& pathTimer.getElapsedTimeSeconds()>3) {
-                    follower.followPath(movetoshoot1, true);
+                if (!follower.isBusy()) {
                     setPathState(7);
                 }
                 break;
             case 7:
-                if (!follower.isBusy() && !autoPan.isPanBusy()){
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     gate.open().schedule();
                     setPathState(8);
                 }
                 break;
             case 8:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >2) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.2){
                     gate.close().schedule();
-                    follower.followPath(movetoball2, true);
+                    follower.followPath(moveToRow2, true);
                     setPathState(9);
                 }
                 break;
             case 9:
                 if (!follower.isBusy()) {
-                    follower.followPath(grabball2, true);
+                    follower.followPath(grabRow2, true);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (!follower.isBusy()) {
-                    follower.followPath(movetoshoot2, true);
+                    follower.followPath(moveToClose.get(), true);
                     setPathState(11);
                 }
                 break;
             case 11:
-                if(!follower.isBusy() && !autoPan.isPanBusy()){
-                    gate.open().schedule();
+                if (!follower.isBusy()) {
                     setPathState(12);
                 }
                 break;
             case 12:
-                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>4){
-                    gate.close().schedule();
-                    follower.followPath(repeatOpenGate);
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    gate.open().schedule();
                     setPathState(13);
                 }
+                break;
             case 13:
-                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>4){
-                    follower.followPath(pathChainSupplier.get());
+                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
+                    follower.followPath(pathChainSupplier.get(), true);
                     setPathState(-1);
                 }
+                break;
         }
     }
 
@@ -238,7 +235,6 @@ public class TopAutoBase extends XKCommandOpmode {
 
     @Override
     public void onStart() {
-        gate.close().schedule();
         shooter.setShooterConfig(Shooter.shooter40cm).schedule();
         autoPan.setup();
         autoPan.setMode(AutoPan.Mode.HOLD);
@@ -246,8 +242,6 @@ public class TopAutoBase extends XKCommandOpmode {
 
         opmodeTimer.resetTimer();
         setPathState(0);
-
-
     }
 
     @Override

@@ -10,7 +10,6 @@ public class TopAutoBlue extends TopAutoBase {
             30, 75,0,
             new Pose(30, 130.5, Math.toRadians(90)), // start pos
             new Pose(47, 84.3, Math.toRadians(180)),
-            new Pose(22, 84.3, Math.toRadians(180)),
             new Pose(47, 59, Math.toRadians(180)),
             new Pose(18, 59, Math.toRadians(180)),
             new Pose(43, 99, Math.toRadians(130)),  // shooting pos1
