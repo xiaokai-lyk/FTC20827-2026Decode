@@ -82,7 +82,7 @@ public class TeleOpBase extends XKCommandOpmode {
                 () -> pinpointDriverData,
                 0.8,
                 true,
-                true,
+                false,
                 headingOffset
         );
 
@@ -183,7 +183,7 @@ public class TeleOpBase extends XKCommandOpmode {
                 intake.stopIntake()
         );
         new ButtonEx(
-                () -> gamepad2.getButton(GamepadKeys.Button.LEFT_BUMPER)
+                () -> gamepad1.getButton(GamepadKeys.Button.LEFT_BUMPER)
         ).whenPressed(
                 gate.close(),
                 intake.startIntake()
@@ -197,7 +197,7 @@ public class TeleOpBase extends XKCommandOpmode {
         ).whenReleased(enterRunningMode);
 
         new ButtonEx(
-                ()-> gamepad2.getButton(GamepadKeys.Button.DPAD_DOWN)
+                ()-> gamepad1.getButton(GamepadKeys.Button.DPAD_DOWN)
         ).whenPressed(
                 shooter.shooterIdle()
         );
@@ -212,25 +212,25 @@ public class TeleOpBase extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                ()-> gamepad2.getButton(GamepadKeys.Button.Y)
+                ()-> gamepad1.getButton(GamepadKeys.Button.Y)
         ).whenPressed(
                 shooter.setShooterConfig(Shooter.shooter40cm)
         );
 
         new ButtonEx(
-                ()->gamepad2.getButton(GamepadKeys.Button.A)
+                ()->gamepad1.getButton(GamepadKeys.Button.A)
         ).whenPressed(
                 shooter.setShooterConfig(Shooter.shooterNearTop)
         );
 
         new ButtonEx(
-                ()->gamepad2.getButton(GamepadKeys.Button.B)
+                ()->gamepad1.getButton(GamepadKeys.Button.B)
         ).whenPressed(
                 shooter.setShooterConfig(Shooter.shooterFar)
         );
 
         new ButtonEx(
-                ()->gamepad2.getButton(GamepadKeys.Button.X)
+                ()->gamepad1.getButton(GamepadKeys.Button.X)
         ).whenPressed(
                 shooter.setShooterConfig(Shooter.shooterUltraFar)
         );
@@ -242,7 +242,7 @@ public class TeleOpBase extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                () -> gamepad2.getButton(GamepadKeys.Button.RIGHT_BUMPER)
+                () -> gamepad1.getButton(GamepadKeys.Button.RIGHT_BUMPER)
         ).whenPressed(
                 intake.startOutTake()
         ).whenReleased(
@@ -250,13 +250,13 @@ public class TeleOpBase extends XKCommandOpmode {
         );
 
         new ButtonEx(
-                () -> gamepad2.getButton(GamepadKeys.Button.DPAD_LEFT)
+                () -> gamepad1.getButton(GamepadKeys.Button.DPAD_LEFT)
         ).whenPressed(
                 () -> panOffset += 1
         );
 
         new ButtonEx(
-                () -> gamepad2.getButton(GamepadKeys.Button.DPAD_RIGHT)
+                () -> gamepad1.getButton(GamepadKeys.Button.DPAD_RIGHT)
         ).whenPressed(
                 () -> panOffset -= 1
         );
