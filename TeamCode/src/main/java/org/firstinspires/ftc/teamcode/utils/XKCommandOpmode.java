@@ -26,5 +26,4 @@ public abstract class XKCommandOpmode extends CommandOpMode {
         }
         reset();
     }
-
 }

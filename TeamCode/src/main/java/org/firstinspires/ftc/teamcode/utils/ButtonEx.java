@@ -20,7 +20,7 @@ public class ButtonEx extends Button {
 
     public Button whenPressed(Command ... commands) {
         super.whenPressed(
-            new ParallelCommandGroup(commands)
+                new ParallelCommandGroup(commands)
         );
         return this;
     }

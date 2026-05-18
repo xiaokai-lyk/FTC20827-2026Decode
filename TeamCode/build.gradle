@@ -25,6 +25,5 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
-    compileOnly 'org.projectlombok:lombok:1.18.32'
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    implementation 'org.ftclib.ftclib:core:2.1.1' // core
 }

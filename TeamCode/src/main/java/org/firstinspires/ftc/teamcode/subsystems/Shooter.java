@@ -3,130 +3,215 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardwares;
-import org.jetbrains.annotations.Contract;
+import org.firstinspires.ftc.teamcode.utils.XKPIDFController;
 
-import lombok.Getter;
-
+/**
+ * 发射系统
+ *
+ * 功能：
+ * 1. 控制发射轮速度
+ * 2. 控制俯仰角度
+ * 3. 提供预设的射击配置
+ * 4. 获取发射系统遥测状态
+ */
 public class Shooter {
-    private final DcMotorEx shooterFront, shooterBack, preShooter, intake;
 
-    private double shooterFrontTarget = 0;
-    private double shooterBackTarget = 0;
+    // ==========================================
+    // 常量配置
+    // ==========================================
+    public static final ShooterConfig shooter40cm = new ShooterConfig(1300, 0);
+    public static final ShooterConfig shooterNearTop = new ShooterConfig(1500, 120);
+    public static final ShooterConfig shooterFar = new ShooterConfig(1850, 290);
+    public static final ShooterConfig shooterUltraFar = new ShooterConfig(1925, 290);
 
-    // 自适应 PID: 保存两套已经通过 ZN 整定得到的参数
-    private PIDFCoefficients aggressiveFrontPID = new PIDFCoefficients(7, 68.767, 0.267, 7e-4);
-    private PIDFCoefficients conservativeFrontPID = new PIDFCoefficients(3.3, 25.935, 0.277, 0.000);
-    private PIDFCoefficients aggressiveBackPID = new PIDFCoefficients(7, 27.023, 0.705, 7e-4);
-    private PIDFCoefficients conservativeBackPID = new PIDFCoefficients(3.3, 10.192, 0.680, 0.000);
+    // Default PIDF constants (tuned values)
+    public static double kP = 0.0003;
+    public static double kI = 0.0001;
+    public static double kD = 0.0;
+    public static double kF = 0.00037;
 
-    // 误差阈值（ticks/s），可根据测试调节：大误差 -> 激进；小误差 -> 保守；中间 -> 插值
-    private int highErrorThreshold = 350; // 离目标较远
-    private int lowErrorThreshold = 50;  // 接近目标
+    // Bang-Bang params
+    public static boolean ENABLE_BANG_BANG = true;
+    public static double BANG_BAND_ABS = 30.0;
+    public static double ASSIST_POWER = 1.0;
 
-    // 防止频繁写入：记录上次实际应用的 PID
-    private PIDFCoefficients currentFrontApplied = null;
-    private PIDFCoefficients currentBackApplied = null;
+    // ==========================================
+    // 成员变量
+    // ==========================================
+    private final DcMotorEx shooterLeft, shooterRight;
+    private final ServoEx pitch;
+    private final XKPIDFController controller;
+    private boolean isClosedLoop = false;
+    private XKPIDFController.Output controllerOutput;
 
+    public static class ShooterConfig {
+        public double shooterVelocity, pitchAngle;
 
-    public Shooter(@NonNull Hardwares hardwares) {
-        this.shooterFront = hardwares.motors.shooterFront;
-        this.shooterBack = hardwares.motors.shooterBack;
-        this.preShooter = hardwares.motors.preShooter;
-        this.intake = hardwares.motors.intake;
+        /**
+         * 构造发射配置
+         * @param shooterVelocity 发射轮速度
+         * @param pitchAngle 俯仰角度
+         */
+        public ShooterConfig(double shooterVelocity, double pitchAngle) {
+            this.shooterVelocity = shooterVelocity;
+            this.pitchAngle = pitchAngle;
+        }
     }
 
-    @NonNull
-    @Contract("_ -> new")
-    public InstantCommand setShooter(Constants.ShooterConfig config) {
-        return new InstantCommand(() -> {
-            shooterFront.setVelocity(config.frontVelocity);
-            shooterBack.setVelocity(config.backVelocity);
-            shooterFrontTarget = config.frontVelocity;
-            shooterBackTarget = config.backVelocity;
+    /**
+     * 构造发射系统实例
+     * @param hardwares 硬件映射
+     */
+    public Shooter(@NonNull Hardwares hardwares) {
+        this.shooterLeft = hardwares.motors.shooterLeft;
+        this.shooterRight = hardwares.motors.shooterRight;
+        this.pitch = hardwares.servos.pitch;
+        this.controller = new XKPIDFController(hardwares.sensors.voltageSensor);
+        this.init();
+    }
 
+    private void init() {
+        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
+        shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        controller.setPIDF(kP, kI, kD, kF)
+                .setBangBang(ENABLE_BANG_BANG, BANG_BAND_ABS, ASSIST_POWER);
+    }
+
+
+    public void run() {
+        if (isClosedLoop) {
+            double velLeft = shooterLeft.getVelocity();
+            double velRight = shooterRight.getVelocity();
+            double avgVel;
+            if (Math.max(velLeft, velRight) - Math.min(velLeft, velRight) > 200){
+                avgVel = Math.max(velLeft, velRight);
+            }else{
+                avgVel = (velLeft + velRight) / 2.0;
+            }
+            this.controllerOutput = controller.update(avgVel);
+            shooterLeft.setPower(this.controllerOutput.power);
+            shooterRight.setPower(this.controllerOutput.power);
+        }
+    }
+
+    /**
+     * 获取设置发射轮速度和俯仰角度的命令
+     * @param config 发射配置
+     * @return 设置发射轮速度和俯仰角度的InstantCommand
+     */
+    public InstantCommand setShooterConfig(ShooterConfig config) {
+        return new InstantCommand(
+                () -> {
+                    isClosedLoop = true;
+                    controller.setTargetVelocity(config.shooterVelocity);
+                    pitch.turnToAngle(config.pitchAngle);
+                }
+        );
+    }
+
+
+    /**
+     * 获取发射轮怠速的命令
+     * @return 发射轮怠速的InstantCommand
+     */
+    public InstantCommand shooterIdle() {
+        return new InstantCommand(()->{
+            isClosedLoop = false;
+            shooterLeft.setPower(0.3);
+            shooterRight.setPower(0.3);
+        });
+    }
+    /**
+    * 获取发射轮停止的命令
+    * @return 发射轮停止的InstantCommand
+    */
+    public InstantCommand stopShooter() {
+        return new InstantCommand(
+                () -> {
+                    isClosedLoop = false;
+                    controller.reset();
+                    shooterLeft.setPower(0);
+                    shooterRight.setPower(0);
+                }
+        );
+    }
+
+    /**
+     * 获取设置俯仰角度的命令
+     * @param angle 俯仰角度
+     * @return 设置俯仰角度的InstantCommand
+     */
+    public InstantCommand setPitch(double angle) {
+        return new InstantCommand(() -> pitch.turnToAngle(angle));
+    }
+
+    /**
+     * 获取设置发射轮PIDF参数的命令
+     * @param p P参数
+     * @param i I参数
+     * @param d D参数
+     * @param f F参数
+     * @return 设置发射轮PIDF参数的InstantCommand
+     */
+    public InstantCommand setShooterPIDF(double p, double i, double d, double f) {
+        return new InstantCommand(()-> {
+            controller.setPIDF(p, i, d, f);
         });
     }
 
-    public InstantCommand allowBallPass(){
-        return new InstantCommand(
-                ()->preShooter.setPower(Constants.preShooterRun)
-        );
-    }
+    public static class TelemetryState {
+        public final double leftVelocity;
+        public final double rightVelocity;
+        public final double pitchAngle;
+        public final double leftCurrent;
+        public final double rightCurrent;
+        public final String controllerOutput;
 
-    public InstantCommand blockBallPass(){
-        return new InstantCommand(
-                ()->preShooter.setPower(Constants.preShooterBlock)
-        );
-    }
-
-    public InstantCommand stopPreShooter(){
-        return new InstantCommand(
-            ()->preShooter.setPower(0)
-        );
-    }
-
-    public void updateMotorPIDF(Constants.ShooterConfig targetVelocity){
-        shooterFrontTarget = targetVelocity.frontVelocity; // 若外部调用动态改变目标
-        shooterBackTarget = targetVelocity.backVelocity;
-
-        // 获取当前速度
-        double frontVel = shooterFront.getVelocity();
-        double backVel = shooterBack.getVelocity();
-
-        double frontError = shooterFrontTarget - frontVel;
-        double backError = shooterBackTarget - backVel;
-
-        // 绝对误差用于判定区间
-        double frontAbs = Math.abs(frontError);
-        double backAbs = Math.abs(backError);
-
-        PIDFCoefficients newFrontCoeffs = selectOrBlend(frontAbs, aggressiveFrontPID, conservativeFrontPID);
-        PIDFCoefficients newBackCoeffs = selectOrBlend(backAbs, aggressiveBackPID, conservativeBackPID);
-
-        // 若与当前已应用不同，则更新电机 PIDF
-        if (!pidEquals(currentFrontApplied, newFrontCoeffs)) {
-            shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, newFrontCoeffs);
-            currentFrontApplied = newFrontCoeffs;
+        public TelemetryState(double leftVelocity,
+                              double rightVelocity,
+                              double pitchAngle,
+                              double leftCurrent,
+                              double rightCurrent,
+                              String controllerOutput) {
+            this.leftVelocity = leftVelocity;
+            this.rightVelocity = rightVelocity;
+            this.pitchAngle = pitchAngle;
+            this.leftCurrent = leftCurrent;
+            this.rightCurrent = rightCurrent;
+            this.controllerOutput = controllerOutput;
         }
-        if (!pidEquals(currentBackApplied, newBackCoeffs)) {
-            shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, newBackCoeffs);
-            currentBackApplied = newBackCoeffs;
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format(java.util.Locale.US, "Left Velocity: %.1f\nRight Velocity: %.1f\nPitch Angle: %.1f\nLeft Current: %.1f\nRight Current: %.1f\nController Output: %s",
+                    leftVelocity, rightVelocity, pitchAngle, leftCurrent, rightCurrent, controllerOutput);
         }
     }
-
-    private PIDFCoefficients selectOrBlend(double absError, PIDFCoefficients aggressive, PIDFCoefficients conservative){
-        if (absError >= highErrorThreshold) return aggressive;
-        if (absError <= lowErrorThreshold) return conservative;
-        double t = (absError - lowErrorThreshold) / (double)(highErrorThreshold - lowErrorThreshold); // 0~1
-        // 可使用平滑函数提高过渡自然度：t = t*t*(3-2*t); // smoothstep
-        t = t * t * (3 - 2 * t);
-        return blendPID(conservative, aggressive, t);
-    }
-
-    private PIDFCoefficients blendPID(PIDFCoefficients a, PIDFCoefficients b, double t) {
-        double p = lerp(a.p, b.p, t);
-        double i = lerp(a.i, b.i, t);
-        double d = lerp(a.d, b.d, t);
-        double f = lerp(a.f, b.f, t); // 多数情况下 F 不需要插值，可直接用保守或激进之一，这里保留插值灵活性
-        return new PIDFCoefficients(p, i, d, f);
-    }
-
-    private double lerp(double x, double y, double t){ return x + (y - x) * t; }
 
     /**
-     * 比较两个 PIDFCoefficients 是否相等（允许微小浮点差异）。
+     * 获取发射系统的遥测状态
+     * @return 发射系统的遥测状态
      */
-    private boolean pidEquals(PIDFCoefficients a, PIDFCoefficients b){
-        if (a == b) return true;
-        if (a == null || b == null) return false;
-        // 允许微小浮点差异，使用一个很小的 epsilon
-        double eps = 1e-6;
-        return Math.abs(a.p - b.p) < eps && Math.abs(a.i - b.i) < eps && Math.abs(a.d - b.d) < eps && Math.abs(a.f - b.f) < eps;
+    public TelemetryState getTelemetryState() {
+        return new TelemetryState(
+                shooterLeft.getVelocity(),
+                shooterRight.getVelocity(),
+                pitch.getAngle(),
+                shooterLeft.getCurrent(CurrentUnit.MILLIAMPS),
+                shooterRight.getCurrent(CurrentUnit.MILLIAMPS),
+                controllerOutput != null ? controllerOutput.toString() : "N/A"
+        );
     }
-
 }
